@@ -1,7 +1,9 @@
 <template>
   <a-result status="404" title="404" sub-title="你好像迷路了噢">
     <template #extra>
-      <a-button type="primary" @click="handleRouterToHomepage">Back Home</a-button>
+      <a-button type="primary" @click="handleRouterToHomepage"
+        >Back Home</a-button
+      >
     </template>
   </a-result>
 </template>
@@ -14,7 +16,7 @@ import { RoleEnum } from '../../enums/roleEnum'
 import { ROUTER_NAME } from '../../router'
 export default defineComponent({
   name: 'Error404',
-  setup () {
+  setup() {
     const router = useRouter()
     const handleRouterToHomepage = () => {
       router.push(redirectToHomePage())

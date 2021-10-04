@@ -1,64 +1,124 @@
 <template>
   <a-spin :spinning="loadingListComment">
     <!--评论编辑框-->
-    <div :class="style.clearfix">
-      <a-comment>
-        <template #avatar>
-          <a-avatar
-              alt="Han Solo"
-              src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-          />
-        </template>
-        <template #content>
-          <a-form-item>
-            <a-textarea v-model:value="insertComment"
-                        :rows="4"/>
-          </a-form-item>
-          <a-form-item>
-            <a-button :class="style.replyButton"
-                      :loading="queriesInsertLabComment[0]?.loading"
-                      type="primary" @click="handleInsertComment">
-              <form-outlined/>
-              新增评论
-            </a-button>
-          </a-form-item>
-        </template>
-      </a-comment>
-      <!--评论条目-->
-      <template v-if="dataListComment?.records.length===0">
-        <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE"/>
+    <a-comment>
+      <template #avatar>
+        <a-avatar>{{ userInfo.username }}</a-avatar>
       </template>
-      <template v-else>
-        <template v-for="item in dataListComment?.records"
-                  :key="item.commentId">
-          <comment-item :commentInfo="item"/>
-        </template>
+      <template #content>
+        <a-form-item>
+          <a-textarea v-model:value="replyCommentRecord[0]" :rows="4" />
+        </a-form-item>
+        <a-form-item>
+          <a-button
+            :class="style.replyButton"
+            :loading="queriesInsertLabComment[0]?.loading"
+            type="primary"
+            @click="handleReplyComment(0)"
+            :disabled="
+              replyCommentRecord[0] === undefined ||
+              replyCommentRecord[0] === ''
+            "
+          >
+            <form-outlined />新增评论
+          </a-button>
+        </a-form-item>
       </template>
-      <a-pagination v-model:current="currentListComment"
-                    :class="style.pagination"
-                    :pageSize="pageSizeListComment"
-                    :total="totalListComment"
-                    show-less-items/>
-    </div>
+    </a-comment>
+    <!--评论条目-->
+    <template v-if="dataListComment?.records.length === 0">
+      <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" />
+    </template>
+    <template v-else>
+      <template v-for="item in dataListComment?.records" :key="item.commentId">
+        <comment-item :commentInfo="item">
+          <template #actions="{ record }">
+            <span @click="handleChangeOpenCommentArea(record.commentId)">
+              <comment-outlined />
+              {{ openCommentArea[record.commentId] ? '取消回复' : '回复' }}
+            </span>
+            <template v-if="userInfo.userId === record.userDetail.userId">
+              <span
+                :class="style.delBtn"
+                @click="handleDeleteComment(record.commentId)"
+              >
+                <delete-outlined />删除
+              </span>
+            </template>
+            <!--回复框-->
+          </template>
+          <template #replyArea="{ record }">
+            <template v-if="openCommentArea[record.commentId]">
+              <!--<div  style="text-align: left">-->
+              <a-comment>
+                <template #content>
+                  <a-form-item>
+                    <a-textarea
+                      v-model:value="replyCommentRecord[record.commentId]"
+                      :rows="4"
+                    />
+                  </a-form-item>
+                  <a-form-item>
+                    <a-button
+                      :loading="
+                        queriesInsertLabComment[record.commentId]?.loading
+                      "
+                      type="primary"
+                      @click="handleReplyComment(record.commentId)"
+                      :disabled="
+                        replyCommentRecord[record.commentId] === undefined ||
+                        replyCommentRecord[record.commentId] === ''
+                      "
+                    >
+                      <form-outlined />回复
+                    </a-button>
+                  </a-form-item>
+                </template>
+              </a-comment>
+              <!--</div>-->
+            </template>
+          </template>
+        </comment-item>
+      </template>
+      <div :class="style.pagination">
+        <a-pagination
+          v-model:current="currentListComment"
+          :pageSize="pageSizeListComment"
+          :total="totalListComment"
+          show-less-items
+        />
+      </div>
+    </template>
   </a-spin>
 </template>
 
 <script lang="ts" setup>
-import { provide, reactive, Ref, ref, useCssModule, watch } from 'vue'
+import { computed, createVNode, ref, useCssModule, watch } from 'vue'
 import CommentItem from './CommentItem.vue'
 import { usePagination, useRequest } from 'vue-request'
-import { apiDeleteLabComment, apiGetLabComment, apiInsertLabComment } from '../../api/web/comment'
-import { insertLabCommentReq } from '../../api/web/model/commentModel'
-import { Queries } from 'vue-request/dist/types/core/useAsyncQuery'
-import { FormOutlined } from '@ant-design/icons-vue'
-import { Empty, message } from 'ant-design-vue'
-import { AxiosResponse } from 'axios'
-import { Result, saveResp } from '../../api/common'
+import {
+  apiDeleteLabComment,
+  apiGetLabComment,
+  apiInsertLabComment
+} from '../../api/web/comment'
+import {
+  CommentOutlined,
+  DeleteOutlined,
+  FormOutlined,
+  ExclamationCircleOutlined
+} from '@ant-design/icons-vue'
+import { Empty, message, Modal } from 'ant-design-vue'
+import { useStore } from '../../store'
+import { IUserInfo } from '../../store/modules/user/state'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   labId: number
 }>()
+
+const store = useStore()
+
+const userInfo = computed<IUserInfo>(() => store.getters['user/userInfo'])
 
 // 获取评论
 const {
@@ -71,103 +131,95 @@ const {
   total: totalListComment
 } = usePagination(apiGetLabComment, {
   manual: false,
-  defaultParams: [{
-    labId: props.labId
-  }],
+  defaultParams: [
+    {
+      labId: props.labId
+    }
+  ],
   formatResult: (res) => {
     return res.data.result
   }
 })
-// labID变化时重新加载数据
-watch(() => props.labId, () => {
-  runListComment({ labId: props.labId })
-})
 
-// 控制回复区打开
-const isReplyCommentAreaOpenRecord = reactive<Record<number, boolean>>({})
-// 控制修改回复区打开
-const handleOpenReplyArea = (id: number) => {
-  isReplyCommentAreaOpenRecord[id] = !isReplyCommentAreaOpenRecord[id] ?? true
+// labID变化时重新加载数据
+watch(
+  () => props.labId,
+  () => {
+    runListComment({ labId: props.labId })
+  }
+)
+
+const openCommentArea = ref<Record<number, boolean>>({})
+const handleChangeOpenCommentArea = (id: number) => {
+  openCommentArea.value[id] = !openCommentArea.value[id] ?? true
 }
-provide<(id: number) => void>('handleOpenReplyArea', handleOpenReplyArea)
-provide<{ [p: number]: boolean }>('isReplyCommentAreaOpenRecord', isReplyCommentAreaOpenRecord)
 
 // 新增评论
-const {
-  run: runInsertLabComment,
-  queries: queriesInsertLabComment
-} = useRequest(apiInsertLabComment, {
-  queryKey: insertLabCommentReq => String(insertLabCommentReq.pid)
-})
+const { run: runInsertLabComment, queries: queriesInsertLabComment } =
+  useRequest(apiInsertLabComment, {
+    queryKey: (insertLabCommentReq) => String(insertLabCommentReq.pid)
+  })
 
-provide<Queries<AxiosResponse<Result<saveResp>>, [insertLabCommentReq: insertLabCommentReq]>>('queries', queriesInsertLabComment)
-const handleReplyComment = async (pid: number, content: Ref<string>) => {
-  if (content.value === '') {
+const replyCommentRecord = ref<Record<number, string>>({})
+const handleReplyComment = async(pid: number) => {
+  const content = replyCommentRecord.value[pid]
+  if (content === undefined || content === '') {
     message.error('请先输入内容')
     return
   }
   await runInsertLabComment({
     labId: Number(props.labId),
     pid: pid,
-    commentText: content.value
+    commentText: content
   })
 
   if (queriesInsertLabComment[pid]?.error) {
     return
   }
-  content.value = ''
+  // 清空评论框
+  replyCommentRecord.value[pid] = ''
   // 重新获取评论数据
+  openCommentArea.value[pid] = false
   await refreshListComment()
-  isReplyCommentAreaOpenRecord[pid] = false
 }
-provide<(id: number, content: Ref<string>) => void>('handleReplyComment', handleReplyComment)
 
 const {
   run: runDeleteLabComment,
-  loading: loadingDeleteLabComment,
-  error: errorDeleteLabComment
+  error: errorDeleteLabComment,
+  loading: loadingDeleteLabComment
 } = useRequest(apiDeleteLabComment)
-const handleDeleteComment = async (commentId: number) => {
-  await runDeleteLabComment({ commentId })
-  if (errorDeleteLabComment.value) {
-    return
-  }
-  await refreshListComment()
-}
-provide<(commentId: number) => void>('handleDeleteComment', handleDeleteComment)
-
-const insertComment = ref<string>('')
-const handleInsertComment = async () => {
-  if (insertComment.value === '') {
-    message.error('您未输入内容')
-    return
-  }
-  await runInsertLabComment({
-    labId: Number(props.labId),
-    pid: 0,
-    commentText: insertComment.value
+const handleDeleteComment = async(labCommentId: number) => {
+  Modal.confirm({
+    title: '确认删除评论？',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: '删除评论将会删除在该评论下的所有子评论且不可恢复，请谨慎操作！',
+    okText: '确认',
+    okButtonProps: { loading: loadingDeleteLabComment.value, danger: true },
+    onOk: async() => {
+      await runDeleteLabComment({ labCommentId })
+      if (errorDeleteLabComment.value) {
+        return
+      }
+      await refreshListComment()
+    },
+    cancelText: '取消'
   })
-  // 重新获取评论数据
-  if (queriesInsertLabComment[0]?.error) {
-    return
-  }
-  insertComment.value = ''
-  await refreshListComment()
 }
 
 const style = useCssModule()
 </script>
 
 <style lang="scss" module>
-.clearfix {
-  overflow: auto;
+.replyButton {
+  float: left;
 }
 
-.replyButton {
-  float: left
+.delBtn {
+  color: #ff7875 !important;
 }
 
 .pagination {
-  float: right;
+  display: flex;
+  flex-direction: row-reverse;
 }
 </style>

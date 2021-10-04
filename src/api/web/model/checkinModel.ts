@@ -1,10 +1,10 @@
 import { pageParams } from '../../common'
 
-export interface ListCheckinReq extends pageParams {
+export interface listCheckinReq extends pageParams {
   courseId: number
 }
 
-export interface StuListCheckInRecordResp {
+export interface stuListCheckInRecordResp {
   checkinRecordId: number
   checkinName: string
   checkinDetail: {
@@ -14,19 +14,19 @@ export interface StuListCheckInRecordResp {
 }
 
 // 获取正在签到的状态
-export interface GetCheckinStatusReq {
+export interface getCheckinStatusReq {
   courseId: number
 }
 
 // 获取正在签到的状态
-export interface CheckinStatusResp {
+export interface checkinStatusResp {
   checkinName: string
   totalDuration: number
   remainDuration: number
 }
 
 // 学生进行签到
-export interface CheckinReq {
+export interface checkinReq {
   courseId: number
   checkinKey: string
 }
@@ -36,19 +36,19 @@ export interface listCheckinDetailByCheckinRecordIdReq extends pageParams {
   checkinRecordId: number
 }
 
-export interface GetCheckinDetailResp {
-  userId: number,
+export interface getCheckinDetailResp {
+  userId: number
   userDetail?: {
-    userNum: string,
+    userNum: string
     username: string
   }
-  checkinDetail? :{
+  checkinDetail?: {
     checkinDetailId: number
     isCheckin: boolean
   }
 }
 
-export interface GetCheckinRecordReq extends pageParams {
+export interface getCheckinRecordReq extends pageParams {
   courseId: number
 }
 
@@ -58,7 +58,7 @@ export interface updateCheckinDetailReq {
   isCheckin: boolean
 }
 
-export interface ListCheckinRecordResp {
+export interface listCheckinRecordResp {
   checkinRecordId: number
   checkinName: string
   checkinKey: string
@@ -70,13 +70,17 @@ export interface ListCheckinRecordResp {
   }
 }
 
-export interface InsertCheckinRecordReq {
-  checkinName: string,
-  checkinKey: string,
+export interface insertCheckinRecordReq {
+  checkinName: string
+  checkinKey: string
   duration: number
-  courseId:number
+  courseId: number
 }
 
-export interface DeleteCheckinRecordsReq {
+export interface deleteCheckinRecordsReq {
   checkinRecordIds: number[]
+}
+
+export interface exportCsvReq {
+  courseId: number
 }

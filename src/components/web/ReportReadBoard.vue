@@ -1,6 +1,10 @@
 <template>
   <div :class="style.outer">
-    <v-md-editor :model-value="reportContent?.reportContent" height="450px" mode="preview"></v-md-editor>
+    <v-md-editor
+      :model-value="reportContent?.reportContent"
+      height="450px"
+      mode="preview"
+    ></v-md-editor>
   </div>
 </template>
 
@@ -8,19 +12,24 @@
 import { defineComponent, useCssModule } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRequest } from 'vue-request'
-import { apiGetReportContent, apiUpdateReportContent } from '../../api/web/labSubmit'
+import {
+  apiGetReportContent,
+  apiUpdateReportContent
+} from '../../api/web/labSubmit'
 
 export default defineComponent({
   name: 'ReportReadBoard',
-  setup () {
+  setup() {
     const route = useRoute()
     const labId = Number(route.query.labId)
     // 获取之前撰写的实验报告的内容
     const { data: reportContent } = useRequest(apiGetReportContent, {
       manual: false,
-      defaultParams: [{
-        labId
-      }],
+      defaultParams: [
+        {
+          labId
+        }
+      ],
       formatResult: (res) => {
         return res.data.result
       }

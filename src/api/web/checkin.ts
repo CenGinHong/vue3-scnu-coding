@@ -1,68 +1,92 @@
 import {
-  CheckinReq,
-  CheckinStatusResp,
-  DeleteCheckinRecordsReq,
+  checkinReq,
+  checkinStatusResp,
+  deleteCheckinRecordsReq,
+  exportCsvReq,
+  getCheckinDetailResp,
+  getCheckinRecordReq,
+  getCheckinStatusReq,
+  insertCheckinRecordReq,
   listCheckinDetailByCheckinRecordIdReq,
-  GetCheckinDetailResp,
-  GetCheckinRecordReq,
-  ListCheckinRecordResp,
-  GetCheckinStatusReq,
-  InsertCheckinRecordReq,
-  ListCheckinReq,
-  StuListCheckInRecordResp,
+  listCheckinRecordResp,
+  listCheckinReq,
+  stuListCheckInRecordResp,
   updateCheckinDetailReq
 } from './model/checkinModel'
-import { saveResp, pageResp, Result } from '../common'
+import { pageResp, Result, saveResp } from '../common'
 import instance from '../../util/axios/axios'
 
 enum Api {
   checkinStudent = '/web/checkin/student',
   checkinStatus = '/web/checkin/status',
   checkinDetail = '/web/checkin/detail',
-  checkinRecord = '/web/checkin/record'
+  checkinRecord = '/web/checkin/record',
+  export = '/web/checkin/export',
 }
 
 // 学生获取签到记录
-export function ApiStuGetCheckinByCourseId (params: ListCheckinReq) {
-  return instance.get<Result<pageResp<StuListCheckInRecordResp>>>(Api.checkinStudent, { params })
+export function apiStuGetCheckinByCourseId(params: listCheckinReq) {
+  return instance.get<Result<pageResp<stuListCheckInRecordResp>>>(
+    Api.checkinStudent,
+    { params }
+  )
 }
 
 // 获取签到进行时状态
-export function ApiGetCheckinStatus (params: GetCheckinStatusReq) {
-  return instance.get<Result<CheckinStatusResp>>(Api.checkinStatus, { params })
+export function apiGetCheckinStatus(params: getCheckinStatusReq) {
+  return instance.get<Result<checkinStatusResp>>(Api.checkinStatus, { params })
 }
 
 // 进行签到
-export function ApiCheckIn (data: CheckinReq) {
-  return instance.post<Result>(Api.checkinStudent, data)
+export function apiCheckIn(data: checkinReq) {
+  return instance.post<checkinReq, Result>(Api.checkinStudent, data)
 }
 
 // 更新签到记录
-export function apiUpdateCheckinDetailByCheckinDetailId (data: updateCheckinDetailReq) {
-  return instance.put<Result>(Api.checkinDetail, data)
+export function apiUpdateCheckinDetailByCheckinDetailId(
+  data: updateCheckinDetailReq
+) {
+  return instance.put<updateCheckinDetailReq, Result>(Api.checkinDetail, data)
 }
 
 // 获取某记录的签到详情
-export function apiListCheckinDetailByCheckinRecordId (params: listCheckinDetailByCheckinRecordIdReq) {
-  return instance.get<Result<pageResp<GetCheckinDetailResp>>>(Api.checkinDetail, {
-    params
-  })
+export function apiListCheckinDetailByCheckinRecordId(
+  params: listCheckinDetailByCheckinRecordIdReq
+) {
+  return instance.get<Result<pageResp<getCheckinDetailResp>>>(
+    Api.checkinDetail,
+    {
+      params
+    }
+  )
 }
 
 // 获取某课程的签到记录
-export function apiListCheckinRecordByCourseId (params: GetCheckinRecordReq) {
-  return instance.get<Result<pageResp<ListCheckinRecordResp>>>(Api.checkinRecord, {
+export function apiListCheckinRecordByCourseId(params: getCheckinRecordReq) {
+  return instance.get<Result<pageResp<listCheckinRecordResp>>>(
+    Api.checkinRecord,
+    {
+      params
+    }
+  )
+}
+
+// 插入签到
+export function apiInsertCheckinRecord(data: insertCheckinRecordReq) {
+  return instance.post<insertCheckinRecordReq, Result<saveResp>>(
+    Api.checkinRecord,
+    data
+  )
+}
+
+export function apiDeleteCheckinRecords(params: deleteCheckinRecordsReq) {
+  return instance.delete<deleteCheckinRecordsReq, Result>(Api.checkinRecord, {
     params
   })
 }
 
-// 插入签到
-export function ApiInsertCheckinRecord (data: InsertCheckinRecordReq) {
-  return instance.post<Result<saveResp>>(Api.checkinRecord, data)
-}
-
-export function ApiDeleteCheckinRecords (params: DeleteCheckinRecordsReq) {
-  return instance.delete<Result>(Api.checkinRecord, {
+export function apiExportCsv(params: exportCsvReq) {
+  return instance.get(Api.export, {
     params
   })
 }

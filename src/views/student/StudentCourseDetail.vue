@@ -2,13 +2,17 @@
   <a-row :class="style.row1">
     <a-col :class="style.courseInfo" span="24">
       <template v-if="loadingCourseDetail">
-        <a-skeleton active/>
+        <a-skeleton active />
       </template>
       <template v-else>
         <a-row align="top">
           <a-col :span="7">
-            <img :class="style.courseCover"
-                 :src="dataCourseDetail?.coverUrl">
+            <a-image
+              :width="240"
+              :height="135"
+              :src="dataCourseDetail?.coverImg"
+              fallback="https://via.placeholder.com/240x135?text=%E5%8A%A0%E8%BD%BD%E5%A4%B1%E8%B4%A5"
+            />
           </a-col>
           <a-col :span="17">
             <div :class="style.textArea">
@@ -29,42 +33,39 @@
     </a-col>
   </a-row>
   <a-row :class="style.row2">
-    <a-col :class="style.courseList" span=17>
-      <a-tabs v-model:activeKey="tabsActiveKey" :class="style.antTabs" size="large">
+    <a-col :class="style.courseList" span="17">
+      <a-tabs
+        v-model:activeKey="tabsActiveKey"
+        :class="style.antTabs"
+        size="large"
+      >
         <a-tab-pane key="1" tab="课程实验">
           <student-lab-list :course-id="props.courseId" />
         </a-tab-pane>
         <a-tab-pane key="2" tab="课程评论">
           <div :class="style.contentPadding">
-            <course-comment :course-id="Number(props.courseId)"/>
+            <course-comment :course-id="Number(props.courseId)" />
           </div>
         </a-tab-pane>
-        <!--<a-tab-pane key="3" tab="课程签到">-->
-        <!--  <div :class="style.contentPadding">-->
-        <!--    <student-checkin-table/>-->
-        <!--  </div>-->
-        <!--</a-tab-pane>-->
-        <!--<a-tab-pane key="4" tab="课程公告">-->
-        <!--  <div :class="style.contentPadding">-->
-        <!--    <course-announcement-list :data-course-announcement="dataCourseAnnouncement"-->
-        <!--                              :loading="loadingCourseAnnouncement" :pagination="pagination"/>-->
-        <!--  </div>-->
-        <!--</a-tab-pane>-->
+        <a-tab-pane key="3" tab="课程签到">
+          <div :class="style.contentPadding">
+            <student-checkin-table />
+          </div>
+        </a-tab-pane>
+        <a-tab-pane key="4" tab="课程公告">
+          <student-announcement-list :course-id="Number(courseId)" />
+        </a-tab-pane>
       </a-tabs>
     </a-col>
-    <a-col span=1>
-    </a-col>
-    <a-col :class="style.teacherDetail" span=6>
+    <a-col span="1"> </a-col>
+    <a-col :class="style.teacherDetail" span="6">
       <a-card>
         <template #cover>
-          <img
-              alt="example"
-              src="/src/assets/school.jpg"
-          />
+          <img alt="example" src="/src/assets/school.jpg" />
         </template>
-        <a-card-meta :title=dataCourseDetail?.teacherDetail.username>
+        <a-card-meta :title="dataCourseDetail?.teacherDetail.username">
           <template #avatar>
-            <a-avatar :src="dataCourseDetail?.teacherDetail.avatarUrl"/>
+            <a-avatar :src="dataCourseDetail?.teacherDetail.avatarUrl" />
           </template>
           <template #description>
             <h4>{{ dataCourseDetail?.teacherDetail.organization }}</h4>
@@ -77,15 +78,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, defineComponent, ref, useCssModule } from 'vue'
+import { ref, useCssModule } from 'vue'
 import StudentCheckinTable from '../../components/web/student/StudentCheckinTable.vue'
 import CourseComment from '../../components/web/CourseComment.vue'
 import StudentLabList from '../../components/web/student/StudentLabList.vue'
-import { usePagination, useRequest } from 'vue-request'
-import { apiGetCourseDetail, apiGetIsCourseEnroll } from '../../api/web/course'
-import { apiListCourseAnnouncement } from '../../api/web/courseAnnouncement'
-import { pagination } from '../../api/common'
-import { message } from 'ant-design-vue'
+import { useRequest } from 'vue-request'
+import { apiGetCourseDetail } from '../../api/web/course'
+import StudentAnnouncementList from '../../components/web/student/StudentAnnouncementList.vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -93,45 +92,18 @@ const props = defineProps<{
 }>()
 
 const tabsActiveKey = ref<string>('1')
-const { data: dataCourseDetail, loading: loadingCourseDetail } = useRequest(apiGetCourseDetail, {
-  manual: false,
-  defaultParams: [
-    Number(props.courseId)
-  ],
-  formatResult: (res) => {
-    return res.data.result
-  }
-})
-
-const {
-  data: dataCourseAnnouncement,
-  loading: loadingCourseAnnouncement,
-  pageSize,
-  current,
-  total
-} = usePagination(apiListCourseAnnouncement, {
-  manual: false,
-  formatResult: (res) => {
-    return res.data.result
-  },
-  defaultParams: [
-    {
-      courseId: Number(props.courseId)
+const { data: dataCourseDetail, loading: loadingCourseDetail } = useRequest(
+  apiGetCourseDetail,
+  {
+    manual: false,
+    defaultParams: [Number(props.courseId)],
+    formatResult: (res) => {
+      return res.data.result
     }
-  ]
-})
-
-// 分页数据
-const pag = computed<pagination>(() => ({
-  onChange: (page: number) => {
-    current.value = page
-  },
-  total: total.value,
-  pageSize: pageSize.value
-}))
+  }
+)
 
 const style = useCssModule()
-
 </script>
 
 <style lang="scss" module>
@@ -191,7 +163,6 @@ const style = useCssModule()
     border-radius: 8px;
     transition: box-shadow 0.3s;
     padding: 0 16px 0 16px;
-
   }
 
   .teacherDetail {

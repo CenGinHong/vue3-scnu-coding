@@ -1,9 +1,7 @@
-import { TableState } from 'ant-design-vue/es/table/interface'
-
 export interface filters {
-  text: string,
+  text: string
   value: string
-  children?: filters[];
+  children?: filters[]
 }
 
 // 分页约束
@@ -18,16 +16,16 @@ export interface pageResp<T> {
 // 表格约束
 export interface columnType {
   title: string
-  dataIndex: string
+  dataIndex: string[] | string
   width?: string
   filters?: filters[] | undefined
   key?: string
   fixed?: string
-  slots?: any
   sorter?: boolean
   sortDirections?: string[]
   defaultSortOrder?: string
   filterMultiple?: string[] | boolean
+  ellipsis?: boolean
 }
 
 export interface pageParams {
@@ -41,10 +39,10 @@ export interface pageParams {
 
 // 选择器的类型
 export interface selectType {
-  value: number | string,
-  label: string,
-  disabled?: boolean,
-  key?: string,
+  value: number | string
+  label: string
+  disabled?: boolean
+  key?: string
   title?: string
 }
 
@@ -56,6 +54,10 @@ export interface deleteReq {
   id: number
 }
 
+export interface uploadResp {
+  fileSrc: string
+}
+
 export interface Result<T = any> {
   code: number
   // type?: 'success' | 'error' | 'warning'
@@ -63,37 +65,43 @@ export interface Result<T = any> {
   result?: T
 }
 
-export interface IFileItem {
-  uid: number;
-  name?: string;
-  status?: string;
-  response?: string;
-  url?: string;
-  size: number;
-  type?: string;
-  preview?: string;
-  originFileObj?: any;
-  file?: string | Blob;
+export interface IFileItem extends Partial<File> {
+  uid?: string | number
+  status?: string
+  response?: Result<uploadResp>
+  url?: string
+  preview?: string
+  originFileObj?: File
+  // file?: string | Blob;
 }
 
 export interface FileInfo {
-  file: IFileItem;
-  fileList: IFileItem[];
+  file: IFileItem
+  fileList: IFileItem[]
 }
 
-export type pagination = TableState['pagination'];
+export interface IPagination {
+  current: number
+  pageSize: number
+  total: number
+  onChange: (page?: number, pageSize?: number) => void
+  position: string[]
+}
 
 export interface cascaderOption {
-  value: string;
-  label: string;
-  children?: cascaderOption[];
+  value: string
+  label: string
+  children?: cascaderOption[]
 }
 
 export interface radioOption {
-  value: string|number;
-  label: string;
+  value: string | number
+  label: string
 }
 
-export interface uploadResp {
-  fileId: number
+export interface ITransfer {
+  key: string
+  title: string
+  description?: string
+  disabled?: boolean
 }

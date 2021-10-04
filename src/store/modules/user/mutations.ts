@@ -9,7 +9,7 @@ export const mutations = {
     state.userInfo = {
       userId: userInfo.userId,
       username: userInfo.username,
-      avatarUrl: userInfo.avatarUrl,
+      avatarImg: userInfo.avatarImg,
       roleId: userInfo.roleId
     }
   }

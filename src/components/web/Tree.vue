@@ -1,47 +1,35 @@
 <template>
-  <a-tree default-expand-all
-          show-line
-          :tree-data="treeData"
-          v-model:selectedKeys="selectedKeys" :replaceFields="replaceFields">
+  <a-tree
+    default-expand-all
+    show-line
+    :tree-data="treeData"
+    v-model:selectedKeys="selectedKeys"
+    :fieldNames="replaceFields"
+  >
     <template #switcherIcon>
-      <down-outlined/>
+      <down-outlined />
     </template>
   </a-tree>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject, PropType, Ref, ref } from 'vue'
+<script lang="ts" setup>
+import { inject, Ref, ref } from 'vue'
 import { DownOutlined } from '@ant-design/icons-vue'
-import { code } from '../api/web/model/labSubmit'
+import { code } from '../../api/web/model/labSubmit'
 
-export default defineComponent({
-  name: 'Tree',
-  components: {
-    DownOutlined
-  },
-  props: {
-    treeData: {
-      type: Array as PropType<code[]>
-    }
-  },
-  setup () {
-    const replaceFields = {
-      children: 'childNode',
-      title: 'name'
-    }
-    const selectedKeys: Ref<string[]> = inject('selectedKeys') ?? ref<string[]>([])
-    const click = () => {
-      console.log(selectedKeys)
-    }
-    return {
-      selectedKeys,
-      replaceFields,
-      click
-    }
-  }
-})
+// eslint-disable-next-line no-undef
+const props = defineProps<{
+  treeData: code[]
+}>()
+
+const replaceFields = {
+  children: 'childNode',
+  title: 'name'
+}
+const selectedKeys: Ref<string[]> = inject('selectedKeys') ?? ref<string[]>([])
+const click = () => {
+  console.log(selectedKeys)
+}
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

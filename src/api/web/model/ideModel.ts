@@ -1,8 +1,8 @@
 export interface openIdeReq {
-    labId?: number,
-    languageEnum?: number|string
+  labId: number
+  languageEnum: number
 }
 
 export interface openIdeResp {
-    url: string
+  url: string
 }

@@ -1,7 +1,7 @@
-
-import { saveResp, pageResp, Result } from '../common'
+import { pageResp, Result, saveResp } from '../common'
 import {
-  deleteCommentReq,
+  deleteCourseCommentReq,
+  deleteLabCommentReq,
   getCourseCommentReq,
   getCourseCommentResp,
   getLabCommentReq,
@@ -13,36 +13,45 @@ import instance from '../../util/axios/axios'
 
 enum Api {
   CourseComment = '/web/comment/course',
-  LabComment = '/web/comment/lab'
+  LabComment = '/web/comment/lab',
 }
 
-export function apiGetCourseComment (params: getCourseCommentReq) {
-  return instance.get<Result<pageResp<getCourseCommentResp>>>(Api.CourseComment, {
-    params
-  })
+export function apiGetCourseComment(params: getCourseCommentReq) {
+  return instance.get<Result<pageResp<getCourseCommentResp>>>(
+    Api.CourseComment,
+    {
+      params
+    }
+  )
 }
 
-export function apiInsertCourseComment (data: insertCourseCommentReq) {
-  return instance.post<Result<saveResp>>(Api.CourseComment, data)
+export function apiInsertCourseComment(data: insertCourseCommentReq) {
+  return instance.post<insertCourseCommentReq, Result<saveResp>>(
+    Api.CourseComment,
+    data
+  )
 }
 
-export function apiInsertLabComment (data: insertLabCommentReq) {
-  return instance.post<Result<saveResp>>(Api.LabComment, data)
+export function apiInsertLabComment(data: insertLabCommentReq) {
+  return instance.post<insertLabCommentReq, Result<saveResp>>(
+    Api.LabComment,
+    data
+  )
 }
 
-export function apiGetLabComment (params: getLabCommentReq) {
+export function apiGetLabComment(params: getLabCommentReq) {
   return instance.get<Result<pageResp<getLabCommentResp>>>(Api.LabComment, {
     params
   })
 }
 
-export function apiDeleteCourseComment (params: deleteCommentReq) {
+export function apiDeleteCourseComment(params: deleteCourseCommentReq) {
   return instance.delete<Result>(Api.CourseComment, {
     params
   })
 }
 
-export function apiDeleteLabComment (params: deleteCommentReq) {
+export function apiDeleteLabComment(params: deleteLabCommentReq) {
   return instance.delete<Result>(Api.LabComment, {
     params
   })

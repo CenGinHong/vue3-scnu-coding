@@ -1,98 +1,116 @@
 <template>
   <div :class="style.btuDiv">
     <a-space class="btuSpace">
-      <a-button type="primary" @click="visibleModal=true">
+      <a-button type="primary" @click="visibleModal = true">
         <form-outlined/>
         添加签到
       </a-button>
-      <a-button :disabled="selectedRowKeys.length===0"
-                :loading="loadingDeleteCheckinRecords"
-                danger
-                @click="handleDeleteCheckinRecords">
+      <a-button
+          :disabled="selectedRowKeys.length === 0"
+          :loading="loadingDeleteCheckinRecords"
+          danger
+          @click="handleDeleteCheckinRecords"
+      >
         <delete-outlined/>
         删除记录
       </a-button>
-      <a-button :disabled="loadingListCheckinRecord"
-                @click="handleRefreshListCheckinRecord">
+      <a-button
+          :disabled="loadingListCheckinRecord"
+          @click="handleRefreshListCheckinRecord"
+      >
         <reload-outlined/>
         刷新
       </a-button>
+      <a-button :loading="loadingExportCsv" @click="handleExportCheckinCsv">
+        <export-outlined/>
+        导出CSV
+      </a-button>
     </a-space>
   </div>
-  <a-table :columns="columnCheckinRecord"
-           :data-source="dataListCheckinRecord?.records"
-           :loading="loadingListCheckinRecord"
-           :expanded-row-keys="expendedRowKeys"
-           :pagination="pagListCheckinRecord"
-           @expandedRowsChange="expandedRowKeysChange"
-           :row-key="record => record.checkinRecordId"
-           :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
-           @expand="handleExpand">
-    <template #createdAt="{ text }">
-      {{ moment(text).format('YYYY-MM-DD hh:mm') }}
+  <a-table
+      :columns="columnCheckinRecord"
+      :data-source="dataListCheckinRecord?.records"
+      :expanded-row-keys="expendedRowKeys"
+      :loading="loadingListCheckinRecord"
+      :pag="pagListCheckinRecord"
+      :pagination="pagListCheckinRecord"
+      :row-key="(record) => record.checkinRecordId"
+      :row-selection="{
+      selectedRowKeys: selectedRowKeys,
+      onChange: onSelectChange,
+    }"
+      @expand="handleExpand"
+      @expandedRowsChange="expandedRowKeysChange"
+  >
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.dataIndex === 'createdAt'">
+        {{ dayjs(record.createdAt).format('YYYY-MM-DD hh:mm') }}
+      </template>
+      <template v-if="column.dataIndex === 'attendance'">
+        {{ record.attendance.checkinCount }} / {{ record.attendance.takeCount }}
+      </template>
     </template>
-    <template #attendance="{ record }">
-      {{ record.attendance.checkinCount }} / {{ record.attendance.takeCount }}
-    </template>
-    <template #expandedRowRender="{ record }">
-      <a-table :columns="checkinDetailColumn"
-               :expanded-row-keys="expendedRowKeys"
-               :data-source="dataListCheckinDetail?.records"
-               :loading="loadingListCheckinDetail"
-               :pagination="pag"
-               :row-key="record => record.checkinDetailId"
-               size="small">
-        <template #isCheckin="{ record }">
-          <a-switch v-model:checked="record.checkinDetail.isCheckin"
-                    :loading="queriesUpdateCheckinDetail[record.checkinDetail.checkinDetailId]?.error"
-                    @click="handleUpdateCheckinDetail(record.checkinDetail.checkinDetailId,record.isCheckin)"/>
+    <template #expandedRowRender>
+      <a-table
+          :columns="checkinDetailColumn"
+          :data-source="dataListCheckinDetail?.records"
+          :expanded-row-keys="expendedRowKeys"
+          :loading="loadingListCheckinDetail"
+          :pagination="pagListCheckinDetail"
+          :row-key="(record) => record.checkinDetailId"
+          size="small"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.dataIndex === ['userDetail', 'isCheckin']">
+            <a-switch
+                v-model:checked="record.checkinDetail.isCheckin"
+                :loading="
+                queriesUpdateCheckinDetail[record.checkinDetail.checkinDetailId]
+                  ?.error
+              "
+                @click="
+                handleUpdateCheckinDetail(
+                  record.checkinDetail.checkinDetailId,
+                  record.isCheckin
+                )
+              "
+            />
+          </template>
         </template>
       </a-table>
     </template>
   </a-table>
-  <a-modal
+  <checkin-modal
       v-model:visible="visibleModal"
-      cancelText="关闭"
-      ok-text="创建"
-      title="创建签到"
-      @ok="handleInsertCheckinRecord">
-    <a-form
-        :label-col="{ span: 4 }"
-        :model="insertCheckinState"
-        :ok-button-props="{ loading: loadingInsertCheckin }"
-        :wrapper-col="{ span: 18 }" name="custom-validation">
-      <a-form-item label="签到名称" name="checkinName">
-        <a-input v-model:value="insertCheckinState.checkinName"/>
-      </a-form-item>
-      <a-form-item label="签到时长(秒)" name="duration">
-        <a-slider v-model:value="insertCheckinState.duration"/>
-      </a-form-item>
-      <a-form-item label="签到密钥" name="checkinKey">
-        <a-input v-model:value="insertCheckinState.checkinKey"/>
-      </a-form-item>
-    </a-form>
-  </a-modal>
+      :course-id="courseId"
+      @refresh-list="refreshListCheckinRecord">
+  </checkin-modal>
 </template>
 
 <script lang="ts" setup>
 import { computed, createVNode, reactive, ref, useCssModule } from 'vue'
-import { columnType, pagination } from '../../../api/common'
+import { columnType } from '../../../api/common'
 import { usePagination, useRequest } from 'vue-request'
 import {
-  ApiDeleteCheckinRecords,
+  apiDeleteCheckinRecords,
   apiListCheckinDetailByCheckinRecordId,
   apiListCheckinRecordByCourseId,
-  ApiInsertCheckinRecord,
-  apiUpdateCheckinDetailByCheckinDetailId
+  apiUpdateCheckinDetailByCheckinDetailId,
+  apiExportCsv
 } from '../../../api/web/checkin'
 import {
-  ListCheckinRecordResp,
-  InsertCheckinRecordReq
+  listCheckinRecordResp
 } from '../../../api/web/model/checkinModel'
-import moment from 'moment'
-import { randomNumberString } from '../../../util/utils'
-import { DeleteOutlined, ExclamationCircleOutlined, FormOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+import dayjs from 'dayjs'
+import {
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  FormOutlined,
+  ReloadOutlined,
+  ExportOutlined
+} from '@ant-design/icons-vue'
 import { Modal } from 'ant-design-vue'
+import CheckinModal from './CheckinModal.vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -104,24 +122,22 @@ const columnCheckinRecord: columnType[] = [
   {
     title: '名称',
     dataIndex: 'checkinName',
-    width: '150px'
+    width: '30%'
   },
   {
     title: '密钥',
     dataIndex: 'checkinKey',
-    width: '80px'
+    width: '10%'
   },
   {
     title: '创建时间',
     dataIndex: 'createdAt',
-    slots: { customRender: 'createdAt' },
-    width: '100px'
+    width: '30%%'
   },
   {
     title: '出勤比例',
     dataIndex: 'attendance',
-    slots: { customRender: 'attendance' },
-    width: '100px'
+    width: '30%'
   }
 ]
 
@@ -138,14 +154,16 @@ const {
   formatResult: (res) => {
     return res.data.result
   },
-  defaultParams: [{
-    courseId: props.courseId
-  }]
+  defaultParams: [
+    {
+      courseId: props.courseId
+    }
+  ]
 })
 
 // 分页数据
-const pagListCheckinRecord = computed<pagination>(() => ({
-  onChange (page: number) {
+const pagListCheckinRecord = computed(() => ({
+  onChange(page: number) {
     currentListCheckinRecord.value = page
   },
   total: totalListCheckinRecord.value,
@@ -161,19 +179,18 @@ const handleRefreshListCheckinRecord = () => {
 const checkinDetailColumn: columnType[] = [
   {
     title: '姓名',
-    dataIndex: 'userDetail.username',
-    width: '100px'
+    dataIndex: ['userDetail', 'username'],
+    width: '40%'
   },
   {
     title: '学号',
-    dataIndex: 'userDetail.userNum',
-    width: '100px'
+    dataIndex: ['userDetail', 'userNum'],
+    width: '40%'
   },
   {
     title: '是否签到',
-    dataIndex: 'userDetail.isCheckin',
-    slots: { customRender: 'isCheckin' },
-    width: '100px'
+    dataIndex: ['userDetail', 'isCheckin'],
+    width: '20%'
   }
 ]
 
@@ -204,16 +221,40 @@ const expandedRowKeysChange = (keys: number[]) => {
 }
 
 // 分页数据
-const pag = computed<pagination>(() => ({
+const pagListCheckinDetail = computed(() => ({
   size: 'small',
-  onChange (page: number) {
+  onChange(page: number) {
     currentListCheckinDetail.value = page
   },
   total: totalListCheckinDetail.value,
   pageSize: pageSizeListCheckinDetail.value
 }))
 
-const handleExpand = (expanded: boolean, record: ListCheckinRecordResp) => {
+const {
+  run: runExportCsv,
+  data: dataExportCsv,
+  loading: loadingExportCsv,
+  error: errExportCsv
+} = useRequest(apiExportCsv)
+
+const handleExportCheckinCsv = async() => {
+  await runExportCsv({ courseId: props.courseId })
+  if (errExportCsv.value) {
+    return
+  }
+  // 构建dom来下载
+  const filename = '签到表.csv'
+  const url = window.URL.createObjectURL(new Blob([dataExportCsv.value!.data]))
+  const link = document.createElement('a')
+  link.style.display = 'none'
+  link.href = url
+  link.setAttribute('download', filename)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+const handleExpand = (expanded: boolean, record: listCheckinRecordResp) => {
   // 展开时开始加载
   if (expanded) {
     // 获取数据
@@ -224,17 +265,19 @@ const handleExpand = (expanded: boolean, record: ListCheckinRecordResp) => {
 }
 
 // 修改签到记录
-const {
-  run: runUpdateCheckinDetail,
-  queries: queriesUpdateCheckinDetail
-} = useRequest(apiUpdateCheckinDetailByCheckinDetailId, {
-  formatResult: (res) => {
-    return res.data.result
-  },
-  queryKey: updateCheckinDetailReq => String(updateCheckinDetailReq.checkinDetailId)
-})
+const { run: runUpdateCheckinDetail, queries: queriesUpdateCheckinDetail } =
+    useRequest(apiUpdateCheckinDetailByCheckinDetailId, {
+      formatResult: (res) => {
+        return res.data.result
+      },
+      queryKey: (updateCheckinDetailReq) =>
+        String(updateCheckinDetailReq.checkinDetailId)
+    })
 
-const handleUpdateCheckinDetail = async (checkinDetailId: number, isCheckin: boolean) => {
+const handleUpdateCheckinDetail = async(
+  checkinDetailId: number,
+  isCheckin: boolean
+) => {
   await runUpdateCheckinDetail({
     checkinDetailId,
     isCheckin
@@ -262,33 +305,10 @@ const handleUpdateCheckinDetail = async (checkinDetailId: number, isCheckin: boo
 const visibleModal = ref<boolean>(false)
 
 const {
-  run: runInsertCheckin,
-  loading: loadingInsertCheckin,
-  error: errInsertCheckin
-} = useRequest(ApiInsertCheckinRecord)
-
-// 插入框数据
-const insertCheckinState = reactive<InsertCheckinRecordReq>({
-  checkinName: moment().format('YYYY-MM-DD') + '签到',
-  checkinKey: randomNumberString(6),
-  duration: 30,
-  courseId: props.courseId
-})
-
-const handleInsertCheckinRecord = async () => {
-  await runInsertCheckin(insertCheckinState)
-  if (errInsertCheckin.value) {
-    return
-  }
-  visibleModal.value = false
-  await refreshListCheckinRecord()
-}
-
-const {
   run: runDeleteCheckinRecords,
   loading: loadingDeleteCheckinRecords,
   error: errDeleteCheckinRecords
-} = useRequest(ApiDeleteCheckinRecords)
+} = useRequest(apiDeleteCheckinRecords)
 
 const selectedRowKeys = ref<number[]>([])
 
@@ -296,15 +316,17 @@ const onSelectChange = (keys: number[]) => {
   selectedRowKeys.value = keys
 }
 
-const handleDeleteCheckinRecords = async () => {
+const handleDeleteCheckinRecords = async() => {
   Modal.confirm({
     title: '确认删除签到记录？',
     icon: createVNode(ExclamationCircleOutlined),
     content: '删除签到记录将会删除在该签到下的详情，请谨慎操作！',
     okText: '确认',
-    okButtonProps: { loading: loadingDeleteCheckinRecords.value },
-    onOk: async () => {
-      await runDeleteCheckinRecords({ checkinRecordIds: selectedRowKeys.value })
+    okButtonProps: { loading: loadingDeleteCheckinRecords.value, danger: true },
+    onOk: async() => {
+      await runDeleteCheckinRecords({
+        checkinRecordIds: selectedRowKeys.value
+      })
       if (errDeleteCheckinRecords.value) {
         return
       }
@@ -315,7 +337,6 @@ const handleDeleteCheckinRecords = async () => {
 }
 
 const style = useCssModule()
-
 </script>
 
 <style lang="scss" module>

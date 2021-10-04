@@ -1,32 +1,27 @@
-import {IFileItem, pageParams} from '../../common'
-import {Moment} from 'moment'
+import { IFileItem, pageParams } from '../../common'
+import { Dayjs } from 'dayjs'
 
 export interface courseAnnouncementListResp {
   courseAnnouncementId: number
-  title: string,
-  content: string,
-  attachmentFileDetail: {
-    localFileId: number
-    filename: string
-    size: number
-    url: string
-    contentType: string
-  }
-  updatedAt: Moment
+  title: string
+  content: string
+  attachmentSrc: string
+  updatedAt: Dayjs
+  fileList: IFileItem[]
 }
 
 export interface insertCourseAnnouncementReq {
-  title: string,
-  content: string,
-  attachmentFileId?: number
+  title: string
+  content: string
+  attachmentSrc: string
   courseId: number
 }
 
 export interface updateCourseAnnouncementReq {
   courseAnnouncementId: number
-  title: string,
-  content: string,
-  attachmentFileId?: string
+  title: string
+  content: string
+  attachmentSrc?: string
 }
 
 export interface getCourseAnnouncementReq extends pageParams {

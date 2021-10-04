@@ -6,28 +6,36 @@ import {
   insertCourseAnnouncementReq,
   updateCourseAnnouncementReq
 } from './model/courseAnnouncement'
-import { deleteLabReq } from './model/lab'
 
 enum Api {
   CourseAnnouncement = '/web/course/announcement',
 }
 
-export function apiListCourseAnnouncement (params: getCourseAnnouncementReq) {
-  return instance.get<Result<pageResp<courseAnnouncementListResp>>>(Api.CourseAnnouncement, {
-    params
-  })
+export function apiListCourseAnnouncement(params: getCourseAnnouncementReq) {
+  return instance.get<Result<pageResp<courseAnnouncementListResp>>>(
+    Api.CourseAnnouncement,
+    {
+      params
+    }
+  )
 }
 
-export function apiDeleteCourseAnnouncement (params: deleteReq) {
+export function apiDeleteCourseAnnouncement(params: deleteReq) {
   return instance.delete<Result>(Api.CourseAnnouncement, {
     params
   })
 }
 
-export function apiInsertCourseAnnouncement (data: insertCourseAnnouncementReq) {
-  return instance.post<Result>(Api.CourseAnnouncement, data)
+export function apiInsertCourseAnnouncement(data: insertCourseAnnouncementReq) {
+  return instance.post<insertCourseAnnouncementReq, Result>(
+    Api.CourseAnnouncement,
+    data
+  )
 }
 
-export function apiUpdateCourseAnnouncement (data: updateCourseAnnouncementReq) {
-  return instance.put<Result>(Api.CourseAnnouncement, data)
+export function apiUpdateCourseAnnouncement(data: updateCourseAnnouncementReq) {
+  return instance.put<updateCourseAnnouncementReq, Result>(
+    Api.CourseAnnouncement,
+    data
+  )
 }

@@ -1,5 +1,4 @@
 import { pageParams } from '../../common'
-import { Moment } from 'moment'
 
 export interface code {
   name: string // 文件名字
@@ -37,18 +36,46 @@ export interface updateReportContentReq {
 }
 
 export interface listLabSubmitResp {
-  labSubmitId: number
+  userId: number
   userDetail: {
-    userId: number
     username: string
     userNum: string
-  },
-  isFinish: boolean
-  score: number
-  labSubmitComment: string
-  updatedAt: Moment
+  }
+  labSubmitDetail?: {
+    labSubmitId: number
+    isFinish: boolean
+    score: number
+    labSubmitComment: string
+    updatedAt: string
+  }
 }
 
-export interface getLabSubmitReq extends pageParams {
+// export interface listLabSubmitIdResp {
+//   userId: number
+//   userDetail: {
+//     username: string
+//     userNum: string
+//   },
+//   labSubmitDetail?: {
+//     comment: string
+//     score: number
+//   }
+// }
+
+export interface listLabSubmitReq extends pageParams {
   labId: number
+}
+
+export type getLabSubmitIdReq = listLabSubmitReq
+
+export interface correctLabReq {
+  score: number
+  comment: string
+  userId: number
+  labId: number
+}
+
+export interface exportScoreReq {
+  courseId: number
+  labIds: number[]
 }

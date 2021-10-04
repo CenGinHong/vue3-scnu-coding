@@ -1,13 +1,15 @@
 <template>
-  <base-course-list :dataSource="dataSource?.records"
-                  :loading="loading"
-                  :pag="pag"/>
+  <base-course-list
+    :dataSource="dataSource?.records"
+    :loading="loading"
+    :pag="pag"
+  />
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { usePagination } from 'vue-request'
-import { pagination } from '../../../api/common'
+import { IPagination } from '../../../api/common'
 import { apiListCourseByStuId } from '../../../api/web/course'
 import BaseCourseList from '../BaseCourseList.vue'
 import { useRouter } from 'vue-router'
@@ -27,8 +29,8 @@ const {
 })
 
 // 分页数据
-const pag = computed<pagination>(() => ({
-  onChange (page: number) {
+const pag = computed<IPagination>(() => ({
+  onChange(page: number) {
     current.value = page
   },
   total: total.value,
@@ -36,6 +38,4 @@ const pag = computed<pagination>(() => ({
 }))
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

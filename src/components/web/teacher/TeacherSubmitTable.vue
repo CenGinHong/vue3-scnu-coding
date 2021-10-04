@@ -1,34 +1,46 @@
 <template>
   <a-table
-      :columns="columns"
-      :row-key="record => record.labSubmitId"
-      :data-source="dataGetLabSubmit?.records"
-      :pagination="pag"
-      :loading="loadingGetLabSubmit"
-      @change="handleTableChange">
-    <template #updatedAt="{ text }">
-      {{ moment(text).format('YYYY-MM-DD hh:mm') }}
-    </template>
-    <template #isFinish="{ record }">
-      <a-switch v-model:checked="record.isFinish"/>
-    </template>
-    <template #score="{ record }">
-      <a-tag :color="scoreTagColor(record.score)">{{ record.score }}</a-tag>
-    </template>
-    <template #operation="{ record }">
-      <a @click="emitMark(record.userDetail.username,record.userDetail.userNum,record.labSubmitId)">批阅</a>
+    :columns="columns"
+    :data-source="dataListLabSubmit?.records"
+    :loading="loadingListLabSubmit"
+    :pagination="pag"
+    :row-key="(record) => record.userId"
+    @change="handleTableChange"
+  >
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.dataIndex === 'score'">
+        <a-tag
+          v-if="record.labSubmitDetail"
+          :color="scoreTagColor(record.labSubmitDetail.score)"
+        >
+          {{ record.labSubmitDetail.score }}
+        </a-tag>
+        <a-tag v-else color="gray">未评分</a-tag>
+      </template>
+      <template v-if="column.dataIndex === 'updatedAt'">
+        {{
+          record.labSubmitDetail.updatedAt === undefined
+            ? '无'
+            : dayjs(record.labSubmitDetail.updatedAt).format('YYYY-MM-DD hh:mm')
+        }}
+      </template>
+      <template v-if="column.dataIndex === 'isFinish'">
+        <a-tag v-if="record.labSubmitDetail?.isFinish" color="success"
+          >已完成</a-tag
+        >
+        <a-tag v-else color="error">未完成</a-tag>
+      </template>
     </template>
   </a-table>
 </template>
 
 <script lang="ts" setup>
-import moment from 'moment'
 import { computed } from 'vue'
 import { usePagination } from 'vue-request'
+import dayjs from 'dayjs'
 import { apiListLabSubmit } from '../../../api/web/labSubmit'
-import { TableStateFilters } from 'ant-design-vue/es/table/interface'
 import { scoreTagColor } from '../../../util/utils'
-import { columnType, pagination } from '../../../api/common'
+import { columnType, IPagination } from '../../../api/common'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -39,47 +51,38 @@ const columns: columnType[] = [
   {
     title: '姓名',
     width: '100px',
-    dataIndex: 'userDetail.username'
+    dataIndex: ['userDetail', 'username']
   },
   {
     title: '学号',
     width: '180px',
-    dataIndex: 'userDetail.userNum'
+    dataIndex: ['userDetail', 'userNum']
   },
   {
     title: '是否完成',
     dataIndex: 'isFinish',
-    width: '120px',
-    sorter: true,
-    slots: { customRender: 'isFinish' }
+    width: '120px'
   },
   {
     title: '评分',
     dataIndex: 'score',
-    width: '100px',
-    sorter: true,
-    slots: { customRender: 'score' }
+    width: '100px'
   },
   {
     title: '评语',
-    dataIndex: 'labSubmitComment'
+    dataIndex: ['labSubmitDetail', 'labSubmitComment']
   },
   {
     title: '最后更新',
     width: '160px',
-    dataIndex: 'updatedAt',
-    slots: { customRender: 'updatedAt' }
-  },
-  {
-    title: '操作',
-    dataIndex: 'operation',
-    slots: { customRender: 'operation' }
+    dataIndex: 'updatedAt'
   }
 ]
 const {
-  run: runGetLabSubmit,
-  data: dataGetLabSubmit,
-  loading: loadingGetLabSubmit,
+  run: runListLabSubmit,
+  data: dataListLabSubmit,
+  loading: loadingListLabSubmit,
+  refresh: refreshListLabSubmit,
   pageSize,
   current,
   total
@@ -88,13 +91,16 @@ const {
   formatResult: (res) => {
     return res.data.result
   },
-  defaultParams: [{
-    labId: props.labId
-  }]
+  defaultParams: [
+    {
+      labId: props.labId
+    }
+  ]
 })
+
 // 分页数据
-const pag = computed<pagination>(() => ({
-  onChange (page: number) {
+const pag = computed(() => ({
+  onChange(page: number) {
     current.value = page
   },
   total: total.value,
@@ -102,17 +108,14 @@ const pag = computed<pagination>(() => ({
 }))
 
 // 表格重新加载函数
-const handleTableChange = (pag: pagination, filters: TableStateFilters, sorter: any) => {
-  runGetLabSubmit({
+const handleTableChange = (pag: IPagination, filters: any, sorter: any) => {
+  runListLabSubmit({
     labId: props.labId,
     current: pag?.current,
     sortField: sorter.field,
     sortOrder: sorter.order
   })
 }
-
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

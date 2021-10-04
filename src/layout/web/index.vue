@@ -15,7 +15,7 @@ import PageHeader from './header/index.vue'
 export default defineComponent({
   name: 'index',
   components: { PageHeader },
-  setup () {
+  setup() {
     const style = useCssModule()
     return {
       style
@@ -25,7 +25,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" module>
-
 .header:hover {
   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.25);
 }
@@ -33,12 +32,10 @@ export default defineComponent({
   display: flex;
   height: 100vh;
   overflow: scroll;
-  background: #f3f3f3 url("/src/assets/login.svg");
+  background: #f3f3f3 url('/src/assets/login.svg');
 
   .header {
     transition: box-shadow 0.3s;
   }
 }
-
-
 </style>

@@ -1,8 +1,6 @@
 <template>
   <router-view v-slot="{ Component }">
-    <transition name="fade">
-      <component :is="Component" />
-    </transition>
+    <component :is="Component" />
   </router-view>
   <!--<router-view/>-->
   <!--<img alt="Vue logo" src="./assets/logo.png" />-->
@@ -12,14 +10,13 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
-import { useStore } from './store'
 
 export default defineComponent({
   name: 'App',
   components: {
     HelloWorld
   },
-  setup () {
+  setup() {
     // const store = useStore()
     // store.dispatch('user/getUserInfo')
   }

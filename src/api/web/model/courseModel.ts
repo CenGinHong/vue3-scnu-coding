@@ -1,6 +1,5 @@
-import {pageParams} from '../../common'
-import {Moment} from 'moment'
-import {apiGetIsCourseOpenByTeacher} from '../course'
+import { pageParams } from '../../common'
+import { Dayjs } from 'dayjs'
 
 export interface listCourseResp {
   courseId: number
@@ -10,12 +9,10 @@ export interface listCourseResp {
   }
   courseName: string
   courseDes: string
-  coverFileDetail?: {
-    url: string
-  }
+  coverImg: string
   isClose: boolean
-  createdAt: Moment
-  updatedAt: Moment
+  createdAt: Dayjs
+  updatedAt: Dayjs
 }
 
 export interface courseDetailResp {
@@ -23,18 +20,14 @@ export interface courseDetailResp {
   teacherDetail?: {
     userId: number
     username: string
-    avatarFileDetail?: {
-      url: string
-    }
+    avatarImg: string
     organization: string
     email: string
     major: string
   }
   courseName: string
   courseDes: string
-  coverFileDetail?: {
-    url: string
-  }
+  coverImg: string
   secretKey: string
   isClose: boolean
   languageType: number
@@ -44,12 +37,12 @@ export interface courseDetailResp {
 
 export interface searchCourseResp extends listCourseResp {
   isTakeDetail: {
-    isTake: boolean,
+    isTake: boolean
   }
 }
 
 export interface searchCourseReq extends pageParams {
-  courseNameOrTeacherName?: string,
+  courseNameOrTeacherName?: string
 }
 
 export interface listCourseStudentReq extends pageParams {
@@ -85,20 +78,21 @@ export interface getIsCourseEnrollResp {
   isEnroll: boolean
 }
 
-export interface insertCourseReq {
-  courseName: string
-  courseDes: string
-  coverFileId?: number
-  secretKey: string
-  languageType: number
-}
-
 export interface updateCourseReq {
   courseId: number
   courseName: string
   courseDes: string
-  coverFileId?: number
+  coverImg?: string
   secretKey: string
+  isClose: boolean
+}
+
+export interface createCourseReq {
+  courseName: string
+  courseDes: string
+  coverImg: string
+  secretKey: string
+  languageType: number
 }
 
 export interface getIsCourseOpenByTeacherReq {
@@ -125,7 +119,7 @@ export interface insertStudent2ClassResp {
     gender: 0 | 1 | 2
     major: string
     organization: string
-  },
+  }
   errorStudentNums: string[]
 }
 

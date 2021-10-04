@@ -13,11 +13,11 @@ const store = createStore<IStore>({
 })
 
 // 定义你自己的“useStore”组合函数
-export function useStore () {
+export function useStore() {
   return baseUseStore(key)
 }
 
-export function setupStore (app: App) {
+export function setupStore(app: App) {
   app.use(store, key)
 }
 

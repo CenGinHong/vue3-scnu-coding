@@ -1,6 +1,5 @@
-import { apiGetCourseComment } from '../comment'
 import { pageParams } from '../../common'
-import { Moment } from 'moment'
+import { Dayjs } from 'dayjs'
 
 export interface getCourseCommentReq extends pageParams {
   courseId: number
@@ -13,14 +12,14 @@ export interface commentResp {
   userDetail: {
     userId: number
     username: string
-    avatarUrl: string
+    avatarImg: string
   }
-  createdAt: Moment
-  updatedAt: Moment
+  createdAt: Dayjs
+  updatedAt: Dayjs
   replyComments: commentResp[]
 }
 
-export interface getCourseCommentResp extends commentResp{
+export interface getCourseCommentResp extends commentResp {
   courseId: number
   replyComments: getCourseCommentResp[]
 }
@@ -35,7 +34,7 @@ export interface getLabCommentReq extends pageParams {
   labId: number
 }
 
-export interface getLabCommentResp extends commentResp{
+export interface getLabCommentResp extends commentResp {
   labId: number
   replyComments: getLabCommentResp[]
 }
@@ -46,6 +45,10 @@ export interface insertLabCommentReq {
   pid: number
 }
 
-export interface deleteCommentReq {
-  commentId: number
+export interface deleteCourseCommentReq {
+  courseCommentId: number
+}
+
+export interface deleteLabCommentReq {
+  labCommentId: number
 }

@@ -5,5 +5,5 @@ export enum RoleEnum {
   // 普通用户
   NORMAL = 0,
   TEACHER = 1,
-  STUDENT = 2
+  STUDENT = 2,
 }

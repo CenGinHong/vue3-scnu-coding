@@ -1,23 +1,28 @@
 <template>
   <div :class="style.outer">
-    <v-md-editor v-model="reportContent"
-                 :disabled-menus="[]"
-                 height="450px"
-                 @save="handleSave"
-                 @upload-image="handleUploadImage"/>
+    <v-md-editor
+      v-model="reportContent"
+      :disabled-menus="[]"
+      height="450px"
+      @save="handleSave"
+      @upload-image="handleUploadImage"
+    />
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, ref, useCssModule } from 'vue'
 import { useRequest } from 'vue-request'
-import { apiGetReportContent, apiUpdateReportContent } from '../../api/web/labSubmit'
+import {
+  apiGetReportContent,
+  apiUpdateReportContent
+} from '../../api/web/labSubmit'
 import { useRoute } from 'vue-router'
 import { apiUploadFile } from '../../api/web/file'
 import { message } from 'ant-design-vue'
 
 export default defineComponent({
   name: 'ReportWriteBoard',
-  setup () {
+  setup() {
     const route = useRoute()
     const labId = Number(route.query.labId)
 
@@ -25,9 +30,11 @@ export default defineComponent({
     // 获取之前撰写的实验报告的内容
     useRequest(apiGetReportContent, {
       manual: false,
-      defaultParams: [{
-        labId
-      }],
+      defaultParams: [
+        {
+          labId
+        }
+      ],
       formatResult: (res) => {
         return res.data.result
       },
@@ -43,13 +50,20 @@ export default defineComponent({
       runUpdateReportContent({ labId, reportContent: text })
     }
 
-    const { run: runUploadImage, data: dataUploadImage, error: errUploadImage } = useRequest(apiUploadFile, {
+    const {
+      run: runUploadImage,
+      data: dataUploadImage,
+      error: errUploadImage
+    } = useRequest(apiUploadFile, {
       formatResult: (res) => {
         return res.data.result
       }
     })
-    const handleUploadImage = async (event: Event,
-      insertImage: (imageConfig: any) => void, files: any[]) => {
+    const handleUploadImage = async(
+      event: Event,
+      insertImage: (imageConfig: any) => void,
+      files: any[]
+    ) => {
       const image = files[0]
       // 仅支持上传图像
       const supportUploadType: string[] = ['image/jpeg', 'image/png']

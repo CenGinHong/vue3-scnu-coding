@@ -4,7 +4,7 @@
       <a-col :flex="1">
         <tree class="tree" :tree-data="code" style="padding-left: 20px"></tree>
       </a-col>
-      <a-divider type="vertical" style="height: inherit"/>
+      <a-divider type="vertical" style="height: inherit" />
       <a-col :flex="5" style="text-align: left">
         {{ codeContent }}
       </a-col>
@@ -30,12 +30,13 @@ export default defineComponent({
     Tree,
     highlightjs: hljsVuePlugin.component
   },
-  setup (props) {
+  setup(props) {
     // 注入
     const selectedKeys: Ref<string[]> = ref<string[]>([])
     provide<Ref<string[]>>('selectedKeys', selectedKeys)
     const codeContent = ref<string>('')
-    watch(() => selectedKeys.value,
+    watch(
+      () => selectedKeys.value,
       () => {
         const key = selectedKeys.value[selectedKeys.value.length - 1]
         const keys = key.split('-')
@@ -54,7 +55,8 @@ export default defineComponent({
         if (cur.childNode.length === 0) {
           codeContent.value = cur.content
         }
-      })
+      }
+    )
 
     return {
       codeContent

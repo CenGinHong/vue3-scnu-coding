@@ -6,9 +6,9 @@ import { LoginParams, LoginResp } from '../../api/admin/model/userModel'
 import { RequestEnum } from '../../enums/httpEnum'
 
 enum Api {
-    login = '/web/login',
-    logout = '/web/logout',
-    getAllUser = '/admin/user'
+  login = '/web/login',
+  logout = '/web/logout',
+  getAllUser = '/admin/user',
 }
 
 const getUser = (params: LoginParams) => {

@@ -1,23 +1,23 @@
-import {pageParams, saveResp} from '../../common'
-import {Moment} from 'moment'
+import { IFileItem, pageParams } from '../../common'
+import { Dayjs } from 'dayjs'
 
-export interface updateLab {
+export interface updateLabReq {
   labId: number
-  title: string,
+  title: string
   content: string
-  attachmentFileId?: number
-  deadline?: Moment
+  attachmentSrc?: string
+  deadline: Dayjs | null
 }
 
-export interface insertLab {
-  title: string,
+export interface insertLabReq {
+  title: string
   content: string
-  attachmentFileId?: number
-  deadline?: Moment
+  attachmentSrc: string
+  courseId: string
+  deadline?: Dayjs
 }
 
-
-export interface getLabByCourseIdReq extends pageParams {
+export interface listLabByCourseIdReq extends pageParams {
   courseId: number
 }
 
@@ -29,21 +29,12 @@ export interface labDetailResp {
   }
   title: string
   content: string
-  labSubmitDetail?: {
-    isFinish: boolean
-    score: number
-    labSubmitComment: string
-  }
-  attachmentFileDetail?: {
-    localFileId: number
-    filename: string
-    size: number
-    url: string
-    contentType: string
-  }
-  deadline?: Moment
-  createdAt: Moment
-  updatedAt: Moment
+  attachmentSrc: string
+  type: number
+  deadline: Dayjs | null
+  createdAt: Dayjs
+  updatedAt: Dayjs
+  fileList: IFileItem[]
 }
 
 export interface deleteLabReq {
@@ -61,4 +52,8 @@ export interface ListOneStudentScoreResp {
     labSubmitId: number
     score: number
   }
+}
+
+export interface ListLabIdReq {
+  courseId: number
 }

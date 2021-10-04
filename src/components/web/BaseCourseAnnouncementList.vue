@@ -1,12 +1,13 @@
 <template>
   <div :class="style.outer">
     <a-list
-        :data-source="dataCourse"
-        :loading="loading"
-        :pagination="pag"
-        :row-key="record => record.courseAnnouncementId"
-        item-layout="vertical"
-        size="large">
+      :data-source="dataCourse"
+      :loading="loading"
+      :pagination="pag"
+      :row-key="(record) => record.courseAnnouncementId"
+      item-layout="vertical"
+      size="large"
+    >
       <template #renderItem="{ item, index }">
         <a-list-item>
           <template #actions>
@@ -20,10 +21,8 @@
             </template>
           </a-list-item-meta>
           <p :class="style.announcementContent">{{ item.content }}</p>
-          <p>更新日期：{{ moment(item.updatedAt).format('YYYY-MM-DD') }}</p>
-          <a v-if="item.attachmentFileDetail" :href="item.attachmentFileDetail.url">
-            <linkedin-outlined/>
-            {{ item.attachmentFileDetail.filename }}</a>
+          <p>更新日期：{{ dayjs(item.updatedAt).format('YYYY-MM-DD') }}</p>
+          <a-upload :file-list="item.fileList" :remove="removeFile" />
         </a-list-item>
       </template>
     </a-list>
@@ -32,22 +31,32 @@
 
 <script lang="ts" setup>
 import { ComputedRef, useCssModule } from 'vue'
-import { pagination } from '../../api/common'
+import { IPagination } from '../../api/common'
 import { courseAnnouncementListResp } from '../../api/web/model/courseAnnouncement'
-import moment from 'moment'
 import { LinkedinOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
+import dayjs from 'dayjs'
 
 // eslint-disable-next-line no-undef
-const props = withDefaults(defineProps<{
-  dataCourse?: courseAnnouncementListResp[],
-  pag: ComputedRef<pagination>
-  loading: boolean
-}>(), {
-  dataCourse: () => []
-})
+const props = withDefaults(
+  // eslint-disable-next-line no-undef
+  defineProps<{
+    dataCourse?: courseAnnouncementListResp[]
+    pag: ComputedRef<IPagination>
+    loading: boolean
+  }>(),
+  {
+    dataCourse: () => []
+  }
+)
+
+// 在列表处阻断删除
+const removeFile = () => {
+  message.info('请在修改处删除文件')
+  return false
+}
 
 const style = useCssModule()
-
 </script>
 
 <style lang="scss" module>
@@ -62,5 +71,4 @@ const style = useCssModule()
     width: 800px;
   }
 }
-
 </style>

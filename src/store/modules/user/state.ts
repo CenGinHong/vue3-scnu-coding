@@ -4,7 +4,7 @@ export interface IUserInfo {
   userId: number
   username: string
   roleId: number
-  avatarUrl: string
+  avatarImg: string
 }
 
 export interface IUserState {
@@ -18,6 +18,6 @@ export const state: IUserState = {
     userId: 0,
     username: '',
     roleId: RoleEnum.NORMAL,
-    avatarUrl: ''
+    avatarImg: ''
   }
 }

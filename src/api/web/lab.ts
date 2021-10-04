@@ -1,41 +1,41 @@
-
-import { saveResp, pageResp, Result } from '../common'
+import { pageResp, Result, saveResp } from '../common'
 import {
   deleteLabReq,
-  getLabByCourseIdReq,
+  insertLabReq,
   labDetailResp,
+  listLabByCourseIdReq,
   ListOneStudentScoreReq,
   ListOneStudentScoreResp,
-  insertLab
+  updateLabReq
 } from './model/lab'
 import instance from '../../util/axios/axios'
 
 enum Api {
   lab = '/web/lab',
-  score = '/web/lab/score'
+  score = '/web/lab/score',
 }
 
-export function apiListLabByCourseId (params: getLabByCourseIdReq) {
+export function apiListLabByCourseId(params: listLabByCourseIdReq) {
   return instance.get<Result<pageResp<labDetailResp>>>(Api.lab, {
     params: params
   })
 }
 
-export function apiDeleteLab (params: deleteLabReq) {
+export function apiDeleteLab(params: deleteLabReq) {
   return instance.delete<Result>(Api.lab, {
     params
   })
 }
 
-export function apiUpdateLab (data: insertLab) {
-  return instance.patch<Result>(Api.lab, data)
+export function apiUpdateLab(data: updateLabReq) {
+  return instance.put<updateLabReq, Result>(Api.lab, data)
 }
 
-export function apiInsertLab (data: insertLab) {
-  return instance.post<Result<saveResp>>(Api.lab, data)
+export function apiInsertLab(data: insertLabReq) {
+  return instance.post<insertLabReq, Result<saveResp>>(Api.lab, data)
 }
 
-export function apiListOneStudentScoreResp (params: ListOneStudentScoreReq) {
+export function apiListOneStudentScoreResp(params: ListOneStudentScoreReq) {
   return instance.get<Result<pageResp<ListOneStudentScoreResp>>>(Api.score, {
     params: params
   })

@@ -1,23 +1,34 @@
 <template>
   <div class="outer">
     <a-input-search
-        v-model:value="searchValue"
-        class="input"
-        enter-button
-        placeholder="搜索课程名或教师名"
-        @search="onSearch"/>
-    <base-course-list :dataSource="dataSource?.records"
-                      :loading="loadingGetDataList"
-                      :pag="pag"
-                      class="list">
+      v-model:value="searchValue"
+      class="input"
+      enter-button
+      placeholder="搜索课程名或教师名"
+      @search="onSearch"
+    />
+    <base-course-list
+      :dataSource="dataSource?.records"
+      :loading="loadingGetDataList"
+      :pag="pag"
+      class="list"
+    >
       <template #actionButton="{ item }">
         <template v-if="item.isTake">
-          <a-button class="btu" type="primary" @click="handleRouterToCourse(item.courseId)">进入课程</a-button>
+          <a-button
+            class="btu"
+            type="primary"
+            @click="handleRouterToCourse(item.courseId)"
+            >进入课程</a-button
+          >
         </template>
         <template v-else>
           <a-popover trigger="click">
             <template #content>
-              <a-input v-model:value="enterCourseKey" placeholder="请输入密钥"/>
+              <a-input
+                v-model:value="enterCourseKey"
+                placeholder="请输入密钥"
+              />
               <a-button class="btu" size="small" type="primary">加入</a-button>
             </template>
             <a-button class="btu">加入课程</a-button>
@@ -33,7 +44,7 @@ import { usePagination } from 'vue-request'
 import { useRouter } from 'vue-router'
 import { apiSearchCourse } from '../../api/web/course'
 import BaseCourseList from './BaseCourseList.vue'
-import { pagination } from '../../api/common'
+import { IPagination } from '../../api/common'
 import { ROUTER_NAME } from '../../router'
 
 const router = useRouter()
@@ -52,8 +63,8 @@ const {
 })
 
 // 分页数据
-const pag = computed<pagination>(() => ({
-  onChange (page: number) {
+const pag = computed<IPagination>(() => ({
+  onChange(page: number) {
     current.value = page
   },
   total: total.value,
@@ -106,13 +117,12 @@ const handleRouterToCourse = (courseId: number) => {
     }
 
     .btu {
-      margin-top: 20px
+      margin-top: 20px;
     }
   }
 }
 
 .btu {
-  margin-top: 20px
+  margin-top: 20px;
 }
-
 </style>

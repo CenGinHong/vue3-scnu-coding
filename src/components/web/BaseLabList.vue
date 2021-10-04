@@ -1,12 +1,13 @@
 <template>
   <div :class="style.outer">
     <a-list
-        :data-source="props.dataSource"
-        :loading="props.loading"
-        :pagination="props.pag"
-        :row-key="record => record.labId"
-        item-layout="vertical"
-        size="large">
+      :data-source="dataSource"
+      :loading="loading"
+      :pagination="pag"
+      :row-key="(record) => record.labId"
+      item-layout="vertical"
+      size="large"
+    >
       <template #renderItem="{ item, index }">
         <a-list-item>
           <template #actions>
@@ -20,10 +21,8 @@
             </template>
           </a-list-item-meta>
           <p>{{ item.content }}</p>
-          <p>截止日期：{{ item.deadline === '' ? '无' : item.deadline  }}</p>
-          <a v-if="item.attachmentFileDetail" :href="item.attachmentFileDetail.url">
-            <link-outlined/>
-            {{ item.attachmentFileDetail.filename }}</a>
+          <p>截止日期：{{ item.deadline === '' ? '无' : item.deadline }}</p>
+          <slot :item="item" name="attachment"></slot>
         </a-list-item>
       </template>
     </a-list>
@@ -31,18 +30,22 @@
 </template>
 <script lang="ts" setup>
 import { ComputedRef, useCssModule } from 'vue'
-import { pagination } from '../../api/common'
 import { labDetailResp } from '../../api/web/model/lab'
-import { LinkOutlined } from '@ant-design/icons-vue'
+import { ExclamationCircleOutlined, LinkOutlined } from '@ant-design/icons-vue'
+import { IPagination } from '../../api/common'
 
 // eslint-disable-next-line no-undef
-const props = withDefaults(defineProps<{
-  dataSource?: labDetailResp[]
-  pag: ComputedRef<pagination>
-  loading: boolean
-}>(), {
-  dataSource: () => []
-})
+const props = withDefaults(
+  // eslint-disable-next-line no-undef
+  defineProps<{
+    dataSource?: labDetailResp[]
+    pag: ComputedRef<IPagination>
+    loading: boolean
+  }>(),
+  {
+    dataSource: () => []
+  }
+)
 
 const style = useCssModule()
 </script>
@@ -54,6 +57,5 @@ const style = useCssModule()
   .labTitle {
     font-size: 18px;
   }
-
 }
 </style>

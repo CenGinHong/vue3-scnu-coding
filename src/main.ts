@@ -6,7 +6,8 @@ import { setupStore } from './store'
 import { setupRouter } from './router'
 
 setGlobalOptions({
-  manual: true
+  manual: true,
+  loadingDelay: 200
 })
 
 const app = createApp(App)

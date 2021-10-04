@@ -11,8 +11,8 @@ export interface getUserInfoResp {
   userNum: string
   username: string
   school: string
-  avatarUrl: string
-  grade: number,
+  avatarImg: string
+  grade: number
   gender: 0 | 1 | 2
   roleId: number
   major: string
@@ -27,11 +27,11 @@ export interface updateUserInfoReq {
   school: string
   oldPassword: string
   password: string
-  avatarUrl: string
+  avatarImg: string
   gender: 0 | 1 | 2
   major: string
   organization: string
-  verCode: string,
+  verCode: string
 }
 
 export interface isEmailUsedReq {
@@ -55,7 +55,7 @@ export interface testData {
 }
 
 export interface loginReq {
-  userNum: string,
+  userNum: string
   password: string
 }
 
@@ -64,8 +64,8 @@ export interface loginResp {
 }
 
 export interface resetPasswordReq {
-  userNum: string,
-  email: string,
-  verCode: string,
-  newPassword: string,
+  userNum: string
+  email: string
+  verCode: string
+  newPassword: string
 }

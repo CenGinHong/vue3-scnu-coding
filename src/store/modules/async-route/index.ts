@@ -3,7 +3,7 @@
  */
 
 import { state } from './state'
-import { getters } from './getters'
+// import { getters } from './getters'
 import { mutations } from './mutations'
 
 export type { IAsyncRouteState } from './state'
@@ -11,6 +11,6 @@ export type { IAsyncRouteState } from './state'
 export default {
   namespaced: true,
   state,
-  getters,
-  mutations,
+  // getters,
+  mutations
 }

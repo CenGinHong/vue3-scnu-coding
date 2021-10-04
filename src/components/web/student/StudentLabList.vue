@@ -1,61 +1,96 @@
 <template>
-  <base-lab-list :data-source="dataLabList?.records" :loading="loadingListLabList" :pag="pagination">
-    <template #actions="{ item, index}">
+  <base-lab-list
+    :data-source="dataLabList?.records"
+    :loading="loadingListLabList"
+    :pag="pagination"
+  >
+    <template #actions="{ item, index }">
       <!--ide编写按钮-->
-      <a-button :class="style.ideBtu" type="link"
-                @click="handleOpenIDE(item.labId)">
-        <send-outlined/>
+      <a-button
+        :class="style.ideBtu"
+        type="link"
+        @click="handleOpenIDE(item.labId)"
+      >
+        <send-outlined />
         IDE编写实验
       </a-button>
       <!--点击按钮-->
       <a-button
-          :class="style.editBtu"
-          type="link"
-          @click="handleRouteToReportWriteBoard(item.labId,item.deadline)">
-        <edit-outlined/>
+        :class="style.editBtu"
+        type="link"
+        @click="handleRouteToReportWriteBoard(item.labId, item.deadline)"
+      >
+        <edit-outlined />
         {{ isDeadLineAfter(item.deadline) ? '查看实验报告' : '编写实验报告' }}
       </a-button>
       <a-button
-          :class="style.commentBtu"
-          type="link"
-          @click="handleShowComment(item.labId)">
-        <comment-outlined/>
+        :class="style.commentBtu"
+        type="link"
+        @click="handleShowComment(item.labId)"
+      >
+        <comment-outlined />
         查看评论
       </a-button>
-      <a-tooltip placement="top" title="完成实验后自行修改">
+      <a-tooltip
+        :title="
+          isDeadLineAfter(item.deadline)
+            ? '已经超过截止时间'
+            : '完成实验后自行修改'
+        "
+        placement="top"
+      >
         <a-switch
-            v-model:checked="item.labSubmitDetail.isFinish"
-            :disabled="isDeadLineAfter(item.deadline)"
-            checked-children="已完成"
-            un-checked-children="未完成"
-            @click="handleChangeFinish(index)"/>
+          v-model:checked="item.labSubmitDetail.isFinish"
+          :disabled="isDeadLineAfter(item.deadline)"
+          :loading="queriesChangeLabFinish[item.labId]?.loading"
+          checked-children="已完成"
+          un-checked-children="未完成"
+          @click="handleChangeFinish(index)"
+        />
       </a-tooltip>
       <!--完成标志-->
-      <template v-if="item.labSubmitDetail.score!==0">
-        <a-popover :content="item.labSubmitDetail.labSubmitComment" title="评语" trigger="hover">
-          <a-tag :color="scoreTagColor(item.labSubmitDetail.score)">{{ item.labSubmitDetail.score }}</a-tag>
+      <template v-if="item.labSubmitDetail.score !== 0">
+        <a-popover
+          :content="item.labSubmitDetail.labSubmitComment"
+          title="评语"
+          trigger="hover"
+        >
+          <a-tag :color="scoreTagColor(item.labSubmitDetail.score)">{{
+            item.labSubmitDetail.score
+          }}</a-tag>
         </a-popover>
       </template>
     </template>
   </base-lab-list>
-  <a-modal v-model:visible="visibleCommentModal" title="实验评论" width="1000px" :footer="null">
-      <lab-comment :lab-id="commentLabId"/>
+  <a-modal
+    v-model:visible="visibleCommentModal"
+    :footer="null"
+    title="实验评论"
+    width="800px"
+  >
+    <lab-comment :lab-id="commentLabId" />
   </a-modal>
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, useCssModule, watch } from 'vue'
+import { computed, reactive, ref, useCssModule } from 'vue'
 import { usePagination, useRequest } from 'vue-request'
 import { useRouter } from 'vue-router'
-import moment, { Moment } from 'moment'
-import { CommentOutlined, EditOutlined, SendOutlined } from '@ant-design/icons-vue'
+import {
+  CommentOutlined,
+  EditOutlined,
+  SendOutlined
+} from '@ant-design/icons-vue'
 import LabComment from '../LabComment.vue'
 import BaseLabList from '../BaseLabList.vue'
 import { apiListLabByCourseId } from '../../../api/web/lab'
 import { OpenIDE } from '../../../api/web/ide'
 import { apiChangeLabFinish } from '../../../api/web/labSubmit'
-import { scoreTagColor } from '../../../util/utils'
+import { fileSrc2File, scoreTagColor } from '../../../util/utils'
 import { ROUTER_NAME } from '../../../router'
+import { labDetailResp } from '../../../api/web/model/lab'
+import { updateFinishTagReq } from '../../../api/web/model/labSubmit'
+import dayjs, { Dayjs } from 'dayjs'
 
 // eslint-disable-next-line no-undef
 const props = defineProps({
@@ -73,11 +108,19 @@ const {
 } = usePagination(apiListLabByCourseId, {
   manual: false,
   formatResult: (res) => {
+    res.data.result!.records.forEach((item: labDetailResp) => {
+      item.fileList = []
+      if (item.attachmentSrc !== '') {
+        item.fileList.push(fileSrc2File(item.attachmentSrc))
+      }
+    })
     return res.data.result
   },
-  defaultParams: [{
-    courseId: props.courseId
-  }]
+  defaultParams: [
+    {
+      courseId: Number(props.courseId)
+    }
+  ]
 })
 
 // 分页数据
@@ -90,23 +133,27 @@ const pagination = computed(() => ({
 }))
 
 // 是否过截止日期
-const isDeadLineAfter = (deadline: Moment): boolean => {
-  return moment().isAfter(deadline)
+const isDeadLineAfter = (deadline: Dayjs): boolean => {
+  return dayjs().isAfter(deadline)
 }
 
 // 修改完成标志
-const {
-  run: runChangeLabFinish
-} = useRequest(apiChangeLabFinish)
+const { run: runChangeLabFinish, queries: queriesChangeLabFinish } = useRequest(
+  apiChangeLabFinish,
+  {
+    queryKey: (updateFinishTagReq) => String(updateFinishTagReq.labId)
+  }
+)
 
 const handleChangeFinish = (index: number) => {
   runChangeLabFinish({
-    isFinish: dataLabList.value!.records[index].labSubmitDetail?.isFinish,
+    isFinish:
+      dataLabList.value!.records[index].labSubmitDetail?.isFinish ?? true,
     labId: dataLabList.value!.records[index].labId
   })
 }
 
-const handleRouteToReportWriteBoard = (labId: number, deadline: Moment) => {
+const handleRouteToReportWriteBoard = (labId: number, deadline: Dayjs) => {
   router.push({
     name: ROUTER_NAME.REPORT_WRITE_BOARD,
     query: {
@@ -153,7 +200,6 @@ const style = useCssModule()
 </script>
 
 <style lang="scss" module>
-
 .ideBtu {
   margin-left: -15px;
 }
@@ -165,5 +211,4 @@ const style = useCssModule()
 .commentBtu {
   color: gray;
 }
-
 </style>
