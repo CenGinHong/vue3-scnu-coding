@@ -21,10 +21,8 @@ export function apiListLabByCourseId(params: listLabByCourseIdReq) {
   })
 }
 
-export function apiDeleteLab(params: deleteLabReq) {
-  return instance.delete<Result>(Api.lab, {
-    params
-  })
+export function apiDeleteLab(id: number) {
+  return instance.delete<Result>(Api.lab + '/' + id)
 }
 
 export function apiUpdateLab(data: updateLabReq) {
@@ -39,4 +37,8 @@ export function apiListOneStudentScoreResp(params: ListOneStudentScoreReq) {
   return instance.get<Result<pageResp<ListOneStudentScoreResp>>>(Api.score, {
     params: params
   })
+}
+
+export function apiGetLabDetail(id: number) {
+  return instance.get<Result<labDetailResp>>(Api.lab + '/' + id)
 }

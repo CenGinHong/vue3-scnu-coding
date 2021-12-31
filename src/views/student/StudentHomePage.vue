@@ -1,7 +1,7 @@
 <template>
-  <a-row :class="style.row1">
-    <a-col span="6">
-      <a-card :class="style.card" hoverable>
+  <a-row class="row1">
+    <a-col :span="5" :offset="1">
+      <a-card class="card" hoverable>
         <template #cover>
           <img alt="example" src="/src/assets/gate.jpg" />
         </template>
@@ -20,8 +20,7 @@
         </a-card-meta>
       </a-card>
     </a-col>
-    <a-col span="1"> </a-col>
-    <a-col :class="style.courseList" span="17">
+    <a-col class="courseList" :span="16" :offset="1">
       <a-tabs v-model:activeKey="tabsActiveKey" size="large">
         <a-tab-pane key="1" tab="我的课程">
           <student-course-list />
@@ -38,12 +37,7 @@
     title="总编码时间"
     width="760px"
   >
-    <e-charts
-      :autoresize="true"
-      :class="style.echarts"
-      :loading="loadingCodingTime"
-      :option="option"
-    />
+    <coding-time-div/>
   </a-modal>
   <a-modal
     v-model:visible="visibleUpdateUserInfo"
@@ -166,6 +160,7 @@ import { message } from 'ant-design-vue'
 import { RuleObject } from 'ant-design-vue/es/form/interface'
 import { IUserInfo } from '../../store/modules/user/state'
 import { updateUserInfoReq } from '../../api/web/model/userModel'
+import CodingTimeDiv from "../../components/web/codingTimeDiv.vue";
 
 use([
   TitleComponent,
@@ -193,9 +188,9 @@ const {
 } = useRequest(apiGetCodingTime, {
   formatResult: (res) => {
     const ret: [string, number][] = []
-    const record = res.data.result!.record
+    const record = res.data.result!
     for (const recordElement of record) {
-      ret.push([recordElement.CreatedAt, recordElement.duration])
+      ret.push([recordElement.createdAt, recordElement.duration])
     }
     return ret
   }
@@ -312,24 +307,24 @@ const updateUserInfo = reactive<IUpdateUserInfoState>({
   organization: ''
 })
 
-const rules = {
-  username: [{ required: true, trigger: 'change', message: '姓名不能为空' }],
+const rules = reactive<Record<string, RuleObject[]>>({
+  username: [{ required: true, message: '姓名不能为空' }],
   userNum: [
-    { required: true, trigger: 'change', message: '学号不能为空' },
+    { required: true, message: '学号不能为空' },
     {
       pattern: /^[0-9]*$/,
       message: '学号需为数字'
     }
   ],
   email: [
-    { required: true, trigger: 'change', message: '邮箱不能为空' },
+    { required: true, message: '邮箱不能为空' },
     {
       pattern: /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
       message: '需满足邮箱格式'
     }
   ],
-  major: [{ required: true, trigger: 'change', message: '专业不能为空' }],
-  school: [{ required: true, trigger: 'change', message: '学院不能为空' }],
+  major: [{ required: true, message: '专业不能为空' }],
+  school: [{ required: true, message: '学院不能为空' }],
   verCode: [
     { pattern: /^\d{6}$/, message: '验证码为6为纯数字' },
     {
@@ -344,7 +339,7 @@ const rules = {
     }
   ],
   organization: [
-    { required: true, trigger: 'change', message: '学院不能为空' }
+    { required: true, message: '学院不能为空' }
   ],
   newPassword: [
     {
@@ -361,7 +356,7 @@ const rules = {
       }
     }
   ]
-}
+})
 const updateUserInfoFormRef = ref()
 const visibleUpdateUserInfo = ref<boolean>(false)
 const isShowVerCodeInput = computed<boolean>(
@@ -432,16 +427,10 @@ const genderRadioOption: radioOption[] = [
 const style = useCssModule()
 </script>
 
-<style lang="scss" module>
-.courseList:hover {
-  box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.25);
-}
+<style lang="scss" scoped>
 
 .row1 {
-  margin-left: 100px;
-  margin-right: 100px;
   margin-top: 20px;
-  border-radius: 10px;
   min-height: 420px;
 
   .courseList {
@@ -455,15 +444,10 @@ const style = useCssModule()
   }
 }
 
-.echarts {
-  height: 150px;
-}
 </style>
 
 <style lang="scss" scoped>
-::v-deep(.ant-tabs-nav-scroll) {
-  float: left;
+::v-deep(.ant-tabs-nav-wrap) {
   margin-left: 16px;
-  margin-top: 16px;
 }
 </style>

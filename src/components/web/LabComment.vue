@@ -7,42 +7,39 @@
       </template>
       <template #content>
         <a-form-item>
-          <a-textarea v-model:value="replyCommentRecord[0]" :rows="4" />
+          <a-textarea v-model:value="replyCommentRecord[0]" :rows="4"/>
         </a-form-item>
         <a-form-item>
           <a-button
-            :class="style.replyButton"
-            :loading="queriesInsertLabComment[0]?.loading"
-            type="primary"
-            @click="handleReplyComment(0)"
-            :disabled="
-              replyCommentRecord[0] === undefined ||
-              replyCommentRecord[0] === ''
-            "
+              :class="style.replyButton"
+              :loading="queriesInsertLabComment[0]?.loading"
+              type="primary"
+              @click="handleReplyComment(0)"
           >
-            <form-outlined />新增评论
+            <form-outlined/>
+            新增评论
           </a-button>
         </a-form-item>
       </template>
     </a-comment>
     <!--评论条目-->
     <template v-if="dataListComment?.records.length === 0">
-      <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" />
+      <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE"/>
     </template>
     <template v-else>
       <template v-for="item in dataListComment?.records" :key="item.commentId">
         <comment-item :commentInfo="item">
           <template #actions="{ record }">
             <span @click="handleChangeOpenCommentArea(record.commentId)">
-              <comment-outlined />
+              <comment-outlined/>
               {{ openCommentArea[record.commentId] ? '取消回复' : '回复' }}
             </span>
             <template v-if="userInfo.userId === record.userDetail.userId">
               <span
-                :class="style.delBtn"
-                @click="handleDeleteComment(record.commentId)"
+                  :class="style.delBtn"
+                  @click="handleDeleteComment(record.commentId)"
               >
-                <delete-outlined />删除
+                <delete-outlined/>删除
               </span>
             </template>
             <!--回复框-->
@@ -54,23 +51,24 @@
                 <template #content>
                   <a-form-item>
                     <a-textarea
-                      v-model:value="replyCommentRecord[record.commentId]"
-                      :rows="4"
+                        v-model:value="replyCommentRecord[record.commentId]"
+                        :rows="4"
                     />
                   </a-form-item>
                   <a-form-item>
                     <a-button
-                      :loading="
+                        :loading="
                         queriesInsertLabComment[record.commentId]?.loading
                       "
-                      type="primary"
-                      @click="handleReplyComment(record.commentId)"
-                      :disabled="
+                        type="primary"
+                        @click="handleReplyComment(record.commentId)"
+                        :disabled="
                         replyCommentRecord[record.commentId] === undefined ||
                         replyCommentRecord[record.commentId] === ''
                       "
                     >
-                      <form-outlined />回复
+                      <form-outlined/>
+                      回复
                     </a-button>
                   </a-form-item>
                 </template>
@@ -82,10 +80,10 @@
       </template>
       <div :class="style.pagination">
         <a-pagination
-          v-model:current="currentListComment"
-          :pageSize="pageSizeListComment"
-          :total="totalListComment"
-          show-less-items
+            v-model:current="currentListComment"
+            :pageSize="pageSizeListComment"
+            :total="totalListComment"
+            show-less-items
         />
       </div>
     </template>
@@ -156,13 +154,17 @@ const handleChangeOpenCommentArea = (id: number) => {
 
 // 新增评论
 const { run: runInsertLabComment, queries: queriesInsertLabComment } =
-  useRequest(apiInsertLabComment, {
-    queryKey: (insertLabCommentReq) => String(insertLabCommentReq.pid)
-  })
+    useRequest(apiInsertLabComment, {
+      queryKey: (insertLabCommentReq) => String(insertLabCommentReq.pid)
+    })
 
 const replyCommentRecord = ref<Record<number, string>>({})
 const handleReplyComment = async(pid: number) => {
   const content = replyCommentRecord.value[pid]
+  if (replyCommentRecord.value[pid] === undefined || replyCommentRecord.value[pid] === '') {
+    message.error('讨论内容不能为空')
+    return
+  }
   if (content === undefined || content === '') {
     message.error('请先输入内容')
     return

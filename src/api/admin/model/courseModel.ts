@@ -1,4 +1,5 @@
 import { Dayjs } from 'dayjs'
+import {pageParams} from "../../common";
 
 export interface listCourseResp {
   courseId: number
@@ -39,7 +40,7 @@ export interface listCourseEnrollResp {
   }
 }
 
-export interface listCourseEnrollReq {
+export interface listCourseEnrollReq extends pageParams{
   courseId: number
 }
 

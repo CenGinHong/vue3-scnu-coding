@@ -148,7 +148,7 @@ export default defineComponent({
       })
     }
 
-    const rules = {
+    const rules = reactive<Record<string, RuleObject[]>>({
       userNum: [
         { required: true, message: '学工号不能为空' },
         { pattern: /^[0-9]*$/, message: '学工号需为数字' }
@@ -186,7 +186,7 @@ export default defineComponent({
           }
         }
       ]
-    }
+    })
     const style = useCssModule()
     return {
       handleSendMail,

@@ -101,3 +101,7 @@ export function apiCreateCourse(data: createCourseReq) {
 export function apiUpdateCourse(data: updateCourseReq) {
   return instance.put<updateCourseReq, Result>(Api.course, data)
 }
+
+export function apiDeleteCourse(id :number) {
+  return instance.delete<Result>(Api.course + '/' + id)
+}

@@ -1,33 +1,33 @@
 <template>
-  <a-row>
-    <a-col span="24">
-      <a-button
-          :class="style.insertBtn"
-          type="primary"
-          @click="visibleModalInsertCourse = true"
-      >
-        <form-outlined/>
-        新建课程
-      </a-button>
-    </a-col>
-  </a-row>
-  <a-row>
-    <a-col span="24">
-      <base-course-list
-          :dataSource="dataSource?.records"
-          :loading="loading"
-          :pag="pag"
-      />
-    </a-col>
-  </a-row>
-  <insert-course-form
-      v-model:visible-modal="visibleModalInsertCourse"
-      @refresh-list="refreshListCourse">
-  </insert-course-form>
+  <a-space class="btnSpace">
+    <a-button
+        class="insertBtn"
+        type="primary"
+        @click="handleShowModalInsertCourse"
+    >   <form-outlined/>
+    新建课程
+    </a-button>
+  </a-space>
+
+  <base-course-list
+      :dataSource="dataSource?.records"
+      :loading="loading"
+      :pag="pag"
+  />
+  <a-modal
+      v-model:visible="visibleModalInsertCourse"
+      title="新建课程"
+      width="800px"
+      :footer="null"
+  >
+    <insert-course-form
+        @finish="handleFinishInsertCourse">
+    </insert-course-form>
+  </a-modal>
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, useCssModule, watchEffect } from 'vue'
+import { computed, ref } from 'vue'
 import { usePagination } from 'vue-request'
 import { IPagination } from '../../../api/common'
 import {
@@ -36,11 +36,7 @@ import {
 import { useRouter } from 'vue-router'
 import BaseCourseList from '../BaseCourseList.vue'
 import { FormOutlined, PlusOutlined } from '@ant-design/icons-vue'
-import { createCourseReq } from '../../../api/web/model/courseModel'
-import { Form } from 'ant-design-vue'
-import InsertCourseForm from './InsertCourseModal.vue'
-
-const useForm = Form.useForm
+import InsertCourseForm from './InsertCourseForm.vue'
 
 // 路由
 const router = useRouter()
@@ -71,12 +67,22 @@ const pag = computed<IPagination>(() => ({
 // 插入课程的可见框
 const visibleModalInsertCourse = ref<boolean>(false)
 
-const style = useCssModule()
+const handleShowModalInsertCourse = () => {
+  visibleModalInsertCourse.value = true
+}
+
+const handleFinishInsertCourse = (res: boolean) => {
+  if (res) {
+    refreshListCourse()
+  }
+  visibleModalInsertCourse.value = false
+}
+
 </script>
 
-<style lang="scss" module>
-.insertBtn {
-  float: left;
-  margin-left: 16px;
+<style lang="scss" scoped>
+.btnSpace {
+  display: flex;
+  margin-bottom: 26px;
 }
 </style>

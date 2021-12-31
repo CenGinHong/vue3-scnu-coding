@@ -13,7 +13,7 @@ export interface insertLabReq {
   title: string
   content: string
   attachmentSrc: string
-  courseId: string
+  courseId: number
   deadline?: Dayjs
 }
 
@@ -27,13 +27,20 @@ export interface labDetailResp {
     courseId: number
     courseName: string
   }
+  labSubmitDetail: {
+    labSubmitId: number
+    report: string
+    isFinish: boolean
+    score: number
+    labSubmitComment: number
+  }
   title: string
   content: string
   attachmentSrc: string
   type: number
-  deadline: Dayjs | null
-  createdAt: Dayjs
-  updatedAt: Dayjs
+  deadline: string
+  createdAt: string
+  updatedAt: string
   fileList: IFileItem[]
 }
 

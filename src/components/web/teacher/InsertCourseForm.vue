@@ -1,53 +1,48 @@
 <template>
-  <a-modal
-    :visible="visibleModal"
-    :ok-button-props="{ loading: loadingCreateCourse || loadingUpload }"
-    cancel-text="取消"
-    ok-text="新建"
-    title="新建课程"
-    width="800px"
-    @cancel="cancel"
-    @ok="handleCreateCourse"
-  >
-    <a-form
+  <a-form
       :label-col="{ span: 3 }"
       :model="insertCourseState"
       :rules="rules"
       :wrapper-col="{ span: 20 }"
-    >
-      <a-form-item label="课程名" name="courseName">
-        <a-input v-model:value="insertCourseState.courseName" />
-      </a-form-item>
-      <a-form-item label="课程简介" name="courseDes">
-        <a-textarea
+  >
+    <a-form-item label="课程名" name="courseName">
+      <a-input v-model:value="insertCourseState.courseName"/>
+    </a-form-item>
+    <a-form-item label="课程简介" name="courseDes">
+      <a-textarea
           v-model:value="insertCourseState.courseDes"
           :maxlength="250"
           allow-clear
           rows="5"
           showCount
-        />
-      </a-form-item>
-      <a-form-item label="课程密钥" name="SecretKey">
-        <a-input
+      />
+    </a-form-item>
+    <a-form-item label="课程密钥" name="SecretKey">
+      <a-input
           v-model:value="insertCourseState.secretKey"
           placeholder="请输入6位加入课程的数字密钥"
-        />
-      </a-form-item>
-      <a-form-item label="编程语言">
-        <a-radio-group
+      />
+    </a-form-item>
+    <a-form-item label="编程语言">
+      <a-radio-group
           v-model:value="insertCourseState.languageType"
           :options="languageRadioOption"
-        />
-      </a-form-item>
-      <a-form-item label="课程封面">
-        <upload-image-modal
-          v-model:image-init-list="createCourseImageInitList"
+      />
+    </a-form-item>
+    <a-form-item label="课程封面">
+      <upload-image-modal
+          v-model:image-list="fileList"
           v-model:loading="loadingUpload"
           :size-limits="2"
-        />
-      </a-form-item>
-    </a-form>
-  </a-modal>
+      />
+    </a-form-item>
+    <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
+      <a-space>
+        <a-button @click="handleCancel">取消</a-button>
+        <a-button type="primary" @click="handleCreateCourse" :loading="loadingCreateCourse">新建</a-button>
+      </a-space>
+    </a-form-item>
+  </a-form>
 </template>
 
 <script lang="ts" setup>
@@ -58,18 +53,12 @@ import { useRequest } from 'vue-request'
 import { apiCreateCourse } from '../../../api/web/course'
 import UploadImageModal from '../../common/UploadImageModal.vue'
 import { Form, message } from 'ant-design-vue'
-
-const useForm = Form.useForm
-
-// eslint-disable-next-line no-undef
-const props = defineProps<{
-  visibleModal: boolean
-}>()
+import { useForm } from 'ant-design-vue/es/form'
+import {RuleObject} from "ant-design-vue/es/form/interface";
 
 // eslint-disable-next-line no-undef,,func-call-spacing
 const emits = defineEmits<{
-  (e: 'update:visibleModal', src: boolean): void
-  (e: 'refreshList'): void
+  (e: 'finish', src: boolean): void
 }>()
 
 const insertCourseState = reactive<createCourseReq>({
@@ -81,16 +70,14 @@ const insertCourseState = reactive<createCourseReq>({
 })
 
 const loadingUpload = ref<boolean>(false)
-const createCourseImageInitList = ref<IFileItem[]>([])
+const fileList = ref<IFileItem[]>([])
 
 watchEffect(() => {
-  if (createCourseImageInitList.value.length === 0) {
-    createCourseImageInitList.coverImg = ''
-    return
-  }
-  if (createCourseImageInitList.value[0].status === 'done') {
-    createCourseImageInitList.coverImg =
-      createCourseImageInitList.value[0].response.result.fileSrc
+  if (fileList.value.length === 0) {
+    fileList.coverImg = ''
+  } else if (fileList.value[0].status === 'done') {
+    fileList.coverImg =
+        fileList.value[0].response.result.fileSrc
   }
 })
 
@@ -110,7 +97,7 @@ const languageRadioOption = reactive<radioOption[]>([
   }
 ])
 
-const rules = reactive({
+const rules = reactive<Record<string, RuleObject[]>>({
   courseName: [
     { required: true, message: '课程名不能为空' },
     {
@@ -140,14 +127,12 @@ const handleCreateCourse = async() => {
   if (errCreateCourse.value) {
     return
   }
-  emits('refreshList')
-  cancel()
+  emits('finish',true)
 }
 
-const cancel = () => {
-  emits('update:visibleModal', false)
+const handleCancel = () => {
+  emits('finish',false)
 }
-
 </script>
 
 <style scoped></style>

@@ -1,74 +1,71 @@
 <template>
-  <div :class="style.outer">
+  <div class="outer">
     <a-radio-group
-      v-model:value="markTypeActiveKey"
-      :class="style.markType"
-      button-style="solid"
+        v-model:value="markTypeActiveKey"
+        class="correctType"
+        button-style="solid"
     >
       <a-radio-button value="0">查看所有</a-radio-button>
       <a-radio-button value="1">仅查看已完成</a-radio-button>
       <a-radio-button value="2">仅查看已完成且未评分</a-radio-button>
       <a-select
-        v-model:value="selectedStudent"
-        :class="style.selectStudent"
-        :filter-option="handleFilterOption"
-        :loading="loadingLabSubmit"
-        :options="options"
-        option-filter-prop="label"
-        placeholder="选择学生"
-        show-search
+          v-model:value="selectedStudent"
+          class="selectStudent"
+          :filter-option="handleFilterOption"
+          :loading="loadingLabSubmit"
+          :options="options"
+          option-filter-prop="label"
+          placeholder="选择学生"
+          show-search
       >
       </a-select>
       <a-button :disabled="disableLast" @click="handleLast">
-        <left-outlined />
+        <left-outlined/>
       </a-button>
       <a-button :disabled="disableNext" @click="handleNext">
-        <right-outlined />
+        <right-outlined/>
       </a-button>
       <a-button @click="handleRefreshLabSubmitId">
-        <reload-outlined />
+        <reload-outlined/>
       </a-button>
       <a-button
-        :class="style.correctBtn"
-        :disabled="selectedStudent === ''"
-        type="primary"
-        @click="handleShowModalCorrect"
+          class="correctBtn"
+          :disabled="selectedStudent === ''"
+          type="primary"
+          @click="handleShowModalCorrect"
       >
-        <check-outlined />
+        <check-outlined/>
         评分
       </a-button>
     </a-radio-group>
     <a-tabs v-model:activeKey="markContentActiveKey" type="card">
       <a-tab-pane key="0" tab="实验源码">
         <a-spin :spinning="loadingGetLabCode">
-          <template v-if="labCode?.length === 0">
-            <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" />
-          </template>
+          <a-empty v-if="labCode?.length === 0" :image="Empty.PRESENTED_IMAGE_SIMPLE"/>
           <template v-else>
-            <a-button :class="style.actionButton" type="primary"
-              >IDE打开</a-button
+            <a-button class="actionButton" type="primary"
+            >IDE打开
+            </a-button
             >
-            <program-read-board :class="style.codeBoard" :code="labCode" />
+            <program-read-board class="codeBoard" :code="labCode"/>
           </template>
         </a-spin>
       </a-tab-pane>
       <a-tab-pane key="1" tab="实验报告">
         <a-spin :spinning="loadingGetReportContent">
-          <template v-if="reportContent === ''">
-            <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" />
-          </template>
+          <a-empty v-if="reportContent === ''" :image="Empty.PRESENTED_IMAGE_SIMPLE"/>
           <template v-else>
-            <a-button :class="style.actionButton" type="primary" @click="handle"
-              >导出为pdf</a-button
+            <a-button class="actionButton" type="primary" @click="handle"
+            >导出为pdf
+            </a-button
             >
-            <div :class="style.reportContent">
+            <div class="reportContent">
               <v-md-editor
-                :model-value="reportContent"
-                height="800px"
-                mode="preview"
-                style="text-align: left"
-              ></v-md-editor>
-              <p v-html="html"></p>
+                  :model-value="reportContent"
+                  height="500px"
+                  mode="preview"
+              />
+              <p v-html="html"/>
             </div>
           </template>
         </a-spin>
@@ -76,32 +73,32 @@
     </a-tabs>
   </div>
   <a-modal
-    v-model:visible="visibleModalCorrect"
-    :ok-button-props="{ loading: loadingCorrect }"
-    cancelText="取消"
-    ok-text="确认"
-    title="评分"
-    @ok="handleUpdateCommentAndScore"
+      v-model:visible="visibleModalCorrect"
+      :ok-button-props="{ loading: loadingCorrect }"
+      cancelText="取消"
+      ok-text="确认"
+      title="评分"
+      @ok="handleUpdateCommentAndScore"
   >
     <a-form
-      :label-col="{ span: 4 }"
-      :model="correctState"
-      :wrapper-col="{ span: 18 }"
-      name="custom-validation"
+        :label-col="{ span: 4 }"
+        :model="correctState"
+        :wrapper-col="{ span: 18 }"
+        name="custom-validation"
     >
       <a-form-item label="分数" name="score">
         <a-input-number
-          v-model:value="correctState.score"
-          :max="100"
-          :min="0"
+            v-model:value="correctState.score"
+            :max="100"
+            :min="0"
         />
       </a-form-item>
       <a-form-item label="评语" name="comment">
         <a-textarea
-          v-model:value="correctState.comment"
-          :maxlength="250"
-          :rows="4"
-          show-count
+            v-model:value="correctState.comment"
+            :maxlength="250"
+            :rows="4"
+            show-count
         />
       </a-form-item>
     </a-form>
@@ -109,7 +106,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, useCssModule, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import {
   CheckOutlined,
   LeftOutlined,
@@ -238,7 +235,7 @@ watch(
           temp = dataLabSubmit.value.records.filter((item) => {
             return (
               item.labSubmitDetail !== undefined &&
-              item.labSubmitDetail.score === 0
+                  item.labSubmitDetail.score === 0
             )
           })
           break
@@ -262,11 +259,11 @@ watch(
 
 // 获取报告
 const { run: runGetReportContent, loading: loadingGetReportContent } =
-  useRequest(apiGetReportContent, {
-    formatResult: (res) => {
-      return res.data.result
-    }
-  })
+    useRequest(apiGetReportContent, {
+      formatResult: (res) => {
+        return res.data.result
+      }
+    })
 
 // 报告内容
 const reportContent = ref<string>('')
@@ -319,7 +316,7 @@ const visibleModalCorrect = ref<boolean>(false)
 const handleShowModalCorrect = () => {
   correctState.userId = options.value[Number(selectedStudent.value)].userId
   correctState.comment =
-    options.value[Number(selectedStudent.value)].comment ?? ''
+      options.value[Number(selectedStudent.value)].comment ?? ''
   correctState.score = options.value[Number(selectedStudent.value)].score ?? 0
   visibleModalCorrect.value = true
 }
@@ -347,17 +344,16 @@ const handleUpdateCommentAndScore = async() => {
 
 const html = ref()
 
-const style = useCssModule()
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .outer {
   height: auto;
 
-  .markType {
+  .correctType {
     display: flex;
     margin-bottom: 50px;
-    padding-left: 32px;
+    padding-left: 16px;
 
     .inputStudentNum {
       margin-left: 20px;
@@ -387,6 +383,7 @@ const style = useCssModule()
     margin-left: 36px;
     display: flex;
   }
+
   .codeBoard {
     margin: 16px 36px 0 36px;
   }

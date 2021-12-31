@@ -4,7 +4,6 @@
     v-model:selectedKeys="baseState.selectedKeys"
     v-model:openKeys="baseState.openKeys"
     v-bind="state"
-    :breadcrumb="{ routes: breadcrumb }"
   >
     <template #menuHeaderRender>
       <a>
@@ -63,6 +62,7 @@ import {
 import { RouteRecordRaw, useRouter } from 'vue-router'
 import { UserOutlined, DashboardOutlined } from '@ant-design/icons-vue'
 import { ROUTER_NAME } from '../../router'
+import { each } from 'lodash'
 
 const baseState = reactive<Omit<RouteContextProps, 'menuData'>>({
   // 选中的条目
@@ -98,7 +98,10 @@ const formatRelativePath = (
 }
 
 const getMenuData = (routes: RouteRecordRaw[]): MenuData => {
-  const childrenRoute = routes.find((route) => route.name === 'admin')
+  let childrenRoute = routes.find((route) => route.name === 'admin')
+  if (childrenRoute) {
+    childrenRoute = removeMenuItem(childrenRoute)
+  }
   const breadcrumb: Record<string, any> = {}
   return {
     menuData: formatRelativePath(
@@ -109,6 +112,21 @@ const getMenuData = (routes: RouteRecordRaw[]): MenuData => {
   }
 }
 
+const removeMenuItem = (childrenRoute: RouteRecordRaw) => {
+  if (childrenRoute.children) {
+    for (let i = 0; i < childrenRoute.children.length; i++) {
+      if (childrenRoute.children[i].meta?.isMenuItem === false) {
+        childrenRoute.children.splice(i, 1);
+        i--
+      } else {
+        removeMenuItem(childrenRoute.children[i])
+      }
+    }
+  }
+  return childrenRoute
+}
+
+
 const { menuData } = getMenuData(clearMenuItem(router.getRoutes()))
 
 const state = reactive({
@@ -118,15 +136,6 @@ const state = reactive({
   layout: 'mix',
   fixSiderbar: true
 })
-
-const breadcrumb = computed(() =>
-  router.currentRoute.value.matched.concat().map((item) => {
-    return {
-      path: item.path,
-      breadcrumbName: item.meta.title || ''
-    }
-  })
-)
 
 watchEffect(() => {
   if (router.currentRoute) {
@@ -141,4 +150,5 @@ watchEffect(() => {
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>

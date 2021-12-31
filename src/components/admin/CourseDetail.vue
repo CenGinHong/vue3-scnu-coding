@@ -17,19 +17,22 @@
           <a-tag color="success">进行中</a-tag>
         </template>
       </template>
-      <template v-if="column.dataIndex === 'courseDes'">
-        <a-tooltip :title="record.courseDes">
-          {{ record.courseDes }}
-        </a-tooltip>
-      </template>
-      <template v-if="column.dataIndex === 'other'">
-        <a-space>
-          <a @click="handleShowEnrollTableModal(record.courseId)">选课记录</a>
-          <a>讨论</a>
-        </a-space>
-      </template>
-      <template v-if="column.dataIndex === 'modify'">
-        <a @click="handleShowUpdateCourseModal(record)">修改</a>
+      <template v-if="column.key === 'operation'">
+          <a-dropdown-button @click="handleButtonClick" size="small">
+            <edit-outlined/>
+            <template #overlay>
+              <a-menu >
+                <a-menu-item @click="handleRouteToEnrollList(record.courseId)">
+                  <team-outlined/>
+                  学生管理
+                </a-menu-item>
+                <a-menu-item key="2">
+                  <comment-outlined />
+                  课程讨论
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown-button>
       </template>
     </template>
   </a-table>
@@ -81,7 +84,7 @@
       </a-form-item>
     </a-form>
   </a-modal>
-  <a-modal
+  <!-- <a-modal
     v-model:visible="visibleEnrollTable"
     width="1200px"
     :destroyOnClose="true"
@@ -89,13 +92,13 @@
   >
     <course-enroll-table :course-id="EnrollTableCourseId">
     </course-enroll-table>
-  </a-modal>
+  </a-modal> -->
 </template>
 
 <script lang="ts" setup>
 import { usePagination, useRequest } from 'vue-request'
 import { apiListAllCourse, apiUpdateCourse } from '../../api/admin/course'
-import { columnType, IFileItem } from '../../api/common'
+import { IFileItem } from '../../api/common'
 import dayjs from 'dayjs'
 import { computed, reactive, ref, watchEffect } from 'vue'
 import UploadImageModal from '../common/UploadImageModal.vue'
@@ -104,8 +107,13 @@ import {
   updateCourseReq
 } from '../../api/admin/model/courseModel'
 import { fileSrc2File } from '../../util/utils'
-import { apiChangeLabFinish } from '../../api/web/labSubmit'
-import CourseEnrollTable from './CourseEnrollTable.vue'
+import { ColumnType } from 'ant-design-vue/es/table'
+import { RuleObject } from 'ant-design-vue/es/form/interface'
+import { useRouter } from 'vue-router'
+import { ROUTER_NAME } from '../../router'
+import { EditOutlined, BarsOutlined, TeamOutlined, CommentOutlined } from '@ant-design/icons-vue'
+
+const router = useRouter()
 
 // 获取全部列表
 const {
@@ -130,48 +138,52 @@ const pagCourseList = computed(() => ({
   pageSize: pageSizeAllCourse.value
 }))
 
-const columns: columnType[] = [
+const columns: ColumnType[] = [
   {
     title: '课程名称',
-    dataIndex: 'courseName'
+    dataIndex: 'courseName',
+    width: '10%'
   },
   {
     title: '开课教师',
-    dataIndex: ['teacherDetail', 'username']
+    dataIndex: ['teacherDetail', 'username'],
+    width: '8%'
   },
   {
     title: '课程描述',
     dataIndex: 'courseDes',
-    ellipsis: true
+    ellipsis: true,
+    width: '40%'
   },
   {
     title: '课程密钥',
-    dataIndex: 'secretKey'
+    dataIndex: 'secretKey',
+    width: '6%'
   },
   {
     title: '是否结课',
-    dataIndex: 'isClose'
+    dataIndex: 'isClose',
+    width: '6%'
   },
   {
     title: '语言类型',
-    dataIndex: 'languageType'
+    dataIndex: 'languageType',
+    width: '6%'
   },
   {
     title: '创建时间',
-    dataIndex: 'updatedAt'
+    dataIndex: 'updatedAt',
+    width: '8%'
   },
   {
-    title: '其他',
-    dataIndex: 'other'
-  },
-  {
-    title: '修改',
-    dataIndex: 'modify'
+    title: '操作',
+    key: 'operation',
+    width: '6%'
   }
 ]
 
 // 表单字段规则
-const rules = reactive({
+const rules = reactive<Record<string, RuleObject[]>>({
   courseName: [
     { required: true, message: '请输入课程名' },
     { max: 16, message: '课程名最长16字' }
@@ -246,11 +258,13 @@ const handleUpdateCourse = async() => {
   await refreshAllCourse()
 }
 
-const visibleEnrollTable = ref<boolean>(false)
-const EnrollTableCourseId = ref<number>(0)
-const handleShowEnrollTableModal = (courseId: number) => {
-  EnrollTableCourseId.value = courseId
-  visibleEnrollTable.value = true
+const handleRouteToEnrollList = (courseId: number) => {
+  router.push({
+    name: ROUTER_NAME.COURSE_MANAGEMENT_ENROLL,
+    query: {
+      courseId
+    }
+  })
 }
 </script>
 

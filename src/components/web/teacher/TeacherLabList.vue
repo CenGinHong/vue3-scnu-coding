@@ -1,61 +1,67 @@
 <template>
-  <div :class="style.insertDiv">
+  <a-space class="btnSpace">
     <a-button type="primary" @click="visibleModalInsertLab = true">
-      <form-outlined />
+      <form-outlined/>
       新建实验
     </a-button>
-  </div>
+  </a-space>
   <base-lab-list
-    :data-source="dataListLab?.records"
-    :loading="loadingListLab"
-    :pag="pag"
+      :data-source="dataListLab?.records"
+      :loading="loadingListLab"
+      :pag="pag"
   >
     <template #attachment="{ item }">
-      <a-upload :file-list="item.fileList" :remove="removeFile" />
+      <a-upload :file-list="item.fileList" :remove="removeFile"/>
     </template>
     <template #actions="{ item }">
       <a-button
-        :class="style.firstBtu"
-        type="link"
-        @click="handleRouterToLabDetail(item.labId)"
+          class="firstBtu"
+          type="link"
+          @click="handleRouterToLabDetail(item.labId)"
       >
-        <send-outlined />
+        <send-outlined/>
         查看详情
       </a-button>
       <a-button
-        :class="style.updateBtu"
-        type="link"
-        @click="handleShowUpdateLab(item)"
+          class="btuColor"
+          type="link"
+          @click="handleShowUpdateLab(item.labId)"
       >
-        <edit-outlined />
+        <edit-outlined/>
         修改
-      </a-button>
-      <a-button danger type="link" @click="handleDeleteLab(item.labId)">
-        <delete-outlined />
-        删除
       </a-button>
     </template>
   </base-lab-list>
-  <update-lab-modal
-    v-model:visible="visibleUpdateModal"
-    :update-lab-init-state="updateLabInitState"
-    @refreshList="refreshListLab"
+  <a-modal
+      v-model:visible="visibleModalUpdate"
+      title="新建修改"
+      width="800px"
+      :footer="null"
+      :destroy-on-close="true"
   >
-  </update-lab-modal>
-  <insert-lab-modal
-    v-model:visible="visibleModalInsertLab"
-    :course-id="courseId"
-    @refresh-list="refreshListLab"
+    <update-lab-modal
+        :lab-id="updateLabId"
+        @finish="handleFinishUpdateLab"
+    />
+  </a-modal>
+  <a-modal
+      v-model:visible="visibleModalInsertLab"
+      title="新建实验"
+      width="800px"
+      :footer="null"
   >
-  </insert-lab-modal>
+    <insert-lab-modal
+        :course-id="courseId"
+        @finish="handleFinishInsertLab"
+    />
+  </a-modal>
 </template>
 
 <script lang="ts" setup>
-import { computed, createVNode, reactive, ref, useCssModule } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { usePagination, useRequest } from 'vue-request'
+import { usePagination } from 'vue-request'
 import {
-  apiDeleteLab,
   apiListLabByCourseId
 } from '../../../api/web/lab'
 
@@ -66,19 +72,16 @@ import {
   FormOutlined,
   SendOutlined
 } from '@ant-design/icons-vue'
-import { message, Modal } from 'ant-design-vue'
 import {
   labDetailResp,
-  insertLabReq,
   updateLabReq
 } from '../../../api/web/model/lab'
 import { IFileItem } from '../../../api/common'
 import BaseLabList from '../BaseLabList.vue'
 import { ROUTER_NAME } from '../../../router'
 import { fileSrc2File } from '../../../util/utils'
-import dayjs, { Dayjs } from 'dayjs'
 import InsertLabModal from './InsertLabModal.vue'
-import UpdateLabModal from './UpdateLabModal.vue'
+import UpdateLabModal from './UpdateLabForm.vue'
 
 export interface updateLabExtendReq extends updateLabReq {
   fileList: IFileItem[]
@@ -101,7 +104,6 @@ const {
 } = usePagination(apiListLabByCourseId, {
   manual: false,
   formatResult: (res) => {
-    console.log(res)
     res.data.result!.records.forEach((item: labDetailResp) => {
       item.fileList = []
       if (item.attachmentSrc !== '') {
@@ -118,17 +120,20 @@ const {
 })
 
 // 分页数据
-const pag = computed(() => ({
-  onChange: (page: number) => {
-    current.value = page
-  },
-  total: total.value,
-  pageSize: pageSize.value
-}))
+const pag = computed(() => {
+  return total.value > 0
+    ? {
+        onChange: (page: number) => {
+          current.value = page
+        },
+        total: total.value,
+        pageSize: pageSize.value
+      }
+    : null
+})
 
 // 在列表处阻断删除
 const removeFile = () => {
-  message.info('请在修改处删除文件')
   return false
 }
 
@@ -144,69 +149,45 @@ const handleRouterToLabDetail = (labId: number) => {
 
 const visibleModalInsertLab = ref<boolean>(false)
 
-// 删除实验
-const {
-  run: runDeleteLab,
-  loading: loadingDeleteLab,
-  error: errorDeleteLab
-} = useRequest(apiDeleteLab)
-const handleDeleteLab = (labId: number) => {
-  Modal.confirm({
-    title: () => '您确认要删除该实验吗',
-    icon: () => createVNode(ExclamationCircleOutlined),
-    content: () => '删除将不可挽回，请谨慎确认',
-    onOk: async() => {
-      await runDeleteLab({ labId })
-      if (errorDeleteLab.value) {
-        // 原地修改
-        return
-      }
-      await refreshListLab()
-    },
-    onCancel() {},
-    okButtonProps: { loading: loadingDeleteLab.value, danger: true },
-    okText: () => '确认删除',
-    cancelText: () => '取消'
-  })
-}
-
-// 修改实验
-const updateLabInitState = reactive<updateLabExtendReq>({
-  labId: 0,
-  title: '',
-  content: '',
-  deadline: dayjs(),
-  fileList: [],
-  attachmentSrc: ''
-})
+const updateLabId = ref<number>(0)
 
 // 弹出修改框
-const handleShowUpdateLab = (item: labDetailResp) => {
-  updateLabInitState.labId = item.labId
-  updateLabInitState.title = item.title
-  updateLabInitState.content = item.content
-  updateLabInitState.deadline = dayjs(item.deadline)
-  updateLabInitState.attachmentSrc = undefined
-  if (item.attachmentSrc !== '') {
-    updateLabInitState.fileList = [fileSrc2File(item.attachmentSrc)]
-  }
-  visibleUpdateModal.value = true
+const handleShowUpdateLab = (labId:number) => {
+  updateLabId.value = labId
+  visibleModalUpdate.value = true
 }
 
 // 修改框是否可见
-const visibleUpdateModal = ref<boolean>(false)
+const visibleModalUpdate = ref<boolean>(false)
 
-const style = useCssModule()
+// 完成插入后刷新
+const handleFinishInsertLab = () => {
+  visibleModalInsertLab.value = false
+  refreshListLab()
+}
+
+const handleFinishUpdateLab = () => {
+  visibleModalUpdate.value = false
+  refreshListLab()
+}
+
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
+
+.btnSpace {
+  display: flex;
+  margin-bottom: 16px;
+  padding-left: 16px;
+}
+
 .insertDiv {
   display: flex;
   padding-left: 24px;
   margin-bottom: 16px;
 }
 
-.updateBtu {
+.btuColor {
   color: gray;
 }
 

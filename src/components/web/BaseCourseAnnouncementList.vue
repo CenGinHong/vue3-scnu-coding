@@ -30,9 +30,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ComputedRef, useCssModule } from 'vue'
+import { useCssModule } from 'vue'
 import { IPagination } from '../../api/common'
-import { courseAnnouncementListResp } from '../../api/web/model/courseAnnouncement'
+import { courseAnnouncementDetailResp } from '../../api/web/model/courseAnnouncement'
 import { LinkedinOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
@@ -41,8 +41,8 @@ import dayjs from 'dayjs'
 const props = withDefaults(
   // eslint-disable-next-line no-undef
   defineProps<{
-    dataCourse?: courseAnnouncementListResp[]
-    pag: ComputedRef<IPagination>
+    dataCourse?: courseAnnouncementDetailResp[]
+    pag: IPagination
     loading: boolean
   }>(),
   {

@@ -1,7 +1,7 @@
 import { IFileItem, pageParams } from '../../common'
 import { Dayjs } from 'dayjs'
 
-export interface courseAnnouncementListResp {
+export interface courseAnnouncementDetailResp {
   courseAnnouncementId: number
   title: string
   content: string

@@ -50,8 +50,8 @@ export interface listCourseStudentReq extends pageParams {
 }
 
 export interface listCourseStudentOverviewResp {
+  userId: number
   userDetail: {
-    userId: number
     email: string
     grade: number
     school: string

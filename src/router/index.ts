@@ -29,14 +29,15 @@ export enum ROUTER_NAME {
   TEACHER_LAB_DETAIL = 'teacher-lab-detail',
   // admin
   USER_MANAGEMENT = 'user_management',
-  STUDENT_MANAGEMENT ='student_management',
-  TEACHER_MANAGEMENT ='teacher_management',
+  STUDENT_MANAGEMENT = 'student_management',
+  TEACHER_MANAGEMENT = 'teacher_management',
   COURSE_MANAGEMENT = 'course_management',
   COURSE_MANAGEMENT_LIST = 'course_management_list',
   COURSE_MANAGEMENT_ENROLL = 'course_management_enroll',
   COURSE_MANAGEMENT_COMMENT = 'course_management_comment',
   LAB_MANAGEMENT = 'lab_management',
   LAB_MANAGEMENT_LIST = 'lab_management_list',
+  LAB_MANAGEMENT_SUBMIT = 'lab_management_submit',
 }
 
 declare module 'vue-router' {
@@ -49,6 +50,10 @@ declare module 'vue-router' {
 }
 
 export const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/',
+    redirect: '/login'
+  },
   {
     path: '/dev',
     name: 'dev',
@@ -103,34 +108,42 @@ export const routes: Array<RouteRecordRaw> = [
           title: '用户管理',
           icon: 'DashboardOutlined'
         },
-        component: () => import('../components/web/Demo.vue')
-        // children: [
-        //   {
-        //     path: 'student',
-        //     name: ROUTER_NAME.STUDENT_MANAGEMENT,
-        //     meta: {
-        //       requiresAuth: false,
-        //       title: '学生管理',
-        //       icon: 'DashboardOutlined'
-        //     },
-        //     component: () => import('../components/web/Demo.vue')
-        //   },
-        //   {
-        //     path: 'teacher',
-        //     name: ROUTER_NAME.TEACHER_MANAGEMENT,
-        //     meta: {
-        //       requiresAuth: false,
-        //       title: '教师管理',
-        //       icon: 'DashboardOutlined'
-        //     },
-        //     component: () => import('../components/web/Demo.vue')
-        //   }
-        // ]
+        component: () => RouterTransition,
+        children: [
+          {
+            path: 'student',
+            name: ROUTER_NAME.STUDENT_MANAGEMENT,
+            meta: {
+              requiresAuth: false,
+              title: '学生管理',
+              icon: 'DashboardOutlined',
+              isMenuItem: true
+            },
+            component: () => import('../components/admin/StudentInfoTable.vue'),
+            props: {
+              role: RoleEnum.STUDENT
+            }
+          },
+          {
+            path: 'teacher',
+            name: ROUTER_NAME.TEACHER_MANAGEMENT,
+            meta: {
+              requiresAuth: false,
+              title: '教师管理',
+              icon: 'DashboardOutlined',
+              isMenuItem: true
+            },
+            component: () => import('../components/admin/TeacherInfoTable.vue'),
+            props: {
+              role: RoleEnum.TEACHER
+            }
+          }
+        ]
       },
       {
         path: '/course',
         name: ROUTER_NAME.COURSE_MANAGEMENT,
-        component: () => import('../components/admin/CourseDetail.vue'),
+        component: () => RouterTransition,
         meta: {
           requiresAuth: false,
           title: '课程管理',
@@ -143,30 +156,36 @@ export const routes: Array<RouteRecordRaw> = [
             meta: {
               requiresAuth: false,
               title: '课程列表',
-              icon: 'DashboardOutlined'
+              icon: 'DashboardOutlined',
+              isMenuItem: true
+            },
+            component: () => import('../components/admin/CourseDetail.vue')
+          },
+          {
+            path: 'enroll',
+            name: ROUTER_NAME.COURSE_MANAGEMENT_ENROLL,
+            meta: {
+              requiresAuth: false,
+              title: '选课管理',
+              icon: 'DashboardOutlined',
+              isMenuItem: false
+            },
+            component: () => import('../components/admin/CourseEnrollTable.vue'),
+            props: route => ({
+              courseId: Number(route.query.courseId)
+            })
+          },
+          {
+            path: 'comment',
+            name: ROUTER_NAME.COURSE_MANAGEMENT_COMMENT,
+            meta: {
+              requiresAuth: false,
+              title: '讨论管理',
+              icon: 'DashboardOutlined',
+              isMenuItem: false
             },
             component: () => import('../components/web/Demo.vue')
           }
-        //   {
-        //     path: 'enroll',
-        //     name: ROUTER_NAME.COURSE_MANAGEMENT_ENROLL,
-        //     meta: {
-        //       requiresAuth: false,
-        //       title: '选课管理',
-        //       icon: 'DashboardOutlined'
-        //     },
-        //     component: () => import('../components/web/Demo.vue')
-        //   },
-        //   {
-        //     path: 'comment',
-        //     name: ROUTER_NAME.COURSE_MANAGEMENT_COMMENT,
-        //     meta: {
-        //       requiresAuth: false,
-        //       title: '讨论管理',
-        //       icon: 'DashboardOutlined'
-        //     },
-        //     component: () => import('../components/web/Demo.vue')
-        //   }
         ]
       },
       {
@@ -177,39 +196,45 @@ export const routes: Array<RouteRecordRaw> = [
           title: '课程管理',
           icon: 'DashboardOutlined'
         },
-        component: () => import('../components/web/Demo.vue')
-        // children: [
-        //   {
-        //     path: 'list',
-        //     name: ROUTER_NAME.LAB_MANAGEMENT_LIST,
-        //     meta: {
-        //       requiresAuth: false,
-        //       title: '实验列表',
-        //       icon: 'DashboardOutlined'
-        //     },
-        //     component: () => import('../components/web/Demo.vue')
-        //   },
-        //   {
-        //     path: 'enroll',
-        //     name: ROUTER_NAME.LAB_MANAGEMENT_COMMENT,
-        //     meta: {
-        //       requiresAuth: false,
-        //       title: '选课管理',
-        //       icon: 'DashboardOutlined'
-        //     },
-        //     component: () => import('../components/web/Demo.vue')
-        //   },
-        //   {
-        //     path: 'comment',
-        //     name: ROUTER_NAME.COURSE_MANAGEMENT_COMMENT,
-        //     meta: {
-        //       requiresAuth: false,
-        //       title: '讨论管理',
-        //       icon: 'DashboardOutlined'
-        //     },
-        //     component: () => import('../components/web/Demo.vue')
-        //   }
-        // ]
+        component: () => RouterTransition,
+        children: [
+          {
+            path: 'list',
+            name: ROUTER_NAME.LAB_MANAGEMENT_LIST,
+            meta: {
+              requiresAuth: false,
+              title: '实验列表',
+              icon: 'DashboardOutlined',
+              isMenuItem: true
+            },
+            component: () => import('../components/admin/LabTable.vue')
+          },
+          {
+            path: 'enroll',
+            name: ROUTER_NAME.LAB_MANAGEMENT_SUBMIT,
+            meta: {
+              requiresAuth: false,
+              title: '提交详情',
+              icon: 'DashboardOutlined',
+              isMenuItem: false
+            },
+            component: () => import('../components/admin/LabSubmitTable.vue'),
+            props: route => ({
+              labId: Number(route.query.labId)
+            })
+          },
+          {
+            path: 'comment',
+            name: ROUTER_NAME.COURSE_MANAGEMENT_COMMENT,
+            meta: {
+              requiresAuth: false,
+              title: '讨论管理',
+              icon: 'DashboardOutlined',
+              isMenuItem: false
+            },
+            component: () => import('../components/web/Demo.vue')
+          }
+        ]
       }
     ]
   },
@@ -268,7 +293,11 @@ export const routes: Array<RouteRecordRaw> = [
           title: '实验报告',
           requiresAuth: true,
           accessRole: [RoleEnum.STUDENT]
-        }
+        },
+        props: route => ({
+          labId: Number(route.query.labId),
+          isEditable: Number(route.query.isEditable)
+        })
       },
       {
         path: 'teacher',

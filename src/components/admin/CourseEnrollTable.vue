@@ -4,60 +4,85 @@
     :data-source="dataCourseEnroll?.records"
     :loading="loadingCourseEnroll"
     :pagination="pag"
+    :row-key="record => record.userId"
+    @change="handleTableChange"
   >
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.key === 'gender'">
+        <a-tag v-if="record.gender === 0" color="default">未知</a-tag>
+        <a-tag v-else-if="record.gender === 1" color="blue">男</a-tag>
+        <a-tag v-else color="pink">女</a-tag>
+      </template>
+    </template>
   </a-table>
 </template>
 
 <script lang="ts" setup>
-import { columnType } from '../../api/common'
 import { usePagination } from 'vue-request'
 import { apiListCourseEnroll } from '../../api/admin/course'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { ColumnType, TablePaginationConfig, TableProps } from 'ant-design-vue/es/table'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   courseId: number
 }>()
 
-const columns: columnType[] = [
+const columns = computed<ColumnType[]>(() => [
   {
     title: '姓名',
-    dataIndex: ['userDetail', 'username'],
-    width: '10%'
+    dataIndex: 'username',
+    width: '5%'
   },
   {
     title: '学号',
-    dataIndex: ['userDetail', 'userNum'],
-    width: '10%'
+    dataIndex: 'userNum',
+    width: '8%',
+    sorter: true
+  },
+  {
+    title: '性别',
+    dataIndex: 'gender',
+    key: 'gender',
+    filters: dataCourseEnroll.value?.filter.gender.map(e => {
+      if (e.text === '1') {
+        e.text = '男'
+      } else if (e.text === '2') {
+        e.text = '女'
+      } else {
+        e.text = '未知'
+      }
+      return e
+    }),
+    width: '5%'
   },
   {
     title: '年级',
-    dataIndex: ['userDetail', 'grade'],
+    dataIndex: 'grade',
+    filters: dataCourseEnroll.value?.filter.grade,
     width: '10%'
   },
   {
     title: '学院',
-    dataIndex: ['userDetail', 'school'],
+    dataIndex: 'school',
+    filters: dataCourseEnroll.value?.filter.school,
     width: '10%'
   },
   {
     title: '班级',
-    dataIndex: ['userDetail', 'organization'],
+    dataIndex: 'organization',
+    filters: dataCourseEnroll.value?.filter.organization,
     width: '10%'
   },
   {
     title: '专业',
-    dataIndex: ['userDetail', 'major'],
-    width: '10%'
-  },
-  {
-    title: '性别',
-    dataIndex: ['userDetail', 'gender'],
+    dataIndex: 'major',
+    filters: dataCourseEnroll.value?.filter.major,
     width: '10%'
   }
-]
+])
 
-const { data: dataCourseEnroll, loading: loadingCourseEnroll, pageSize, current, total } =
+const { data: dataCourseEnroll, run: runCourseEnroll, loading: loadingCourseEnroll, pageSize, current, total } =
   usePagination(apiListCourseEnroll, {
     manual: false,
     formatResult: (res) => {
@@ -70,13 +95,44 @@ const { data: dataCourseEnroll, loading: loadingCourseEnroll, pageSize, current,
     ]
   })
 
-const pag = computed(() => ({
+const pag = computed<TablePaginationConfig>(() => ({
   total: total.value,
   current: current.value,
-  onChange: (page:number) => {
+  onChange: (page: number) => {
     current.value = page
   }
 }))
+
+const handleTableChange: TableProps['onChange'] = (
+  pag: TablePaginationConfig,
+  filters: Record<string, string[]>,
+  sorter: any
+) => {
+  for (const key in filters) {
+    if (filters[key] === null) {
+      delete filters[key]
+    }
+  }
+  runCourseEnroll({
+    courseId: props.courseId,
+    current: pag.current,
+    sortField: sorter.field,
+    sortOrder: sorter.order,
+    filterFields: filters
+  })
+}
+
+const selectedRowKeys = ref<number[]>([])
+
+const onSelectChange = (keys: number[]) => {
+  selectedRowKeys.value = keys
+}
+
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.btnSpace {
+  margin-bottom: 16px;
+  display: flex;
+}
+</style>

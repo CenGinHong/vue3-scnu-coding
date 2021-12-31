@@ -2,26 +2,26 @@
   <div :class="style.btnArea">
     <a-space>
       <a-button type="primary" @click="visibleModalAddStudent = true">
-        <user-add-outlined />
+        <user-add-outlined/>
         导入学生
       </a-button>
       <a-button :disabled="hasSelected" danger @click="handleDelete">
-        <user-delete-outlined />
+        <user-delete-outlined/>
         移出课程
       </a-button>
       <a-button @click="handleShowModalExportScore">
-        <export-outlined />
+        <export-outlined/>
         导出成绩表
       </a-button>
     </a-space>
   </div>
   <a-table
-    :columns="columns"
-    :data-source="dataListCourseOverview?.records"
-    :loading="loadingListCourseOverview"
-    :pagination="pag"
-    :row-key="(record) => record.userDetail.userId"
-    :row-selection="{
+      :columns="columns"
+      :data-source="dataListCourseOverview?.records"
+      :loading="loadingListCourseOverview"
+      :pagination="pag"
+      :row-key="(record) => record.userId"
+      :row-selection="{
       selectedRowKeys: selectedRowKeys,
       onChange: onSelectChange,
     }"
@@ -33,18 +33,18 @@
       </template>
       <template v-if="column.dataIndex === 'score'">
         <a-popover
-          :title="record.userDetail.username + '的实验成绩'"
-          trigger="click"
-          @visibleChange="handleClickChange($event, record.userDetail.userId)"
+            :title="record.userDetail.username + '的实验成绩'"
+            trigger="click"
+            @visibleChange="handleClickChange($event, record.userId)"
         >
           <template #content>
             <a-table
-              :columns="columnsListOneStudentScore"
-              :data-source="dataListOneStudentScore?.records"
-              :loading="loadingListOneStudentScore"
-              :pagination="paginationListOneStudentScore"
-              :row-key="(record) => record.labSubmitDetail.labSubmitId"
-              size="small"
+                :columns="columnsListOneStudentScore"
+                :data-source="dataListOneStudentScore?.records"
+                :loading="loadingListOneStudentScore"
+                :pagination="paginationListOneStudentScore"
+                :row-key="(record) => record.labSubmitDetail.labSubmitId"
+                size="small"
             >
               <template #bodyCell="{ column }">
                 <template v-if="column.dataIndex='score'">
@@ -53,9 +53,6 @@
                   </a-tag>
                 </template>
               </template>
-<!--              <template #score="{ text }">-->
-
-<!--              </template>-->
             </a-table>
           </template>
           <a-tooltip title="点击查看详情成绩">
@@ -66,106 +63,36 @@
         </a-popover>
       </template>
       <template v-if="column.dataIndex === 'codingTime'">
-        <a-popover
-          :title="record.userDetail.username + '的编码时间'"
-          trigger="click"
-          @visibleChange="handleClickChange($event, record.userDetail.userId)"
-        >
-          <template #content>
-            <a-tooltip title="点击查看热力图">
-              <e-charts
-                :autoresize="true"
-                :class="style.echarts"
-                :loading="loadingCodingTime"
-                :option="option"
-              ></e-charts>
-            </a-tooltip>
-          </template>
-          <a-tag color="gary">
-            {{ record.codingTimeDetail.codingTime }}
-          </a-tag>
-        </a-popover>
+        <a-tag color="blue" @click="handleShowModalCodingTime(record.userId)">
+          {{ record.codingTimeDetail.codingTime }}
+        </a-tag>
       </template>
     </template>
-    <!--    <template #checkinDetail="{ record }">-->
-    <!--      {{ record.checkinDetail.checkinCount }} /-->
-    <!--      {{ record.checkinDetail.totalCount }}-->
-    <!--    </template>-->
-    <!--    <template #score="{ record }">-->
-    <!--      <a-popover-->
-    <!--        :title="record.userDetail.username + '的实验成绩'"-->
-    <!--        trigger="click"-->
-    <!--        @visibleChange="handleClickChange($event, record.userDetail.userId)"-->
-    <!--      >-->
-    <!--        <template #content>-->
-    <!--          <a-table-->
-    <!--            :columns="columnsListOneStudentScore"-->
-    <!--            :data-source="dataListOneStudentScore?.records"-->
-    <!--            :loading="loadingListOneStudentScore"-->
-    <!--            :pagination="paginationListOneStudentScore"-->
-    <!--            :row-key="(record) => record.labSubmitDetail.labSubmitId"-->
-    <!--            size="small"-->
-    <!--          >-->
-    <!--            <template #score="{ text }">-->
-    <!--              <a-tag :color="scoreTagColor(text)">-->
-    <!--                {{ text }}-->
-    <!--              </a-tag>-->
-    <!--            </template>-->
-    <!--          </a-table>-->
-    <!--        </template>-->
-    <!--        <a-tooltip title="点击查看详情成绩">-->
-    <!--          <a-tag :color="scoreTagColor(record.avgScoreDetail.score)">-->
-    <!--            {{ record.avgScoreDetail.score }}-->
-    <!--          </a-tag>-->
-    <!--        </a-tooltip>-->
-    <!--      </a-popover>-->
-    <!--    </template>-->
-    <!--    <template #codingTime="{ record }">-->
-    <!--      <a-popover-->
-    <!--        :title="record.userDetail.username + '的编码时间'"-->
-    <!--        trigger="click"-->
-    <!--        @visibleChange="handleClickChange($event, record.userDetail.userId)"-->
-    <!--      >-->
-    <!--        <template #content>-->
-    <!--          <a-tooltip title="点击查看热力图">-->
-    <!--            <e-charts-->
-    <!--              :autoresize="true"-->
-    <!--              :class="style.echarts"-->
-    <!--              :loading="loadingCodingTime"-->
-    <!--              :option="option"-->
-    <!--            ></e-charts>-->
-    <!--          </a-tooltip>-->
-    <!--        </template>-->
-    <!--        <a-tag color="gary">-->
-    <!--          {{ record.codingTimeDetail.codingTime }}-->
-    <!--        </a-tag>-->
-    <!--      </a-popover>-->
-    <!--    </template>-->
   </a-table>
   <a-modal
-    v-model:visible="visibleModalAddStudent"
-    :ok-button-props="{ loading: loadingInsertStudent2Class }"
-    cancel-text="取消"
-    ok-text="导入"
-    title="导入学生"
-    @ok="handleAddStudent2Class"
+      v-model:visible="visibleModalAddStudent"
+      :ok-button-props="{ loading: loadingInsertStudent2Class }"
+      cancel-text="取消"
+      ok-text="导入"
+      title="导入学生"
+      @ok="handleAddStudent2Class"
   >
     <a-textarea
-      v-model:value="insertStudent2ClassNums"
-      placeholder="请输入学生学号，每一行为一位学生"
-      rows="4"
+        v-model:value="insertStudent2ClassNums"
+        placeholder="请输入学生学号，每一行为一位学生"
+        rows="4"
     />
   </a-modal>
   <a-modal
-    v-model:visible="visibleModalConfirmStudent"
-    :footer="null"
-    width="1000px"
+      v-model:visible="visibleModalConfirmStudent"
+      :footer="null"
+      width="1000px"
   >
     导入成功：
     <a-table
-      :columns="confirmStudentColumns"
-      :data-source="dataInsertStudent2Class?.successRecords"
-      :row-key="(record) => record.userId"
+        :columns="confirmStudentColumns"
+        :data-source="dataInsertStudent2Class?.successRecords"
+        :row-key="(record) => record.userId"
     >
       <template v-if="dataInsertStudent2Class?.errorStudentNums.length !== 0">
         另外此次导入共{{
@@ -177,29 +104,39 @@
       </template>
     </a-table>
   </a-modal>
+
   <a-modal
-    v-model:visible="visibleModalExportScore"
-    :ok-button-props="{ loading: loadingExportScore }"
-    cancel-text="取消"
-    ok-text="导出"
-    width="500px"
-    @ok="handleExportScore"
+      v-model:visible="visibleModalExportScore"
+      :ok-button-props="{ loading: loadingExportScore }"
+      cancel-text="取消"
+      ok-text="导出"
+      width="500px"
+      @ok="handleExportScore"
   >
     <a-transfer
-      :data-source="transferData"
-      :render="(item) => item.title"
-      :selected-keys="transferSelectedKeys"
-      :target-keys="transferTargetKeys"
-      :titles="['全部实验', '导出成绩']"
-      @change="handleTransferChange"
-      @selectChange="handleTransferSelectChange"
+        :data-source="transferData"
+        :render="(item) => item.title"
+        :selected-keys="transferSelectedKeys"
+        :target-keys="transferTargetKeys"
+        :titles="['全部实验', '导出成绩']"
+        @change="handleTransferChange"
+        @selectChange="handleTransferSelectChange"
     />
+  </a-modal>
+  <a-modal
+      v-model:visible="visible"
+      :destroy-on-close="true"
+      width="780px"
+      :footer="null">
+    <coding-time-div
+        :user-id="codingTimeUserId"
+        :course-id="courseId"/>
   </a-modal>
 </template>
 
 <script lang="ts" setup>
 import { computed, createVNode, ref, useCssModule } from 'vue'
-import { columnType, IPagination, ITransfer } from '../../../api/common'
+import { ITransfer } from '../../../api/common'
 import { usePagination, useRequest } from 'vue-request'
 import {
   apiInsertStudent2Class,
@@ -212,40 +149,26 @@ import {
   UserDeleteOutlined,
   ExportOutlined
 } from '@ant-design/icons-vue'
-import { message, Modal } from 'ant-design-vue'
-import ECharts from 'vue-echarts'
+import { message, Modal, TablePaginationConfig } from 'ant-design-vue'
+
 import { scoreTagColor } from '../../../util/utils'
 import {
   apiListLabByCourseId,
   apiListOneStudentScoreResp
 } from '../../../api/web/lab'
 import { apiGetCodingTime } from '../../../api/web/user'
-import { use } from 'echarts/core'
-import {
-  CalendarComponent,
-  TitleComponent,
-  TooltipComponent,
-  VisualMapComponent
-} from 'echarts/components'
-import { HeatmapChart } from 'echarts/charts'
-import { CanvasRenderer } from 'echarts/renderers'
 import { apiExportScore } from '../../../api/web/labSubmit'
-
-use([
-  TitleComponent,
-  CalendarComponent,
-  TooltipComponent,
-  VisualMapComponent,
-  HeatmapChart,
-  CanvasRenderer
-])
+import { ColumnType } from 'ant-design-vue/es/table'
+import CodingTimeDiv from '../codingTimeDiv.vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   courseId: number
 }>()
 
-const columns: columnType[] = [
+const visible = ref(false)
+
+const columns: ColumnType[] = [
   {
     title: '姓名',
     dataIndex: ['userDetail', 'username'],
@@ -314,13 +237,12 @@ const {
 })
 
 // 分页
-const pag = computed<IPagination>(() => ({
+const pag = computed<TablePaginationConfig>(() => ({
   onChange(page: number) {
     current.value = page
   },
   total: total.value,
   pageSize: pageSize.value
-  // position: ['bottomRight']
 }))
 
 // 选中要删除的学生
@@ -341,7 +263,7 @@ const handleDelete = () => {
     title: '确认移出课程？',
     icon: createVNode(ExclamationCircleOutlined),
     content:
-      '移出课程将会移除该学生在课程下的所有信息记录且不可恢复，请谨慎操作！',
+        '移出课程将会移除该学生在课程下的所有信息记录且不可恢复，请谨慎操作！',
     okText: '确认',
     cancelText: '取消',
     okButtonProps: { loading: loadingRemoveStudentFromClass.value },
@@ -381,7 +303,7 @@ const paginationListOneStudentScore = computed(() => ({
   pageSize: pageSizeListOneStudentScore.value
 }))
 
-const columnsListOneStudentScore: columnType[] = [
+const columnsListOneStudentScore: ColumnType[] = [
   {
     title: '实验名称',
     dataIndex: 'title',
@@ -394,6 +316,13 @@ const columnsListOneStudentScore: columnType[] = [
   }
 ]
 
+const codingTimeUserId = ref<number>(0)
+
+const handleShowModalCodingTime = (userId :number) => {
+  codingTimeUserId.value = userId
+  visible.value = true
+}
+
 const handleClickChange = (visible: boolean, studentId: number) => {
   if (visible) {
     runListOneStudentScore({
@@ -402,54 +331,6 @@ const handleClickChange = (visible: boolean, studentId: number) => {
     })
   }
 }
-
-const {
-  run: runCodingTime,
-  data: dataCodingTime,
-  loading: loadingCodingTime
-} = useRequest(apiGetCodingTime, {
-  formatResult: (res) => {
-    const ret: [string, number][] = []
-    const record = res.data.result!.record
-    for (const recordElement of record) {
-      ret.push([recordElement.CreatedAt, recordElement.duration])
-    }
-    return ret
-  }
-})
-// 日历图数据
-const option = computed(() => {
-  return {
-    title: {
-      show: true
-    },
-    tooltip: {},
-    calendar: {
-      top: 30,
-      left: 10,
-      cellSize: 13,
-      range: new Date().getFullYear(),
-      itemStyle: {
-        borderWidth: 0.5
-      },
-      dayLabel: {
-        show: false
-      },
-      monthLabel: {
-        show: false
-      },
-      yearLabel: { show: false }
-    },
-    visualMap: {
-      show: false
-    },
-    series: {
-      type: 'heatmap',
-      coordinateSystem: 'calendar',
-      data: dataCodingTime.value
-    }
-  }
-})
 
 const visibleModalAddStudent = ref<boolean>(false)
 const insertStudent2ClassNums = ref<string>('')
@@ -461,7 +342,7 @@ const {
   error: errInsertStudent2Class
 } = useRequest(apiInsertStudent2Class, {
   formatResult: (res) => {
-    return res.data.result
+    return res.result
   }
 })
 // 导入学生
@@ -485,7 +366,7 @@ const handleAddStudent2Class = async() => {
 // 确认信息框
 const visibleModalConfirmStudent = ref<boolean>(false)
 
-const confirmStudentColumns: columnType[] = [
+const confirmStudentColumns: ColumnType[] = [
   {
     title: '姓名',
     dataIndex: 'username',

@@ -1,44 +1,40 @@
 <template>
-  <a-modal
-      :visible="visible"
-      :ok-button-props="{ loading: loadingInsertCourseAnnouncement||loadingUpload }"
-      cancel-text="取消"
-      ok-text="新建"
-      title="新建公告"
-      width="800px"
-      @cancel="handleCancel"
-      :destroyOnClose="true"
-      @ok="handleInsertCourseAnnouncement"
+  <a-form
+      :label-col="{ span: 3 }"
+      :model="insertAnnouncementState"
+      :rules="rules"
+      :wrapper-col="{ span: 20 }"
   >
-    <a-form
-        :label-col="{ span: 3 }"
-        :model="insertAnnouncementState"
-        :rules="rules"
-        :wrapper-col="{ span: 20 }"
-    >
-      <a-form-item label="公告名称" name="title">
-        <a-input v-model:value="insertAnnouncementState.title"/>
-      </a-form-item>
-      <a-form-item label="公告内容" name="content">
-        <a-textarea v-model:value="insertAnnouncementState.content" rows="5"/>
-      </a-form-item>
-      <a-form-item label="上传附件">
-        <div>
-          <a-upload
-              v-model:file-list="insertFileList"
-              :action="uploadApi"
-              :before-upload="beforeUpload"
-              @change="handleInsertUploadChange"
-          >
-            <a-button>
-              <upload-outlined/>
-              点击上传
-            </a-button>
-          </a-upload>
-        </div>
-      </a-form-item>
-    </a-form>
-  </a-modal>
+    <a-form-item label="公告名称" name="title">
+      <a-input v-model:value="insertAnnouncementState.title"/>
+    </a-form-item>
+    <a-form-item label="公告内容" name="content">
+      <a-textarea v-model:value="insertAnnouncementState.content" rows="5"/>
+    </a-form-item>
+    <a-form-item label="上传附件">
+      <div>
+        <a-upload
+            v-model:file-list="insertFileList"
+            :action="uploadApi"
+            :before-upload="beforeUpload"
+            @change="handleInsertUploadChange"
+        >
+          <a-button>
+            <upload-outlined/>
+            点击上传
+          </a-button>
+        </a-upload>
+      </div>
+    </a-form-item>
+    <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
+      <a-space>
+        <a-button type="primary" @click="handleInsertCourseAnnouncement"
+                  :loading="loadingInsertCourseAnnouncement || loadingUpload">创建
+        </a-button>
+        <a-button @click="handleCancel">取消</a-button>
+      </a-space>
+    </a-form-item>
+  </a-form>
 </template>
 
 <script lang="ts" setup>
@@ -47,24 +43,22 @@
 import { useRequest } from 'vue-request'
 import { apiInsertCourseAnnouncement } from '../../../api/web/courseAnnouncement'
 import { FileInfo, IFileItem } from '../../../api/common'
-import { Form, message } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
 import { reactive, ref } from 'vue'
 import { insertCourseAnnouncementReq } from '../../../api/web/model/courseAnnouncement'
 import { uploadApi } from '../../../api/web/file'
 import { UploadOutlined } from '@ant-design/icons-vue'
-
-const useForm = Form.useForm
+import { RuleObject } from 'ant-design-vue/lib/form'
+import { useForm } from 'ant-design-vue/es/form'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   courseId: number
-  visible: boolean
 }>()
 
 // eslint-disable-next-line no-undef,func-call-spacing
 const emits = defineEmits<{
-  (e: 'update:visible', src: boolean): void
-  (e: 'refreshList'): void
+  (e: 'finish', src: boolean): void
 }>()
 
 // 新建公告文件列表
@@ -77,7 +71,7 @@ const insertAnnouncementState = reactive<insertCourseAnnouncementReq>({
   attachmentSrc: ''
 })
 
-const rules = reactive({
+const rules = reactive<Record<string, RuleObject[]>>({
   title: [
     { required: true, message: '标题不能为空' },
     { max: 16, message: '标题最长16字' }
@@ -92,7 +86,7 @@ const {
 } = useRequest(apiInsertCourseAnnouncement)
 
 const handleCancel = () => {
-  emits('update:visible', false)
+  emits('finish', false)
 }
 
 const loadingUpload = ref<boolean>(false)
@@ -142,11 +136,11 @@ const handleInsertCourseAnnouncement = async() => {
   if (errorInsertCourseAnnouncement.value) {
     return
   }
-  emits('refreshList')
-  handleCancel()
+  emits('finish', true)
 }
 
-const beforeUpload = (file: IFileItem) => {}
+const beforeUpload = (file: IFileItem) => {
+}
 
 </script>
 

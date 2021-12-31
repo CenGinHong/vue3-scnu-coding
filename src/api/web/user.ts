@@ -16,15 +16,15 @@ import { Result } from '../common'
 
 enum Api {
   login = '/login',
-  getCodingTime = '/web/user/coding_time',
+  getCodingTime = '/web/user/coding-time',
   userInfo = '/web/user/myself',
   isEmailUsed = '/web/user/is-used/email',
   isUserNumUsed = '/web/user/is-used/userNum',
   resetPassword = '/wen/user/reset-password',
 }
 
-export function apiGetCodingTime(params?: getCodingTimeResp) {
-  return instance.get<Result<codingTime>>(Api.getCodingTime, {
+export function apiGetCodingTime(params: getCodingTimeResp) {
+  return instance.get<Result<codingTime[]>>(Api.getCodingTime, {
     params
   })
 }

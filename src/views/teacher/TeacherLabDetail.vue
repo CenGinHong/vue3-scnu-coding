@@ -1,26 +1,26 @@
 <template>
-  <div :class="style.row">
-    <a-tabs :class="style.tab" size="large" v-model:activeKey="tabsActiveKey">
-      <a-tab-pane key="1" tab="提交情况">
-        <teacher-submit-table
-          :class="style.submitTable"
-          :lab-id="Number(labId)"
-        />
-      </a-tab-pane>
-      <a-tab-pane key="2" tab="实验批阅">
-        <div :class="style.markSubmit">
-          <teacher-correct-submit :lab-id="Number(labId)" />
-        </div>
-      </a-tab-pane>
-      <a-tab-pane key="3" tab="实验评论">
-        <div :class="style.labComment">
-          <lab-comment :lab-id="Number(labId)" />
-        </div>
-      </a-tab-pane>
-      <a-tab-pane key="4" tab="重复检测"> </a-tab-pane>
-      <a-tab-pane key="5" tab="错误日志"> </a-tab-pane>
-    </a-tabs>
-  </div>
+  <a-row class="row">
+    <a-col :span="20" :offset="1" class="col">
+      <a-tabs class="tab" size="large" v-model:activeKey="tabsActiveKey">
+        <a-tab-pane key="1" tab="提交情况">
+          <teacher-submit-table
+              class="submitTable"
+              :lab-id="Number(labId)"
+          />
+        </a-tab-pane>
+        <a-tab-pane key="2" tab="实验批阅">
+            <teacher-correct-submit :lab-id="Number(labId)" />
+        </a-tab-pane>
+        <a-tab-pane key="3" tab="实验评论">
+          <div class="labComment">
+            <lab-comment :lab-id="Number(labId)" />
+          </div>
+        </a-tab-pane>
+        <a-tab-pane key="4" tab="重复检测"> </a-tab-pane>
+        <a-tab-pane key="5" tab="错误日志"> </a-tab-pane>
+      </a-tabs>
+    </a-col>
+  </a-row>
 </template>
 
 <script lang="ts" setup>
@@ -38,49 +38,36 @@ const props = defineProps<{
 const route = useRoute()
 const tabsActiveKey = ref<string>('1')
 
-const style = useCssModule()
 </script>
 
-<style lang="scss" module>
-.row:hover {
-  box-shadow: 0 0 8px 1px rgba(0, 0, 0, 0.25);
-}
+<style lang="scss" scoped>
 
 .row {
-  background-color: white;
-  margin-left: 100px;
-  margin-right: 100px;
   margin-top: 20px;
   height: auto;
-  border-radius: 10px;
-  transition: box-shadow 0.3s;
 
-  .tab {
-    padding-top: 20px;
-    min-height: 420px;
+  .col {
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px 10px 10px 10px;
 
-    .ant-tabs {
-      margin: 0;
+    .submitTable {
+      margin: 0 6px 0 6px;
     }
 
     .labComment {
-      padding: 0 40px 0 40px;
+      padding: 0 16px 0 16px;
     }
-  }
 
-  .submitTable {
-    padding: 0 40px 0 40px;
-  }
-
-  .correct {
-    padding: 20px 40px 0 40px;
+    .correct {
+      padding: 20px 40px 0 40px;
+    }
   }
 }
 </style>
 
 <style lang="scss" scoped>
-::v-deep(.ant-tabs-nav-scroll) {
-  float: left;
-  margin-left: 30px;
+::v-deep(.ant-tabs-nav-wrap) {
+  margin-left: 16px;
 }
 </style>

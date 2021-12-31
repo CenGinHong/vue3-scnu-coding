@@ -1,14 +1,5 @@
 <template>
-  <a-modal
-      :visible="visible"
-      :ok-button-props="{ loading: loadingUpdateLab||loadingUpload }"
-      cancel-text="取消"
-      ok-text="确认修改"
-      title="修改实验"
-      @cancel="handleCancel"
-      width="800px"
-      @ok="handleUpdateLab"
-  >
+  <a-skeleton active :loading="loadingLabDetail">
     <a-form
         :label-col="{ span: 3 }"
         :model="updateLabState"
@@ -31,41 +22,49 @@
       </a-form-item>
       <a-form-item label="上传附件">
         <a-upload
-            v-model:file-list="updateFileList"
+            v-model:file-list="fileList"
             :action="uploadApi"
             @change="handleUpdateUploadChange"
         >
-          <a-button :disabled="updateFileList.length !== 0">
+          <a-button :disabled="fileList.length !== 0">
             <upload-outlined/>
             点击上传
           </a-button>
         </a-upload>
       </a-form-item>
+      <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
+        <a-space>
+          <a-button type="primary" @click="handleUpdateLab" :loading="loadingUpdateLab || loadingUpload">修改</a-button>
+          <a-popconfirm
+              title="确认删除?"
+              ok-text="确认"
+              cancel-text="取消"
+              @confirm="handleDeleteLab"
+          >
+            <a-button type="primary" danger :loading="loadingDeleteLab">删除</a-button>
+          </a-popconfirm>
+          <a-button @click="handleCancel">取消</a-button>
+        </a-space>
+      </a-form-item>
     </a-form>
-  </a-modal>
+  </a-skeleton>
 </template>
 
 <script lang="ts" setup>
 import { updateLabReq } from '../../../api/web/model/lab'
-import { reactive, ref, watchEffect } from 'vue'
+import { reactive, ref } from 'vue'
 import { FileInfo, IFileItem } from '../../../api/common'
-import { updateLabExtendReq } from './TeacherLabList.vue'
 import { uploadApi } from '../../../api/web/file'
-import { Form, message } from 'ant-design-vue'
-import { apiUpdateLab } from '../../../api/web/lab'
-import { UploadOutlined } from '@ant-design/icons-vue'
+import { Form, message, Modal } from 'ant-design-vue'
+import { apiDeleteLab, apiGetLabDetail, apiUpdateLab } from '../../../api/web/lab'
+import { ExclamationCircleOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { useRequest } from 'vue-request'
+import { fileSrc2File } from '../../../util/utils'
+import dayjs from 'dayjs'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
-  updateLabInitState: updateLabExtendReq
-  visible: boolean
-}>()
-
-// eslint-disable-next-line no-undef,func-call-spacing
-const emits = defineEmits<{
-  (e: 'update:visible', src: boolean): void
-  (e: 'refreshList'): void
+  labId: number
 }>()
 
 const updateLabState = reactive<updateLabReq>({
@@ -74,17 +73,35 @@ const updateLabState = reactive<updateLabReq>({
   content: '',
   deadline: null
 })
-
-const updateFileList = ref<IFileItem[]>([])
-
-watchEffect(() => {
-  updateLabState.labId = props.updateLabInitState.labId
-  updateLabState.content = props.updateLabInitState.content
-  updateLabState.title = props.updateLabInitState.title
-  updateLabState.deadline = props.updateLabInitState.deadline
-  updateFileList.value = props.updateLabInitState.fileList
-  updateLabState.attachmentSrc = undefined
+const fileList = ref<IFileItem[]>([])
+const { loading: loadingLabDetail } = useRequest(apiGetLabDetail, {
+  manual: false,
+  defaultParams: [
+    props.labId
+  ],
+  formatResult: (res) => {
+    return res.data.result
+  },
+  onSuccess: (res) => {
+    updateLabState.labId = res.labId
+    updateLabState.content = res.content
+    updateLabState.title = res.title
+    if (res.deadline !== '') {
+      updateLabState.deadline = dayjs(res.deadline)
+    }
+    if (res.attachmentSrc) {
+      fileList.value = [
+        fileSrc2File(res.attachmentSrc)
+      ]
+    }
+    updateLabState.attachmentSrc = undefined
+  }
 })
+
+// eslint-disable-next-line no-undef,func-call-spacing
+const emits = defineEmits<{
+  (e: 'finish', res: boolean): void
+}>()
 
 const loadingUpload = ref<boolean>(false)
 
@@ -147,12 +164,26 @@ const handleUpdateLab = async() => {
   if (errorUpdateLab.value) {
     return
   }
-  handleCancel()
-  emits('refreshList')
+  emits('finish', true)
 }
 
 const handleCancel = () => {
-  emits('update:visible', false)
+  emits('finish', false)
+}
+
+// 删除实验
+const {
+  run: runDeleteLab,
+  loading: loadingDeleteLab,
+  error: errorDeleteLab
+} = useRequest(apiDeleteLab)
+
+const handleDeleteLab = async() => {
+  await runDeleteLab(props.labId)
+  if (errorDeleteLab.value) {
+    return
+  }
+  emits('finish', true)
 }
 
 </script>

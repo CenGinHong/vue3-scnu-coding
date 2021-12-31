@@ -1,13 +1,4 @@
 <template>
-  <a-modal
-    :visible="visible"
-    cancelText="关闭"
-    :destroyOnClose="true"
-    ok-text="创建"
-    title="创建签到"
-    @cancel="handleCancel"
-    @ok="handleInsertCheckinRecord"
-  >
     <a-form
       :label-col="{ span: 4 }"
       :model="insertCheckinState"
@@ -33,8 +24,15 @@
       <a-form-item label="签到密钥" name="checkinKey">
         <a-input v-model:value="insertCheckinState.checkinKey" />
       </a-form-item>
+      <a-form-item :wrapper-col="{ span: 14, offset: 4 }">
+        <a-space>
+          <a-button type="primary" @click="handleInsertCheckinRecord"
+                    :loading="loadingInsertCheckin">创建
+          </a-button>
+          <a-button @click="handleCancel">取消</a-button>
+        </a-space>
+      </a-form-item>
     </a-form>
-  </a-modal>
 </template>
 <script lang="ts" setup>
 import { useRequest } from 'vue-request'
@@ -44,19 +42,18 @@ import { insertCheckinRecordReq } from '../../../api/web/model/checkinModel'
 import dayjs from 'dayjs'
 import { randomNumberString } from '../../../util/utils'
 import { Form, message } from 'ant-design-vue'
+import {RuleObject} from "ant-design-vue/es/form/interface";
 
 const useForm = Form.useForm
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   courseId: number
-  visible: boolean
 }>()
 
 // eslint-disable-next-line no-undef,func-call-spacing
 const emits = defineEmits<{
-  (e:'update:visible', src:boolean):void
-  (e:'refreshList'):void
+  (e:'finish', src:boolean):void
 }>()
 
 const {
@@ -73,7 +70,7 @@ const insertCheckinState = reactive<insertCheckinRecordReq>({
   courseId: props.courseId
 })
 
-const rules = reactive({
+const rules = reactive<Record<string, RuleObject[]>>({
   checkinName: [
     { required: true, message: '请输入标题' },
     { max: 16, message: '标题最长不能超16字' }
@@ -100,12 +97,11 @@ const handleInsertCheckinRecord = async() => {
   if (errInsertCheckin.value) {
     return
   }
-  emits('refreshList')
-  handleCancel()
+  emits('finish', true)
 }
 
 const handleCancel = () => {
-  emits('update:visible', false)
+  emits('finish', false)
 }
 </script>
 

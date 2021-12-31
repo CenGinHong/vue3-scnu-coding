@@ -1,7 +1,7 @@
 import instance from '../../util/axios/axios'
 import { deleteReq, pageResp, Result } from '../common'
 import {
-  courseAnnouncementListResp,
+  courseAnnouncementDetailResp,
   getCourseAnnouncementReq,
   insertCourseAnnouncementReq,
   updateCourseAnnouncementReq
@@ -12,7 +12,7 @@ enum Api {
 }
 
 export function apiListCourseAnnouncement(params: getCourseAnnouncementReq) {
-  return instance.get<Result<pageResp<courseAnnouncementListResp>>>(
+  return instance.get<Result<pageResp<courseAnnouncementDetailResp>>>(
     Api.CourseAnnouncement,
     {
       params
@@ -20,10 +20,8 @@ export function apiListCourseAnnouncement(params: getCourseAnnouncementReq) {
   )
 }
 
-export function apiDeleteCourseAnnouncement(params: deleteReq) {
-  return instance.delete<Result>(Api.CourseAnnouncement, {
-    params
-  })
+export function apiDeleteCourseAnnouncement(id: number) {
+  return instance.delete<Result>(Api.CourseAnnouncement + '/' + id)
 }
 
 export function apiInsertCourseAnnouncement(data: insertCourseAnnouncementReq) {
@@ -38,4 +36,8 @@ export function apiUpdateCourseAnnouncement(data: updateCourseAnnouncementReq) {
     Api.CourseAnnouncement,
     data
   )
+}
+
+export function apiGetCourseAnnouncementDetail(id :number) {
+  return instance.get<Result>(Api.CourseAnnouncement + '/' + id)
 }

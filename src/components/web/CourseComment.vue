@@ -17,10 +17,6 @@
             html-type="submit"
             type="primary"
             @click="handleReplyComment(0)"
-            :disabled="
-              replyCommentRecord[0] === undefined ||
-              replyCommentRecord[0] === ''
-            "
           >
             <form-outlined />
             新增评论
@@ -160,11 +156,16 @@ const { run: runInsertCourseComment, queries: queriesInsertCourseComment } =
 const replyCommentRecord = ref<Record<number, string>>({})
 const handleReplyComment = async(pid: number) => {
   const content = replyCommentRecord.value[pid]
+  if (replyCommentRecord.value[pid] === undefined || replyCommentRecord.value[pid] === '') {
+    message.error('讨论内容不能为空')
+    return
+  }
   await runInsertCourseComment({
     courseId: Number(props.courseId),
     pid: pid,
     commentText: content
   })
+
   if (queriesInsertCourseComment[pid]?.error) {
     return
   }

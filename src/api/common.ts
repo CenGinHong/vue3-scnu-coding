@@ -8,24 +8,7 @@ export interface filters {
 export interface pageResp<T> {
   records: T[]
   total: number
-  filter: {
-    [filterName: string]: filters[]
-  }
-}
-
-// 表格约束
-export interface columnType {
-  title: string
-  dataIndex: string[] | string
-  width?: string
-  filters?: filters[] | undefined
-  key?: string
-  fixed?: string
-  sorter?: boolean
-  sortDirections?: string[]
-  defaultSortOrder?: string
-  filterMultiple?: string[] | boolean
-  ellipsis?: boolean
+  filter: Record<string, filters[]>
 }
 
 export interface pageParams {
@@ -33,8 +16,7 @@ export interface pageParams {
   pageSize?: number
   sortField?: string
   sortOrder?: 'descend' | 'ascend'
-
-  [key: string]: any
+  filterFields?: Record<string, string[]>
 }
 
 // 选择器的类型

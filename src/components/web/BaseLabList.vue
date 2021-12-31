@@ -1,5 +1,4 @@
 <template>
-  <div :class="style.outer">
     <a-list
       :data-source="dataSource"
       :loading="loading"
@@ -7,6 +6,7 @@
       :row-key="(record) => record.labId"
       item-layout="vertical"
       size="large"
+      class="list"
     >
       <template #renderItem="{ item, index }">
         <a-list-item>
@@ -15,9 +15,7 @@
           </template>
           <a-list-item-meta :description="item.description">
             <template #title>
-              <div :class="style.labTitle">
                 <p>{{ item.title }}</p>
-              </div>
             </template>
           </a-list-item-meta>
           <p>{{ item.content }}</p>
@@ -26,20 +24,18 @@
         </a-list-item>
       </template>
     </a-list>
-  </div>
 </template>
 <script lang="ts" setup>
-import { ComputedRef, useCssModule } from 'vue'
 import { labDetailResp } from '../../api/web/model/lab'
 import { ExclamationCircleOutlined, LinkOutlined } from '@ant-design/icons-vue'
-import { IPagination } from '../../api/common'
+import { TablePaginationConfig } from 'ant-design-vue'
 
 // eslint-disable-next-line no-undef
 const props = withDefaults(
   // eslint-disable-next-line no-undef
   defineProps<{
     dataSource?: labDetailResp[]
-    pag: ComputedRef<IPagination>
+    pag: TablePaginationConfig|null
     loading: boolean
   }>(),
   {
@@ -47,15 +43,11 @@ const props = withDefaults(
   }
 )
 
-const style = useCssModule()
 </script>
 
-<style lang="scss" module>
-.outer {
-  text-align: left;
+<style lang="scss" scoped>
 
-  .labTitle {
-    font-size: 18px;
-  }
+.list {
+  text-align: start;
 }
 </style>

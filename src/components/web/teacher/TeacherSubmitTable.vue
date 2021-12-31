@@ -40,14 +40,15 @@ import { usePagination } from 'vue-request'
 import dayjs from 'dayjs'
 import { apiListLabSubmit } from '../../../api/web/labSubmit'
 import { scoreTagColor } from '../../../util/utils'
-import { columnType, IPagination } from '../../../api/common'
+import { ColumnType } from 'ant-design-vue/es/table'
+import { TablePaginationConfig } from 'ant-design-vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   labId: number
 }>()
 
-const columns: columnType[] = [
+const columns: ColumnType[] = [
   {
     title: '姓名',
     width: '100px',
@@ -99,7 +100,7 @@ const {
 })
 
 // 分页数据
-const pag = computed(() => ({
+const pag = computed<TablePaginationConfig>(() => ({
   onChange(page: number) {
     current.value = page
   },
@@ -108,7 +109,7 @@ const pag = computed(() => ({
 }))
 
 // 表格重新加载函数
-const handleTableChange = (pag: IPagination, filters: any, sorter: any) => {
+const handleTableChange = (pag: TablePaginationConfig, filters: any, sorter: any) => {
   runListLabSubmit({
     labId: props.labId,
     current: pag?.current,

@@ -1,6 +1,6 @@
 <template>
   <a-upload
-    v-model:file-list="imageList"
+    :file-list="imageList"
     :action="uploadApi"
     :before-upload="beforeUpload"
     class="avatar-uploader"
@@ -8,7 +8,7 @@
     @change="handleImageUploadChange"
     @preview="handlePreview"
   >
-    <template v-if="imageList.length < imageSize">
+    <template v-if="imageList.length < imageLength">
       <plus-outlined />
       <div class="ant-upload-text">Upload</div>
     </template>
@@ -20,7 +20,7 @@
 
 <script lang="ts" setup>
 // 上传文件列表
-import { createVNode, ref, watch } from 'vue'
+import { createVNode, ref } from 'vue'
 import { FileInfo, IFileItem } from '../../api/common'
 import { getBase64 } from '../../util/utils'
 import { message, Modal } from 'ant-design-vue'
@@ -29,7 +29,7 @@ import { uploadApi } from '../../api/web/file'
 import { PlusOutlined } from '@ant-design/icons-vue'
 // eslint-disable-next-line no-undef,func-call-spacing
 const emits = defineEmits<{
-  (e: 'update:imageInitList', list: any[]): void
+  (e: 'update:imageList', list: any[]): void
   (e: 'update:loading', src: boolean): void
 }>()
 
@@ -38,23 +38,14 @@ const props = withDefaults(
   // eslint-disable-next-line no-undef
   defineProps<{
     loading?: boolean
-    imageInitList?: IFileItem[]
-    sizeLimits: number
-    imageSize?: number
+    imageList: IFileItem[]
+    imageSize: number
+    imageLength?: number
   }>(),
   {
     loading: false,
-    imageInitList: () => [],
+    imageLength: 1,
     imageSize: 1
-  }
-)
-
-const imageList = ref<IFileItem[]>(props.imageInitList)
-
-watch(
-  () => imageList.value,
-  (newValue) => {
-    emits('update:imageInitList', newValue)
   }
 )
 
@@ -69,10 +60,10 @@ const beforeUpload = async(file: any) => {
       reject(Error('不支持的图片类型'))
       return
     }
-    const isLt2M = file.size / 1024 / 1024 < Number(props.sizeLimits)
+    const isLt2M = file.size / 1024 / 1024 < Number(props.imageSize)
     if (!isLt2M) {
-      message.error(`图片大小需小于 ${props.sizeLimits} MB!`)
-      reject(Error(`图片需小于 ${props.sizeLimits} MB!`))
+      message.error(`图片大小需小于 ${props.imageSize} MB!`)
+      reject(Error(`图片需小于 ${props.imageSize} MB!`))
       return
     }
     getBase64(file).then((img) => {
@@ -128,6 +119,7 @@ const handlePreview = async(file: IFileItem) => {
 }
 
 const handleImageUploadChange = (info: FileInfo) => {
+  emits('update:imageList', info.fileList)
   const status = info.file.status
   // 上传成功
   switch (status) {
@@ -143,6 +135,7 @@ const handleImageUploadChange = (info: FileInfo) => {
       break
     }
     case 'removed': {
+      emits('update:loading', false)
       break
     }
     case 'uploading': {

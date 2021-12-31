@@ -1,8 +1,6 @@
 export interface codingTime {
-  record: {
     duration: number
-    CreatedAt: string
-  }[]
+    createdAt: string
 }
 
 export interface getUserInfoResp {
@@ -47,7 +45,8 @@ export interface isUsedResp {
 }
 
 export interface getCodingTimeResp {
-  userId: number
+  userId?: number
+  courseId?: number
 }
 
 export interface testData {

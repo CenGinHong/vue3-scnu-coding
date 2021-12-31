@@ -13,6 +13,7 @@ import { IPagination } from '../../../api/common'
 import { apiListCourseByStuId } from '../../../api/web/course'
 import BaseCourseList from '../BaseCourseList.vue'
 import { useRouter } from 'vue-router'
+import {TablePaginationConfig} from "ant-design-vue/es/table/Table";
 
 const router = useRouter()
 const {
@@ -29,7 +30,7 @@ const {
 })
 
 // 分页数据
-const pag = computed<IPagination>(() => ({
+const pag = computed<TablePaginationConfig>(() => ({
   onChange(page: number) {
     current.value = page
   },

@@ -1,5 +1,5 @@
 <template>
-  <div :class="style.btuDiv">
+  <div class="btuDiv">
     <a-space class="btuSpace">
       <a-button type="primary" @click="visibleModal = true">
         <form-outlined/>
@@ -80,16 +80,20 @@
       </a-table>
     </template>
   </a-table>
-  <checkin-modal
+  <a-modal
       v-model:visible="visibleModal"
+      title="创建签到"
+      :footer="null"
+  >
+  <insert-checkin-form
       :course-id="courseId"
-      @refresh-list="refreshListCheckinRecord">
-  </checkin-modal>
+      @finish="handleFinishInsert">
+  </insert-checkin-form>
+  </a-modal>
 </template>
 
 <script lang="ts" setup>
-import { computed, createVNode, reactive, ref, useCssModule } from 'vue'
-import { columnType } from '../../../api/common'
+import { computed, createVNode, ref, useCssModule } from 'vue'
 import { usePagination, useRequest } from 'vue-request'
 import {
   apiDeleteCheckinRecords,
@@ -110,7 +114,8 @@ import {
   ExportOutlined
 } from '@ant-design/icons-vue'
 import { Modal } from 'ant-design-vue'
-import CheckinModal from './CheckinModal.vue'
+import InsertCheckinForm from './InsertCheckinForm.vue'
+import { ColumnType } from 'ant-design-vue/es/table'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -118,7 +123,7 @@ const props = defineProps<{
 }>()
 
 // 表格列项
-const columnCheckinRecord: columnType[] = [
+const columnCheckinRecord: ColumnType[] = [
   {
     title: '名称',
     dataIndex: 'checkinName',
@@ -176,7 +181,7 @@ const handleRefreshListCheckinRecord = () => {
 }
 
 // 签到详情
-const checkinDetailColumn: columnType[] = [
+const checkinDetailColumn: ColumnType[] = [
   {
     title: '姓名',
     dataIndex: ['userDetail', 'username'],
@@ -336,10 +341,16 @@ const handleDeleteCheckinRecords = async() => {
   })
 }
 
-const style = useCssModule()
+const handleFinishInsert = (res: boolean) => {
+  visibleModal.value = false
+  if (res) {
+    refreshListCheckinRecord()
+  }
+}
+
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .btuDiv {
   display: flex;
   flex-direction: row;

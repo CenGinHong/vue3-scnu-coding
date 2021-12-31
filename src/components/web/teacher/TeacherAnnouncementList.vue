@@ -1,71 +1,69 @@
 <template>
-  <div :class="style.insertDiv">
-    <a-button type="primary" @click="visibleInsertModal=true">
+  <a-space class="btnSpace">
+    <a-button type="primary" @click="handleShowModalInsert">
       <form-outlined/>
       新建公告
     </a-button>
-  </div>
+  </a-space>
   <base-course-announcement-list
       :data-course="dataCourseAnnouncement?.records"
       :loading="loadingCourseAnnouncement"
       :pag="pag"
   >
     <template #actions="{ item }">
-      <a-button
-          :class="style.updateBtu"
-          type="link"
-          @click="handleShowModalUpdateAnnouncement(item)"
-      >
-        <edit-outlined/>
-        修改
-      </a-button>
-      <a-button
-          danger
-          type="link"
-          @click="handleDeleteCourseAnnouncement(item.courseAnnouncementId)"
-      >
-        <delete-outlined/>
-        删除
-      </a-button>
+        <a-button
+            class="firstBtn"
+            type="link"
+            @click="handleShowModalUpdate(item.courseAnnouncementId)"
+        >
+          <edit-outlined/>
+          修改
+        </a-button>
     </template>
   </base-course-announcement-list>
 
-  <insert-course-announcement-modal
+  <a-modal
+      title="新建公告"
       v-model:visible="visibleInsertModal"
-      :course-id="courseId"
-      @refresh-list="refreshCourseAnnouncement">
-  </insert-course-announcement-modal>
-  <update-course-announcement-modal
-      :update-course-announcement-init-state="updateCourseAnnouncementState"
+      :footer="null"
+      width="800px"
+  >
+    <insert-course-announcement-form
+        :course-id="courseId"
+        @finish="handleFinishInsert"/>
+  </a-modal>
+  <a-modal
+      title="修改公告"
       v-model:visible="visibleUpdateModal"
-      @refresh-list="refreshCourseAnnouncement">
-  </update-course-announcement-modal>
+      :footer="null"
+      width="800px"
+      :destroy-on-close="true"
+  >
+    <update-course-announcement-modal
+        :course-announcement-id="updateCourseAnnouncementId"
+        @finish="handleFinishUpdate"
+    />
+  </a-modal>
 </template>
 
 <script lang="ts" setup>
-import { computed, createVNode, reactive, ref, useCssModule } from 'vue'
+import { computed, ref } from 'vue'
 import BaseCourseAnnouncementList from '../BaseCourseAnnouncementList.vue'
-import { usePagination, useRequest } from 'vue-request'
+import { usePagination } from 'vue-request'
 import {
-  apiDeleteCourseAnnouncement,
   apiListCourseAnnouncement
 } from '../../../api/web/courseAnnouncement'
 import {
-  DeleteOutlined,
   EditOutlined,
-  ExclamationCircleOutlined,
-  FormOutlined,
-  UploadOutlined,
-  LinkedinOutlined
+  FormOutlined
 } from '@ant-design/icons-vue'
 import {
-  courseAnnouncementListResp
+  courseAnnouncementDetailResp
 } from '../../../api/web/model/courseAnnouncement'
-import { Modal } from 'ant-design-vue'
+import { Modal, TablePaginationConfig } from 'ant-design-vue'
 import { fileSrc2File } from '../../../util/utils'
-import InsertCourseAnnouncementModal from './InsertCourseAnnouncementModal.vue'
-import dayjs from 'dayjs'
-import UpdateCourseAnnouncementModal from './UpdateCourseAnnouncementModal.vue'
+import InsertCourseAnnouncementForm from './InsertCourseAnnouncementForm.vue'
+import UpdateCourseAnnouncementModal from './UpdateCourseAnnouncementForm.vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -83,7 +81,7 @@ const {
 } = usePagination(apiListCourseAnnouncement, {
   manual: false,
   formatResult: (res) => {
-    res.data.result!.records.forEach((item: courseAnnouncementListResp) => {
+    res.data.result!.records.forEach((item: courseAnnouncementDetailResp) => {
       item.fileList = []
       if (item.attachmentSrc !== '') {
         item.fileList.push(fileSrc2File(item.attachmentSrc))
@@ -99,78 +97,55 @@ const {
 })
 
 // 分页数据
-const pag = computed(() => ({
-  onChange: (page: number) => {
-    current.value = page
-  },
-  total: total.value,
-  pageSize: pageSize.value
-}))
-
-// 可见更新框
-const visibleUpdateModal = ref<boolean>(false)
-
-const updateCourseAnnouncementState = reactive<courseAnnouncementListResp>({
-  courseAnnouncementId: 0,
-  title: '',
-  content: '',
-  attachmentSrc: '',
-  updatedAt: dayjs(),
-  fileList: []
-})
-
-// 更新框可见方法
-const handleShowModalUpdateAnnouncement = (
-  item: courseAnnouncementListResp
-) => {
-  updateCourseAnnouncementState.courseAnnouncementId = item.courseAnnouncementId
-  updateCourseAnnouncementState.title = item.title
-  updateCourseAnnouncementState.content = item.content
-  updateCourseAnnouncementState.fileList = item.fileList
-  visibleUpdateModal.value = true
-}
-
-// 删除
-const {
-  run: runDeleteCourseAnnouncement,
-  loading: loadingDeleteCourseAnnouncement,
-  error: errorDeleteCourseAnnouncement
-} = useRequest(apiDeleteCourseAnnouncement)
-
-// 删除公告
-const handleDeleteCourseAnnouncement = (courseAnnouncementId: number) => {
-  Modal.confirm({
-    title: () => '您确认要删除该公告吗',
-    icon: () => createVNode(ExclamationCircleOutlined),
-    content: () => '删除不可挽回，请确认',
-    onOk: async() => {
-      await runDeleteCourseAnnouncement({ id: courseAnnouncementId })
-      if (errorDeleteCourseAnnouncement.value) {
-        return
+const pag = computed<TablePaginationConfig|null>(() => {
+  return total.value > 0
+    ? {
+        onChange: (page: number) => {
+          current.value = page
+        },
+        total: total.value,
+        pageSize: pageSize.value
       }
-      await refreshCourseAnnouncement()
-    },
-    onCancel() {
-    },
-    okButtonProps: {
-      loading: loadingDeleteCourseAnnouncement.value,
-      danger: true
-    },
-    okText: () => '确认删除',
-    cancelText: () => '取消'
-  })
-}
+    : null
+})
 
 // 插入框可见
 const visibleInsertModal = ref<boolean>(false)
 
-const style = useCssModule()
+const handleShowModalInsert = () => {
+  visibleInsertModal.value = true
+}
+
+const handleFinishInsert = () => {
+  visibleInsertModal.value = false
+  refreshCourseAnnouncement()
+}
+
+const updateCourseAnnouncementId = ref<number>(0)
+
+// 可见更新框
+const visibleUpdateModal = ref<boolean>(false)
+
+const handleShowModalUpdate = (id:number) => {
+  updateCourseAnnouncementId.value =id
+  visibleUpdateModal.value = true
+}
+
+const handleFinishUpdate = () => {
+  visibleUpdateModal.value = false
+  refreshCourseAnnouncement()
+}
+
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
+.btnSpace {
+  display: flex;
+  margin-bottom: 16px;
+  margin-left: 16px;
+}
 
-.updateBtu {
-  color: gray;
+.firstBtn {
   margin-left: -15px;
 }
 </style>

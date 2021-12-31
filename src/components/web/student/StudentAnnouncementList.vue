@@ -11,7 +11,7 @@
 import BaseCourseAnnouncementList from '../BaseCourseAnnouncementList.vue'
 import { usePagination } from 'vue-request'
 import { apiListCourseAnnouncement } from '../../../api/web/courseAnnouncement'
-import { courseAnnouncementListResp } from '../../../api/web/model/courseAnnouncement'
+import { courseAnnouncementDetailResp } from '../../../api/web/model/courseAnnouncement'
 import { fileSrc2File } from '../../../util/utils'
 import { computed } from 'vue'
 import { IPagination } from '../../../api/common'
@@ -31,7 +31,7 @@ const {
 } = usePagination(apiListCourseAnnouncement, {
   manual: false,
   formatResult: (res) => {
-    res.data.result.records.forEach((item: courseAnnouncementListResp) => {
+    res.data.result.records.forEach((item: courseAnnouncementDetailResp) => {
       item.fileList = []
       if (item.attachmentSrc !== '') {
         item.fileList.push(fileSrc2File(item.attachmentSrc))

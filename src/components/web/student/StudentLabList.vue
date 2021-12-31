@@ -1,74 +1,76 @@
 <template>
   <base-lab-list
-    :data-source="dataLabList?.records"
-    :loading="loadingListLabList"
-    :pag="pagination"
+      :data-source="dataLabList?.records"
+      :loading="loadingListLabList"
+      :pag="pagination"
   >
     <template #actions="{ item, index }">
       <!--ide编写按钮-->
       <a-button
-        :class="style.ideBtu"
-        type="link"
-        @click="handleOpenIDE(item.labId)"
+          :class="style.ideBtu"
+          type="link"
+          @click="handleOpenIDE(item.labId)"
       >
-        <send-outlined />
+        <send-outlined/>
         IDE编写实验
       </a-button>
       <!--点击按钮-->
       <a-button
-        :class="style.editBtu"
-        type="link"
-        @click="handleRouteToReportWriteBoard(item.labId, item.deadline)"
+          :class="style.editBtu"
+          type="link"
+          @click="handleRouteToReportWriteBoard(item.labId, item.deadline)"
       >
-        <edit-outlined />
+        <read-outlined v-if="isDeadLineAfter(item.deadline)"/>
+        <edit-outlined v-else/>
         {{ isDeadLineAfter(item.deadline) ? '查看实验报告' : '编写实验报告' }}
       </a-button>
       <a-button
-        :class="style.commentBtu"
-        type="link"
-        @click="handleShowComment(item.labId)"
+          :class="style.commentBtu"
+          type="link"
+          @click="handleShowComment(item.labId)"
       >
-        <comment-outlined />
+        <comment-outlined/>
         查看评论
       </a-button>
       <a-tooltip
-        :title="
+          :title="
           isDeadLineAfter(item.deadline)
             ? '已经超过截止时间'
             : '完成实验后自行修改'
         "
-        placement="top"
+          placement="top"
       >
         <a-switch
-          v-model:checked="item.labSubmitDetail.isFinish"
-          :disabled="isDeadLineAfter(item.deadline)"
-          :loading="queriesChangeLabFinish[item.labId]?.loading"
-          checked-children="已完成"
-          un-checked-children="未完成"
-          @click="handleChangeFinish(index)"
+            v-model:checked="item.labSubmitDetail.isFinish"
+            :disabled="isDeadLineAfter(item.deadline)"
+            :loading="queriesChangeLabFinish[item.labId]?.loading"
+            checked-children="已完成"
+            un-checked-children="未完成"
+            @click="handleChangeFinish(index)"
         />
       </a-tooltip>
       <!--完成标志-->
       <template v-if="item.labSubmitDetail.score !== 0">
         <a-popover
-          :content="item.labSubmitDetail.labSubmitComment"
-          title="评语"
-          trigger="hover"
+            :content="item.labSubmitDetail.labSubmitComment"
+            title="评语"
+            trigger="hover"
         >
           <a-tag :color="scoreTagColor(item.labSubmitDetail.score)">{{
-            item.labSubmitDetail.score
-          }}</a-tag>
+              item.labSubmitDetail.score
+            }}
+          </a-tag>
         </a-popover>
       </template>
     </template>
   </base-lab-list>
   <a-modal
-    v-model:visible="visibleCommentModal"
-    :footer="null"
-    title="实验评论"
-    width="800px"
+      v-model:visible="visibleCommentModal"
+      :footer="null"
+      title="实验评论"
+      width="800px"
   >
-    <lab-comment :lab-id="commentLabId" />
+    <lab-comment :lab-id="commentLabId"/>
   </a-modal>
 </template>
 
@@ -79,7 +81,8 @@ import { useRouter } from 'vue-router'
 import {
   CommentOutlined,
   EditOutlined,
-  SendOutlined
+  SendOutlined,
+  ReadOutlined
 } from '@ant-design/icons-vue'
 import LabComment from '../LabComment.vue'
 import BaseLabList from '../BaseLabList.vue'
@@ -91,6 +94,7 @@ import { ROUTER_NAME } from '../../../router'
 import { labDetailResp } from '../../../api/web/model/lab'
 import { updateFinishTagReq } from '../../../api/web/model/labSubmit'
 import dayjs, { Dayjs } from 'dayjs'
+import { message } from 'ant-design-vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps({
@@ -148,7 +152,7 @@ const { run: runChangeLabFinish, queries: queriesChangeLabFinish } = useRequest(
 const handleChangeFinish = (index: number) => {
   runChangeLabFinish({
     isFinish:
-      dataLabList.value!.records[index].labSubmitDetail?.isFinish ?? true,
+        dataLabList.value!.records[index].labSubmitDetail?.isFinish ?? true,
     labId: dataLabList.value!.records[index].labId
   })
 }
@@ -157,7 +161,8 @@ const handleRouteToReportWriteBoard = (labId: number, deadline: Dayjs) => {
   router.push({
     name: ROUTER_NAME.REPORT_WRITE_BOARD,
     query: {
-      labId: labId
+      labId: labId,
+      isEditable: String(!isDeadLineAfter(deadline))
     }
   })
 }
@@ -172,18 +177,22 @@ const {
   }
 })
 
-const handleOpenIDE = (labId: number) => {
-  runOpenIDE({
+const handleOpenIDE = async(labId: number) => {
+  const hide = message.loading('启动IDE中..', 0)
+  await runOpenIDE({
     labId
   })
-  if (errorOpenIDE) {
+  if (errorOpenIDE.value) {
+    hide()
     return
   }
-  window.open(dataOpenIDE.value!.url)
+  // 等5秒再开启
+  setTimeout(() => {
+    hide()
+    window.open(dataOpenIDE.value!.url)
+  }, 1000)
 }
 
-// 空值评论区开闭
-const isShowComment = reactive<Record<number, boolean>>({})
 // 打开某实验的评论区
 const handleShowComment = (labId: number) => {
   // 打开该评论框
