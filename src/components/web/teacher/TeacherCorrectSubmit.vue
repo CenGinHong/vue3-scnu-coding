@@ -28,34 +28,60 @@
       <a-button @click="handleRefreshLabSubmitId">
         <reload-outlined/>
       </a-button>
-      <a-button
-          class="correctBtn"
-          :disabled="selectedStudent === ''"
-          type="primary"
-          @click="handleShowModalCorrect"
-      >
-        <check-outlined/>
-        评分
-      </a-button>
+      <a-popover title="评分" :visible="visibleCorrect" placement="right" trigger="click">
+        <template #content>
+          <a-form
+              :label-col="{ span: 4 }"
+              :model="correctState"
+              :wrapper-col="{ span: 18 }"
+              name="custom-validation"
+          >
+            <a-form-item label="分数" name="score">
+              <a-input-number
+                  v-model:value="correctState.score"
+                  :max="100"
+                  :min="0"
+              />
+            </a-form-item>
+            <a-form-item label="评语" name="comment">
+              <a-textarea
+                  v-model:value="correctState.comment"
+                  :maxlength="250"
+                  :rows="2"
+                  show-count
+              />
+            </a-form-item>
+            <a-form-item :wrapper-col="{ offset: 4 }">
+              <a-button type="primary" @click="handleUpdateCommentAndScore" :loading="loadingCorrect">
+                确定
+              </a-button>
+            </a-form-item>
+          </a-form>
+        </template>
+        <a-button type="primary" class="correctBtn" :disabled="selectedStudent === ''" @click="handleShowModalCorrect">
+          <check-outlined/>
+          评分
+        </a-button>
+      </a-popover>
     </a-radio-group>
     <a-tabs v-model:activeKey="markContentActiveKey" type="card">
       <a-tab-pane key="0" tab="实验源码">
-        <a-spin :spinning="loadingGetLabCode">
+        <a-skeleton active :loading="loadingGetLabCode">
           <a-empty v-if="labCode?.length === 0" :image="Empty.PRESENTED_IMAGE_SIMPLE"/>
           <template v-else>
             <a-button class="actionButton" type="primary"
             >IDE打开
             </a-button
             >
-            <program-read-board class="codeBoard" :code="labCode"/>
+            <program-read-board :code="labCode"/>
           </template>
-        </a-spin>
+        </a-skeleton>
       </a-tab-pane>
       <a-tab-pane key="1" tab="实验报告">
-        <a-spin :spinning="loadingGetReportContent">
+        <a-skeleton active :loading="loadingGetReportContent">
           <a-empty v-if="reportContent === ''" :image="Empty.PRESENTED_IMAGE_SIMPLE"/>
           <template v-else>
-            <a-button class="actionButton" type="primary" @click="handle"
+            <a-button class="actionButton" type="primary"
             >导出为pdf
             </a-button
             >
@@ -68,41 +94,10 @@
               <p v-html="html"/>
             </div>
           </template>
-        </a-spin>
+        </a-skeleton>
       </a-tab-pane>
     </a-tabs>
   </div>
-  <a-modal
-      v-model:visible="visibleModalCorrect"
-      :ok-button-props="{ loading: loadingCorrect }"
-      cancelText="取消"
-      ok-text="确认"
-      title="评分"
-      @ok="handleUpdateCommentAndScore"
-  >
-    <a-form
-        :label-col="{ span: 4 }"
-        :model="correctState"
-        :wrapper-col="{ span: 18 }"
-        name="custom-validation"
-    >
-      <a-form-item label="分数" name="score">
-        <a-input-number
-            v-model:value="correctState.score"
-            :max="100"
-            :min="0"
-        />
-      </a-form-item>
-      <a-form-item label="评语" name="comment">
-        <a-textarea
-            v-model:value="correctState.comment"
-            :maxlength="250"
-            :rows="4"
-            show-count
-        />
-      </a-form-item>
-    </a-form>
-  </a-modal>
 </template>
 
 <script lang="ts" setup>
@@ -262,6 +257,9 @@ const { run: runGetReportContent, loading: loadingGetReportContent } =
     useRequest(apiGetReportContent, {
       formatResult: (res) => {
         return res.data.result
+      },
+      onSuccess: (res) => {
+        reportContent.value = res.reportContent
       }
     })
 
@@ -272,8 +270,10 @@ const { run: runGetLabCode, loading: loadingGetLabCode } = useRequest(
   apiGetLabCode,
   {
     formatResult: (res) => {
-      console.log(res)
       return res.data.result
+    },
+    onSuccess: (res) => {
+      labCode.value = res!.code
     }
   }
 )
@@ -290,14 +290,10 @@ watch(
       runGetLabCode({
         labId: props.labId,
         userId: options.value[Number(selectedStudent.value)].userId
-      }).then((res) => {
-        labCode.value = res!.code
       })
       runGetReportContent({
         labId: props.labId,
         userId: options.value[Number(selectedStudent.value)].userId
-      }).then((res) => {
-        reportContent.value = res!.reportContent
       })
     }
   }
@@ -311,14 +307,17 @@ const correctState = reactive<correctLabReq>({
   labId: props.labId
 })
 
-const visibleModalCorrect = ref<boolean>(false)
+const visibleCorrect = ref<boolean>(false)
 
 const handleShowModalCorrect = () => {
-  correctState.userId = options.value[Number(selectedStudent.value)].userId
-  correctState.comment =
-      options.value[Number(selectedStudent.value)].comment ?? ''
-  correctState.score = options.value[Number(selectedStudent.value)].score ?? 0
-  visibleModalCorrect.value = true
+  visibleCorrect.value = !visibleCorrect.value
+  if (visibleCorrect.value) {
+    correctState.userId = options.value[Number(selectedStudent.value)].userId
+    correctState.comment =
+        options.value[Number(selectedStudent.value)].comment ?? ''
+    correctState.score = options.value[Number(selectedStudent.value)].score ?? 0
+    visibleCorrect.value = true
+  }
 }
 
 const {
@@ -335,7 +334,7 @@ const handleUpdateCommentAndScore = async() => {
   // 先原地更新
   options.value[Number(selectedStudent.value)].score = correctState.score
   options.value[Number(selectedStudent.value)].comment = correctState.comment
-  visibleModalCorrect.value = false
+  visibleCorrect.value = false
   await refreshLabSubmit()
 }
 
@@ -353,7 +352,6 @@ const html = ref()
   .correctType {
     display: flex;
     margin-bottom: 50px;
-    padding-left: 16px;
 
     .inputStudentNum {
       margin-left: 20px;
@@ -380,12 +378,9 @@ const html = ref()
   }
 
   .actionButton {
-    margin-left: 36px;
+    margin-bottom: 16px;
     display: flex;
   }
 
-  .codeBoard {
-    margin: 16px 36px 0 36px;
-  }
 }
 </style>

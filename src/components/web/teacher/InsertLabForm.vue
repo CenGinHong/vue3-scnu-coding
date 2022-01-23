@@ -12,10 +12,10 @@
       <a-textarea
           v-model:value="insertLabState.content"
           allow-clear
-          rows="4"
+          rows="8"
       />
     </a-form-item>
-    <a-form-item label="截止日期">
+    <a-form-item label="截止日期" name="deadline">
       <a-date-picker
           v-model:value="insertLabState.deadline"
           placeholder="请选择时间"
@@ -38,15 +38,15 @@
     </a-form-item>
     <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
       <a-space>
-        <a-button type="primary" @click="handleInsertLab" :loading="loadingInsertLab || loadingUpload">新建</a-button>
-        <a-button @click="handleCancel">取消</a-button>
+        <a-button type="primary" @click="handleInsertLab" :loading="loadingInsertLab || loadingUpload">
+          <form-outlined/>
+          新建实验</a-button>
       </a-space>
     </a-form-item>
   </a-form>
 </template>
 
 <script lang="ts" setup>
-// 新建实验
 import { reactive, ref } from 'vue'
 import { insertLabReq } from '../../../api/web/model/lab'
 import { useRequest } from 'vue-request'
@@ -54,9 +54,9 @@ import { apiInsertLab } from '../../../api/web/lab'
 import { FileInfo, IFileItem } from '../../../api/common'
 import { message } from 'ant-design-vue'
 import { uploadApi } from '../../../api/web/file'
-import { UploadOutlined } from '@ant-design/icons-vue'
+import { UploadOutlined, FormOutlined } from '@ant-design/icons-vue'
 import { useForm } from 'ant-design-vue/es/form'
-import {RuleObject} from "ant-design-vue/es/form/interface";
+import { RuleObject } from 'ant-design-vue/es/form/interface'
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   courseId: number
@@ -106,9 +106,6 @@ const handleInsertLab = async() => {
   emits('finish', true)
 }
 
-const handleCancel = () => {
-  emits('finish', false)
-}
 const loadingUpload = ref<boolean>(false)
 
 const handleInsertUploadChange = (info: FileInfo) => {

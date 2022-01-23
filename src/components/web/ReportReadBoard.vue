@@ -1,59 +1,49 @@
 <template>
-  <div :class="style.outer">
-    <v-md-editor
-      :model-value="reportContent?.reportContent"
-      height="450px"
-      mode="preview"
-    ></v-md-editor>
-  </div>
+  <a-row class="row">
+    <a-col class="col" :span="20" :offset="2">
+      <v-md-editor :model-value="reportContent" height="500px" mode="preview"/>
+    </a-col>
+  </a-row>
 </template>
 
-<script lang="ts">
-import { defineComponent, useCssModule } from 'vue'
+<script lang="ts" setup>
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRequest } from 'vue-request'
 import {
-  apiGetReportContent,
-  apiUpdateReportContent
+  apiGetReportContent
 } from '../../api/web/labSubmit'
+// eslint-disable-next-line no-undef
+const props = defineProps<{
+  labId: number
+}>()
 
-export default defineComponent({
-  name: 'ReportReadBoard',
-  setup() {
-    const route = useRoute()
-    const labId = Number(route.query.labId)
-    // 获取之前撰写的实验报告的内容
-    const { data: reportContent } = useRequest(apiGetReportContent, {
-      manual: false,
-      defaultParams: [
-        {
-          labId
-        }
-      ],
-      formatResult: (res) => {
-        return res.data.result
-      }
-    })
+const route = useRoute()
 
-    const { run: runUpdateReportContent } = useRequest(apiUpdateReportContent)
-    // 保存编写的实验报告
-    const handleSave = (text: string, _: string) => {
-      // 保存
-      runUpdateReportContent({ labId, reportContent: text })
+const reportContent = ref<string>('')
+// 获取之前撰写的实验报告的内容
+useRequest(apiGetReportContent, {
+  manual: false,
+  defaultParams: [
+    {
+      labId: props.labId
     }
-
-    const style = useCssModule()
-    return {
-      reportContent,
-      style,
-      handleSave
-    }
+  ],
+  formatResult: (res) => {
+    return res.data.result
+  },
+  onSuccess: (res) => {
+    reportContent.value = res.reportContent
   }
 })
+
 </script>
-<style lang="scss" module>
-.outer {
-  margin: 20px 10px 0 10px;
-  text-align: left;
+<style lang="scss" scoped>
+.row {
+  margin-top: 20px;
+
+  .col {
+    text-align: left;
+  }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <a-spin :spinning="loadingListComment">
-    <!--评论编辑框-->
+    <!--讨论编辑框-->
     <a-comment>
       <template #avatar>
         <a-avatar>{{ userInfo.username }}</a-avatar>
@@ -11,18 +11,18 @@
         </a-form-item>
         <a-form-item>
           <a-button
-              :class="style.replyButton"
+              class="replyButton"
               :loading="queriesInsertLabComment[0]?.loading"
               type="primary"
               @click="handleReplyComment(0)"
           >
             <form-outlined/>
-            新增评论
+            新增讨论
           </a-button>
         </a-form-item>
       </template>
     </a-comment>
-    <!--评论条目-->
+    <!--讨论条目-->
     <template v-if="dataListComment?.records.length === 0">
       <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE"/>
     </template>
@@ -35,18 +35,21 @@
               {{ openCommentArea[record.commentId] ? '取消回复' : '回复' }}
             </span>
             <template v-if="userInfo.userId === record.userDetail.userId">
-              <span
-                  :class="style.delBtn"
-                  @click="handleDeleteComment(record.commentId)"
+              <a-popconfirm
+                  title='将同时删除在该讨论下的所有子讨论！'
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="handleDeleteComment(record.commentId)"
               >
+                <span class="delBtn">
                 <delete-outlined/>删除
               </span>
+              </a-popconfirm>
             </template>
             <!--回复框-->
           </template>
           <template #replyArea="{ record }">
             <template v-if="openCommentArea[record.commentId]">
-              <!--<div  style="text-align: left">-->
               <a-comment>
                 <template #content>
                   <a-form-item>
@@ -73,12 +76,11 @@
                   </a-form-item>
                 </template>
               </a-comment>
-              <!--</div>-->
             </template>
           </template>
         </comment-item>
       </template>
-      <div :class="style.pagination">
+      <div class="pagination">
         <a-pagination
             v-model:current="currentListComment"
             :pageSize="pageSizeListComment"
@@ -91,7 +93,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, createVNode, ref, useCssModule, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import CommentItem from './CommentItem.vue'
 import { usePagination, useRequest } from 'vue-request'
 import {
@@ -102,8 +104,7 @@ import {
 import {
   CommentOutlined,
   DeleteOutlined,
-  FormOutlined,
-  ExclamationCircleOutlined
+  FormOutlined
 } from '@ant-design/icons-vue'
 import { Empty, message, Modal } from 'ant-design-vue'
 import { useStore } from '../../store'
@@ -118,7 +119,7 @@ const store = useStore()
 
 const userInfo = computed<IUserInfo>(() => store.getters['user/userInfo'])
 
-// 获取评论
+// 获取讨论
 const {
   run: runListComment,
   data: dataListComment,
@@ -152,7 +153,7 @@ const handleChangeOpenCommentArea = (id: number) => {
   openCommentArea.value[id] = !openCommentArea.value[id] ?? true
 }
 
-// 新增评论
+// 新增讨论
 const { run: runInsertLabComment, queries: queriesInsertLabComment } =
     useRequest(apiInsertLabComment, {
       queryKey: (insertLabCommentReq) => String(insertLabCommentReq.pid)
@@ -178,40 +179,28 @@ const handleReplyComment = async(pid: number) => {
   if (queriesInsertLabComment[pid]?.error) {
     return
   }
-  // 清空评论框
+  // 清空讨论框
   replyCommentRecord.value[pid] = ''
-  // 重新获取评论数据
+  // 重新获取讨论数据
   openCommentArea.value[pid] = false
   await refreshListComment()
 }
 
 const {
   run: runDeleteLabComment,
-  error: errorDeleteLabComment,
-  loading: loadingDeleteLabComment
+  error: errorDeleteLabComment
 } = useRequest(apiDeleteLabComment)
 const handleDeleteComment = async(labCommentId: number) => {
-  Modal.confirm({
-    title: '确认删除评论？',
-    icon: createVNode(ExclamationCircleOutlined),
-    content: '删除评论将会删除在该评论下的所有子评论且不可恢复，请谨慎操作！',
-    okText: '确认',
-    okButtonProps: { loading: loadingDeleteLabComment.value, danger: true },
-    onOk: async() => {
-      await runDeleteLabComment({ labCommentId })
-      if (errorDeleteLabComment.value) {
-        return
-      }
-      await refreshListComment()
-    },
-    cancelText: '取消'
-  })
+  await runDeleteLabComment({ labCommentId })
+  if (errorDeleteLabComment.value) {
+    return
+  }
+  await refreshListComment()
 }
 
-const style = useCssModule()
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .replyButton {
   float: left;
 }

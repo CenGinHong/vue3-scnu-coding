@@ -52,7 +52,7 @@ const props = withDefaults(
 const cropper = ref()
 
 // 上传前修改，进行图片裁剪
-const beforeUpload = async(file: any) => {
+const beforeUpload = async (file: any) => {
   return new Promise((resolve, reject) => {
     const supportType = ['image/jpeg', 'image/png']
     if (!supportType.includes(file.type)) {
@@ -69,7 +69,7 @@ const beforeUpload = async(file: any) => {
     getBase64(file).then((img) => {
       Modal.info({
         title: () => '裁剪照片',
-        icon: () => {},
+        icon: () => { },
         closable: true,
         content: () =>
           createVNode('div', { style: 'height: 360px' }, [
@@ -108,7 +108,7 @@ const previewVisible = ref<boolean>(false)
 const previewImage = ref<string | undefined>('')
 
 // 处理预览
-const handlePreview = async(file: IFileItem) => {
+const handlePreview = async (file: IFileItem) => {
   if (!file.url && !file.preview) {
     file.preview = (await getBase64(file.originFileObj!)) as string
     previewImage.value = file.preview

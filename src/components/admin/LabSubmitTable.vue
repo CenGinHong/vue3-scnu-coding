@@ -33,39 +33,50 @@
       <template
           v-if="column.key === 'operation'"
       >
-        <a-button type="text">
-          <edit-outlined/>
-        </a-button>
-        <a-dropdown>
-          <a-button type="text">
-            <bars-outlined/>
-          </a-button>
-          <template #overlay>
-            <a-menu>
-              <a-menu-item >
-                <read-outlined/>
-                查看代码
-              </a-menu-item>
-              <a-menu-item>
-                <comment-outlined/>
-                查看实验报告
-              </a-menu-item>
-            </a-menu>
-          </template>
-        </a-dropdown>
+        <a-space>
+          <a-tooltip title="编辑">
+            <a-button type="link">
+              <edit-outlined/>
+            </a-button>
+          </a-tooltip>
+          <a-tooltip title="查看代码">
+            <a-button type="link">
+              <code-sandbox-outlined/>
+            </a-button>
+          </a-tooltip>
+          <a-tooltip title="查看报告" @click="handleShowReport(record.labId)">
+            <a-button type="link">
+              <read-outlined/>
+            </a-button>
+          </a-tooltip>
+        </a-space>
       </template>
     </template>
   </a-table>
+  <a-drawer
+      title="实验报告"
+      :width="920"
+      v-model:visible="visibleReport">
+    <report-read-board />
+  </a-drawer>
 </template>
 
 <script lang="ts" setup>
 import { ColumnType, TablePaginationConfig } from 'ant-design-vue/es/table'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { usePagination } from 'vue-request'
 import { apiListLabSubmitByLabId } from '../../api/admin/labSubmit'
 import dayjs from 'dayjs'
 import { useRouter } from 'vue-router'
-import { FileOutlined, EditOutlined, BarsOutlined, CommentOutlined, ReadOutlined } from '@ant-design/icons-vue'
+import {
+  FileOutlined,
+  EditOutlined,
+  BarsOutlined,
+  CommentOutlined,
+  ReadOutlined,
+  CodeSandboxOutlined
+} from '@ant-design/icons-vue'
+import ReportReadBoard from '../web/ReportReadBoard.vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -98,7 +109,7 @@ const columns = computed<ColumnType[]>(() => [
     title: '评语',
     dataIndex: ['labSubmitDetail', 'labSubmitComment'],
     ellipsis: true,
-    width: '30%'
+    width: '20%'
   },
   {
     title: '最后更新',
@@ -113,6 +124,7 @@ const columns = computed<ColumnType[]>(() => [
 ])
 
 const {
+  run: runListLabSubmitByLabId,
   data: dataListLabSubmitByLabId,
   loading: loadingLabSubmitByLabId,
   current,
@@ -141,6 +153,18 @@ const pag = computed<TablePaginationConfig>(() => ({
 
 const router = useRouter()
 
+watch(props, () => {
+  runListLabSubmitByLabId({
+    labId: props.labId
+  })
+})
+
+const visibleReport = ref<Boolean>(false)
+const selectedLabId = ref<number>()
+const handleShowReport = (labId: number) => {
+  selectedLabId.value = labId
+  visibleReport.value = true
+}
 </script>
 
 <style scoped>

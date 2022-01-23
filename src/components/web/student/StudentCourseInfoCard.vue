@@ -1,9 +1,7 @@
 <template>
-  <course-info-card
-      :course-info="dataCourseDetail"
-      :loading="loadingCourseDetail">
+  <course-info-card :course-info="dataCourseDetail" :loading="loadingCourseDetail">
     <template #action>
-      <user-outlined/>
+      <user-outlined />
     </template>
   </course-info-card>
 </template>

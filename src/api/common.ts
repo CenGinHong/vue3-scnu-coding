@@ -1,14 +1,16 @@
-export interface filters {
-  text: string
-  value: string
-  children?: filters[]
-}
+// export interface filters {
+//   text: string
+//   value: string
+//   children?: filters[]
+// }
 
 // 分页约束
+import {ColumnFilterItem, FilterValue} from 'ant-design-vue/es/table/interface'
+
 export interface pageResp<T> {
   records: T[]
   total: number
-  filter: Record<string, filters[]>
+  filter: Record<string, ColumnFilterItem[]>
 }
 
 export interface pageParams {
@@ -16,7 +18,7 @@ export interface pageParams {
   pageSize?: number
   sortField?: string
   sortOrder?: 'descend' | 'ascend'
-  filterFields?: Record<string, string[]>
+  filterFields?: Record<string, FilterValue | null>
 }
 
 // 选择器的类型

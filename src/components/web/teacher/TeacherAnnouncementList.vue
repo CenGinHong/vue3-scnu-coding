@@ -127,7 +127,7 @@ const updateCourseAnnouncementId = ref<number>(0)
 const visibleUpdateModal = ref<boolean>(false)
 
 const handleShowModalUpdate = (id:number) => {
-  updateCourseAnnouncementId.value =id
+  updateCourseAnnouncementId.value = id
   visibleUpdateModal.value = true
 }
 

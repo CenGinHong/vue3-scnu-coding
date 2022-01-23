@@ -2,7 +2,7 @@
   <a-skeleton active :loading="loading">
     <a-card>
       <template #cover>
-        <img alt="example" src="/src/assets/gate.jpg" />
+        <a-image alt="example" src="/src/assets/gate.jpg" />
       </template>
       <template #actions class="ant-card-actions">
         <a-tag

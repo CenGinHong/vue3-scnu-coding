@@ -14,23 +14,15 @@
         <a-tag v-else-if="record.gender === 2" color="pink">女</a-tag>
       </template>
       <template
-          v-if="column.dataIndex === 'createdAt'"
-      >{{ dayjs(record.createdAt).format('YYYY-MM-DD hh:mm') }}
-      </template>
-      <template
-          v-if="column.dataIndex === 'updatedAt'"
-      >{{ dayjs(record.createdAt).format('YYYY-MM-DD hh:mm') }}
-      </template>
-      <template
           v-if="column.dataIndex === 'deadline'"
       >{{ dayjs(record.createdAt).format('YYYY-MM-DD hh:mm') }}
       </template>
       <template
           v-if="column.dataIndex === 'attachmentSrc'"
       >
-        <a-button size="small" v-if="record.attachmentSrc!==''">
+        <a v-if="record.attachmentSrc!==''">
           <file-outlined/>
-        </a-button>
+        </a>
         <template v-else>
           无
         </template>
@@ -38,36 +30,56 @@
       <template
           v-if="column.key === 'operation'"
       >
-        <a-dropdown-button @click="handleButtonClick">
-          <edit-outlined />
-          <template #overlay>
-            <a-menu>
-              <a-menu-item @click="handleRouteToSubmitDetail(record.labId)">
-                <appstore-outlined/>
-                查看提交情况
-              </a-menu-item>
-              <a-menu-item>
-                <comment-outlined />
-                查看讨论
-              </a-menu-item>
-            </a-menu>
-          </template>
-        </a-dropdown-button>
+        <a-tooltip title="编辑">
+          <a-button type="link" @click="showDrawerUpdateLab(record.labId)">
+            <edit-outlined/>
+          </a-button>
+        </a-tooltip>
+        <a-tooltip title="提交详情">
+          <a-button type="link" @click="showDrawerSubmitTable(record.labId)">
+            <bars-outlined/>
+          </a-button>
+        </a-tooltip>
+        <a-tooltip title="讨论">
+          <a-button type="link" @click="showDrawerSubmitTable(record.labId)">
+            <comment-outlined/>
+          </a-button>
+        </a-tooltip>
       </template>
     </template>
   </a-table>
+  <a-drawer
+      title="修改实验"
+      :width="1020"
+      v-model:visible="visibleDrawerUpdateLab"
+      :body-style="{ paddingBottom: '80px' }"
+      :footer-style="{ textAlign: 'right' }"
+  >
+    <update-lab-form :labId="selectedLabId"/>
+  </a-drawer>
+  <a-drawer
+      title="实验提交"
+      :width="1380"
+      v-model:visible="visibleDrawerSubmitTable"
+      :body-style="{ paddingBottom: '80px' }"
+      :footer-style="{ textAlign: 'right' }"
+  >
+    <lab-submit-table :lab-id="selectedLabId"/>
+  </a-drawer>
 </template>
 
 <script lang="ts" setup>
 
 import { ColumnType, TablePaginationConfig, TableProps } from 'ant-design-vue/es/table'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { usePagination } from 'vue-request'
 import { apiListAllLab } from '../../api/admin/lab'
 import dayjs from 'dayjs'
-import { FileOutlined, EditOutlined, BarsOutlined, CommentOutlined, AppstoreOutlined } from '@ant-design/icons-vue'
+import { FileOutlined, EditOutlined, BarsOutlined, CommentOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { ROUTER_NAME } from '../../router'
 import { useRouter } from 'vue-router'
+import UpdateLabForm from '../web/teacher/UpdateLabForm.vue'
+import LabSubmitTable from './LabSubmitTable.vue'
 
 const columns = computed<ColumnType[]>(() => [
   {
@@ -85,7 +97,7 @@ const columns = computed<ColumnType[]>(() => [
   {
     title: '实验内容',
     dataIndex: 'content',
-    width: '30%',
+    width: '20%',
     ellipsis: true
   },
   {
@@ -102,24 +114,21 @@ const columns = computed<ColumnType[]>(() => [
     title: '截止日期',
     dataIndex: 'deadline',
     width: '5%'
-  },
-  {
-    title: '创建时间',
-    dataIndex: 'createdAt',
-    width: '5%'
-  },
-  {
-    title: '修改时间',
-    dataIndex: 'updatedAt',
-    width: '5%'
   }, {
     title: '操作',
     key: 'operation',
-    width: '8%'
+    width: '6%'
   }
 ])
 
-const { run: runAllLab, data: dataAllLab, loading: loadingAllLab, pageSize, current, total } = usePagination(apiListAllLab, {
+const {
+  run: runAllLab,
+  data: dataAllLab,
+  loading: loadingAllLab,
+  pageSize,
+  current,
+  total
+} = usePagination(apiListAllLab, {
   manual: false,
   formatResult: (res) => {
     return res.data.result
@@ -154,6 +163,24 @@ const handleTableChange: TableProps['onChange'] = (
     }
   })
 }
+
+const selectedLabId = ref<number>(0)
+
+const visibleDrawerUpdateLab = ref<boolean>(false)
+
+const showDrawerUpdateLab = (labId: number) => {
+  selectedLabId.value = labId
+  visibleDrawerUpdateLab.value = true
+}
+
+const visibleDrawerSubmitTable = ref<boolean>(false)
+
+const showDrawerSubmitTable = (labId: number) => {
+  console.log(labId)
+  selectedLabId.value = labId
+  visibleDrawerSubmitTable.value = true
+}
+
 const router = useRouter()
 
 const handleRouteToSubmitDetail = (labId: number) => {

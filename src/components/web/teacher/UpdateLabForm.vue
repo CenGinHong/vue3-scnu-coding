@@ -41,9 +41,10 @@
               cancel-text="取消"
               @confirm="handleDeleteLab"
           >
-            <a-button type="primary" danger :loading="loadingDeleteLab">删除</a-button>
+            <a-button type="primary" danger :loading="loadingDeleteLab">
+              <form-outlined/>
+              删除</a-button>
           </a-popconfirm>
-          <a-button @click="handleCancel">取消</a-button>
         </a-space>
       </a-form-item>
     </a-form>
@@ -52,12 +53,12 @@
 
 <script lang="ts" setup>
 import { updateLabReq } from '../../../api/web/model/lab'
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { FileInfo, IFileItem } from '../../../api/common'
 import { uploadApi } from '../../../api/web/file'
 import { Form, message, Modal } from 'ant-design-vue'
 import { apiDeleteLab, apiGetLabDetail, apiUpdateLab } from '../../../api/web/lab'
-import { ExclamationCircleOutlined, UploadOutlined } from '@ant-design/icons-vue'
+import { ExclamationCircleOutlined, UploadOutlined, FormOutlined } from '@ant-design/icons-vue'
 import { useRequest } from 'vue-request'
 import { fileSrc2File } from '../../../util/utils'
 import dayjs from 'dayjs'
@@ -74,7 +75,7 @@ const updateLabState = reactive<updateLabReq>({
   deadline: null
 })
 const fileList = ref<IFileItem[]>([])
-const { loading: loadingLabDetail } = useRequest(apiGetLabDetail, {
+const { run: runGetLabDetail, loading: loadingLabDetail } = useRequest(apiGetLabDetail, {
   manual: false,
   defaultParams: [
     props.labId
@@ -100,7 +101,7 @@ const { loading: loadingLabDetail } = useRequest(apiGetLabDetail, {
 
 // eslint-disable-next-line no-undef,func-call-spacing
 const emits = defineEmits<{
-  (e: 'finish', res: boolean): void
+  (e: 'finish'): void
 }>()
 
 const loadingUpload = ref<boolean>(false)
@@ -164,11 +165,7 @@ const handleUpdateLab = async() => {
   if (errorUpdateLab.value) {
     return
   }
-  emits('finish', true)
-}
-
-const handleCancel = () => {
-  emits('finish', false)
+  emits('finish')
 }
 
 // 删除实验
@@ -183,8 +180,14 @@ const handleDeleteLab = async() => {
   if (errorDeleteLab.value) {
     return
   }
-  emits('finish', true)
+  emits('finish')
 }
+
+watch(props, () => {
+  runGetLabDetail(
+    props.labId
+  )
+})
 
 </script>
 

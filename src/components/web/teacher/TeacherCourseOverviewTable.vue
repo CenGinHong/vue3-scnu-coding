@@ -35,7 +35,6 @@
         <a-popover
             :title="record.userDetail.username + '的实验成绩'"
             trigger="click"
-            @visibleChange="handleClickChange($event, record.userId)"
         >
           <template #content>
             <a-table
@@ -63,9 +62,22 @@
         </a-popover>
       </template>
       <template v-if="column.dataIndex === 'codingTime'">
-        <a-tag color="blue" @click="handleShowModalCodingTime(record.userId)">
-          {{ record.codingTimeDetail.codingTime }}
-        </a-tag>
+        <a-popover
+            placement="topLeft"
+            :title="record.userDetail.username + '的编码时间'"
+            trigger="click"
+        >
+          <template #content>
+            <coding-time-div
+                :user-id="codingTimeUserId"
+                :course-id="courseId"/>
+          </template>
+          <a-tooltip title="点击查看编码时间">
+            <a-tag color="blue" @click="handleShowCodingTime(record.userId)">
+              {{ record.codingTimeDetail.codingTime }}
+            </a-tag>
+          </a-tooltip>
+        </a-popover>
       </template>
     </template>
   </a-table>
@@ -123,15 +135,6 @@
         @selectChange="handleTransferSelectChange"
     />
   </a-modal>
-  <a-modal
-      v-model:visible="visible"
-      :destroy-on-close="true"
-      width="780px"
-      :footer="null">
-    <coding-time-div
-        :user-id="codingTimeUserId"
-        :course-id="courseId"/>
-  </a-modal>
 </template>
 
 <script lang="ts" setup>
@@ -156,7 +159,6 @@ import {
   apiListLabByCourseId,
   apiListOneStudentScoreResp
 } from '../../../api/web/lab'
-import { apiGetCodingTime } from '../../../api/web/user'
 import { apiExportScore } from '../../../api/web/labSubmit'
 import { ColumnType } from 'ant-design-vue/es/table'
 import CodingTimeDiv from '../codingTimeDiv.vue'
@@ -318,18 +320,21 @@ const columnsListOneStudentScore: ColumnType[] = [
 
 const codingTimeUserId = ref<number>(0)
 
-const handleShowModalCodingTime = (userId :number) => {
+const handleShowModalCodingTime = (userId: number) => {
   codingTimeUserId.value = userId
   visible.value = true
 }
 
-const handleClickChange = (visible: boolean, studentId: number) => {
-  if (visible) {
-    runListOneStudentScore({
-      studentId,
-      courseId: props.courseId
-    })
-  }
+const handleShowCodingTime = (userId:number) => {
+  codingTimeUserId.value = userId
+  visible.value = true
+}
+
+const handleClickChange = (studentId: number) => {
+  runListOneStudentScore({
+    studentId,
+    courseId: props.courseId
+  })
 }
 
 const visibleModalAddStudent = ref<boolean>(false)

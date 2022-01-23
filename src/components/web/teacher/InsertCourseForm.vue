@@ -38,8 +38,9 @@
     </a-form-item>
     <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
       <a-space>
-        <a-button @click="handleCancel">取消</a-button>
-        <a-button type="primary" @click="handleCreateCourse" :loading="loadingCreateCourse">新建</a-button>
+        <a-button type="primary" @click="handleCreateCourse" :loading="loadingCreateCourse">
+          <form-outlined/>
+          新建</a-button>
       </a-space>
     </a-form-item>
   </a-form>
@@ -52,13 +53,14 @@ import { IFileItem, radioOption } from '../../../api/common'
 import { useRequest } from 'vue-request'
 import { apiCreateCourse } from '../../../api/web/course'
 import UploadImageModal from '../../common/UploadImageModal.vue'
-import { Form, message } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
 import { useForm } from 'ant-design-vue/es/form'
-import {RuleObject} from "ant-design-vue/es/form/interface";
+import { RuleObject } from 'ant-design-vue/es/form/interface'
+import {FormOutlined} from "@ant-design/icons-vue";
 
 // eslint-disable-next-line no-undef,,func-call-spacing
 const emits = defineEmits<{
-  (e: 'finish', src: boolean): void
+  (e: 'finish'): void
 }>()
 
 const insertCourseState = reactive<createCourseReq>({
@@ -127,12 +129,9 @@ const handleCreateCourse = async() => {
   if (errCreateCourse.value) {
     return
   }
-  emits('finish',true)
+  emits('finish')
 }
 
-const handleCancel = () => {
-  emits('finish',false)
-}
 </script>
 
 <style scoped></style>

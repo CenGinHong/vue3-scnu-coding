@@ -1,7 +1,6 @@
 import {
   checkinReq,
   checkinStatusResp,
-  deleteCheckinRecordsReq,
   exportCsvReq,
   getCheckinDetailResp,
   getCheckinRecordReq,
@@ -79,10 +78,8 @@ export function apiInsertCheckinRecord(data: insertCheckinRecordReq) {
   )
 }
 
-export function apiDeleteCheckinRecords(params: deleteCheckinRecordsReq) {
-  return instance.delete<deleteCheckinRecordsReq, Result>(Api.checkinRecord, {
-    params
-  })
+export function apiDeleteCheckinRecords(id: number) {
+  return instance.delete<Result>(Api.checkinRecord + '/' + id)
 }
 
 export function apiExportCsv(params: exportCsvReq) {

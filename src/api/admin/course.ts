@@ -1,6 +1,12 @@
 import instance from '../../util/axios/axios'
 import { pageResp, Result } from '../common'
-import { listCourseEnrollReq, listCourseEnrollResp, listCourseResp, updateCourseReq } from './model/courseModel'
+import {
+  listCourseEnrollReq,
+  listCourseEnrollResp,
+  listCourseResp,
+  removeCourseEnroll,
+  updateCourseReq
+} from './model/courseModel'
 
 enum Api {
   getCourseByStuId = '/web/course/enroll',
@@ -24,6 +30,12 @@ export function apiUpdateCourse(data: updateCourseReq) {
 
 export function apiListCourseEnroll(params: listCourseEnrollReq) {
   return instance.get<Result<pageResp<listCourseEnrollResp>>>(Api.enroll, {
+    params
+  })
+}
+
+export function apiRemoveCourseEnroll(params: removeCourseEnroll) {
+  return instance.delete(Api.enroll, {
     params
   })
 }

@@ -1,18 +1,8 @@
 <template>
-  <div class="btuDiv">
-    <a-space class="btuSpace">
+    <a-space class="btuDiv">
       <a-button type="primary" @click="visibleModal = true">
         <form-outlined/>
         添加签到
-      </a-button>
-      <a-button
-          :disabled="selectedRowKeys.length === 0"
-          :loading="loadingDeleteCheckinRecords"
-          danger
-          @click="handleDeleteCheckinRecords"
-      >
-        <delete-outlined/>
-        删除记录
       </a-button>
       <a-button
           :disabled="loadingListCheckinRecord"
@@ -26,7 +16,6 @@
         导出CSV
       </a-button>
     </a-space>
-  </div>
   <a-table
       :columns="columnCheckinRecord"
       :data-source="dataListCheckinRecord?.records"
@@ -35,11 +24,7 @@
       :pag="pagListCheckinRecord"
       :pagination="pagListCheckinRecord"
       :row-key="(record) => record.checkinRecordId"
-      :row-selection="{
-      selectedRowKeys: selectedRowKeys,
-      onChange: onSelectChange,
-    }"
-      @expand="handleExpand"
+
       @expandedRowsChange="expandedRowKeysChange"
   >
     <template #bodyCell="{ column, record }">
@@ -48,6 +33,19 @@
       </template>
       <template v-if="column.dataIndex === 'attendance'">
         {{ record.attendance.checkinCount }} / {{ record.attendance.takeCount }}
+      </template>
+      <template v-if="column.key==='operation'">
+        <a-popconfirm
+            title="确认删除?"
+            ok-text="确认"
+            cancel-text="取消"
+            @confirm="handleDeleteCheckinRecords(record.checkinRecordId)"
+        >
+        <a-button type="link" class="delBtn"
+                  :loading="queriesDeleteCheckinRecords[record.checkinRecordId]?.loading">
+          <delete-outlined/>
+        </a-button>
+        </a-popconfirm>
       </template>
     </template>
     <template #expandedRowRender>
@@ -61,7 +59,7 @@
           size="small"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === ['userDetail', 'isCheckin']">
+          <template v-if="column.key === 'isCheckin'">
             <a-switch
                 v-model:checked="record.checkinDetail.isCheckin"
                 :loading="
@@ -70,11 +68,10 @@
               "
                 @click="
                 handleUpdateCheckinDetail(
-                  record.checkinDetail.checkinDetailId,
-                  record.isCheckin
+                  record.userId,
+                  record.checkinDetail.isCheckin
                 )
-              "
-            />
+              "/>
           </template>
         </template>
       </a-table>
@@ -85,10 +82,10 @@
       title="创建签到"
       :footer="null"
   >
-  <insert-checkin-form
-      :course-id="courseId"
-      @finish="handleFinishInsert">
-  </insert-checkin-form>
+    <insert-checkin-form
+        :course-id="courseId"
+        @finish="handleFinishInsert">
+    </insert-checkin-form>
   </a-modal>
 </template>
 
@@ -143,6 +140,11 @@ const columnCheckinRecord: ColumnType[] = [
     title: '出勤比例',
     dataIndex: 'attendance',
     width: '30%'
+  },
+  {
+    title: '操作',
+    key: 'operation',
+    width: '10%'
   }
 ]
 
@@ -195,6 +197,7 @@ const checkinDetailColumn: ColumnType[] = [
   {
     title: '是否签到',
     dataIndex: ['userDetail', 'isCheckin'],
+    key: 'isCheckin',
     width: '20%'
   }
 ]
@@ -216,13 +219,16 @@ const {
 
 const expendedRowKeys = ref<number[]>([])
 
+const selectedCheckinRecordId = ref<number>(0)
+
 const expandedRowKeysChange = (keys: number[]) => {
-  if (keys.length > 1) {
+  if (keys.length > 0) {
     expendedRowKeys.value = [keys[keys.length - 1]]
+    selectedCheckinRecordId.value = keys[keys.length - 1]
+    runListCheckinDetail({ checkinRecordId: keys[keys.length - 1] })
   } else {
     expendedRowKeys.value = keys
   }
-  runListCheckinDetail({ checkinRecordId: keys[keys.length - 1] })
 }
 
 // 分页数据
@@ -259,35 +265,23 @@ const handleExportCheckinCsv = async() => {
   document.body.removeChild(link)
 }
 
-const handleExpand = (expanded: boolean, record: listCheckinRecordResp) => {
-  // 展开时开始加载
-  if (expanded) {
-    // 获取数据
-    runListCheckinDetail({
-      checkinRecordId: record.checkinRecordId
-    })
-  }
-}
-
 // 修改签到记录
 const { run: runUpdateCheckinDetail, queries: queriesUpdateCheckinDetail } =
     useRequest(apiUpdateCheckinDetailByCheckinDetailId, {
-      formatResult: (res) => {
-        return res.data.result
-      },
       queryKey: (updateCheckinDetailReq) =>
-        String(updateCheckinDetailReq.checkinDetailId)
+        String(updateCheckinDetailReq.userId)
     })
 
 const handleUpdateCheckinDetail = async(
-  checkinDetailId: number,
+  userId :number,
   isCheckin: boolean
 ) => {
   await runUpdateCheckinDetail({
-    checkinDetailId,
+    userId,
+    checkinRecordId: selectedCheckinRecordId.value,
     isCheckin
   })
-  if (queriesUpdateCheckinDetail[checkinDetailId]?.error) {
+  if (queriesUpdateCheckinDetail[userId]?.error) {
     return
   }
   // 原地修改
@@ -311,41 +305,25 @@ const visibleModal = ref<boolean>(false)
 
 const {
   run: runDeleteCheckinRecords,
-  loading: loadingDeleteCheckinRecords,
+  queries: queriesDeleteCheckinRecords,
   error: errDeleteCheckinRecords
-} = useRequest(apiDeleteCheckinRecords)
+} = useRequest(apiDeleteCheckinRecords, {
+  queryKey: (id) => String(id)
+})
 
-const selectedRowKeys = ref<number[]>([])
-
-const onSelectChange = (keys: number[]) => {
-  selectedRowKeys.value = keys
-}
-
-const handleDeleteCheckinRecords = async() => {
-  Modal.confirm({
-    title: '确认删除签到记录？',
-    icon: createVNode(ExclamationCircleOutlined),
-    content: '删除签到记录将会删除在该签到下的详情，请谨慎操作！',
-    okText: '确认',
-    okButtonProps: { loading: loadingDeleteCheckinRecords.value, danger: true },
-    onOk: async() => {
-      await runDeleteCheckinRecords({
-        checkinRecordIds: selectedRowKeys.value
-      })
-      if (errDeleteCheckinRecords.value) {
-        return
-      }
-      await refreshListCheckinRecord()
-    },
-    cancelText: '取消'
-  })
-}
-
-const handleFinishInsert = (res: boolean) => {
-  visibleModal.value = false
-  if (res) {
-    refreshListCheckinRecord()
+const handleDeleteCheckinRecords = async(id: number) => {
+  await runDeleteCheckinRecords(
+    id
+  )
+  if (errDeleteCheckinRecords.value) {
+    return
   }
+  await refreshListCheckinRecord()
+}
+
+const handleFinishInsert = () => {
+  visibleModal.value = false
+  refreshListCheckinRecord()
 }
 
 </script>
@@ -356,5 +334,9 @@ const handleFinishInsert = (res: boolean) => {
   flex-direction: row;
   justify-content: flex-start;
   margin-bottom: 20px;
+}
+
+.delBtn {
+  color: #ff4d4f;
 }
 </style>

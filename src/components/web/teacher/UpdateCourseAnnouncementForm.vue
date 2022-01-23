@@ -34,17 +34,20 @@
         <a-space>
 
           <a-button type="primary" @click="handleUpdateCourseAnnouncement"
-                    :loading="loadingUpdateCourseAnnouncement || loadingUpload">修改
+                    :loading="loadingUpdateCourseAnnouncement || loadingUpload">
+            <form-outlined/>
+            修改
           </a-button>
           <a-popconfirm
               title="确认删除?"
               ok-text="确认"
               cancel-text="取消"
-              @confirm="handleUpdateCourseAnnouncement"
+              @confirm="handleDeleteCourseAnnouncement"
           >
-            <a-button type="primary" danger :loading="loadingDeleteCourseAnnouncement">删除</a-button>
+            <a-button type="primary" danger :loading="loadingDeleteCourseAnnouncement">
+              <delete-outlined/>
+              删除</a-button>
           </a-popconfirm>
-          <a-button @click="handleCancel">取消</a-button>
         </a-space>
       </a-form-item>
     </a-form>
@@ -52,9 +55,9 @@
 </template>
 
 <script lang="ts" setup>
-import { createVNode, reactive, ref, watchEffect } from 'vue'
+import { reactive, ref } from 'vue'
 import { FileInfo, IFileItem } from '../../../api/common'
-import { message, Modal } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
 import { useRequest } from 'vue-request'
 import { uploadApi } from '../../../api/web/file'
 import {
@@ -62,9 +65,8 @@ import {
   apiGetCourseAnnouncementDetail,
   apiUpdateCourseAnnouncement
 } from '../../../api/web/courseAnnouncement'
-import { ExclamationCircleOutlined, UploadOutlined } from '@ant-design/icons-vue'
+import { ExclamationCircleOutlined, UploadOutlined, FormOutlined,DeleteOutlined } from '@ant-design/icons-vue'
 import {
-  courseAnnouncementDetailResp,
   updateCourseAnnouncementReq
 } from '../../../api/web/model/courseAnnouncement'
 import { RuleObject } from 'ant-design-vue/lib/form'
@@ -77,7 +79,7 @@ const props = defineProps<{
 
 // eslint-disable-next-line no-undef,func-call-spacing
 const emits = defineEmits<{
-  (e: 'finish', res: boolean): void
+  (e: 'finish'): void
 }>()
 
 const updateCourseAnnouncementState = reactive<updateCourseAnnouncementReq>({
@@ -162,11 +164,7 @@ const handleUpdateCourseAnnouncement = async() => {
   if (errorUpdateCourseAnnouncement.value) {
     return
   }
-  emits('finish', true)
-}
-
-const handleCancel = () => {
-  emits('finish', false)
+  emits('finish')
 }
 
 // 删除
@@ -177,12 +175,12 @@ const {
 } = useRequest(apiDeleteCourseAnnouncement)
 
 // 删除公告
-const handleDeleteCourseAnnouncement = async(courseAnnouncementId: number) => {
-  await runDeleteCourseAnnouncement(courseAnnouncementId)
+const handleDeleteCourseAnnouncement = async() => {
+  await runDeleteCourseAnnouncement(props.courseAnnouncementId)
   if (errDeleteCourseAnnouncement.value) {
     return
   }
-  emits('finish', true)
+  emits('finish')
 }
 
 const beforeUpload = (file: IFileItem) => {

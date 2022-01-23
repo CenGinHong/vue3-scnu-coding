@@ -1,5 +1,5 @@
 import { Dayjs } from 'dayjs'
-import {pageParams} from "../../common";
+import { pageParams } from '../../common'
 
 export interface listCourseResp {
   courseId: number
@@ -32,9 +32,6 @@ export interface listCourseEnrollResp {
     email: string
     userNum: string
     username: string
-    grade: number
-    school: string
-    gender: 0 | 1 | 2
     major: string
     organization: string
   }
@@ -42,6 +39,11 @@ export interface listCourseEnrollResp {
 
 export interface listCourseEnrollReq extends pageParams{
   courseId: number
+}
+
+export interface removeCourseEnroll {
+  courseId: number
+  userId: number
 }
 
 //

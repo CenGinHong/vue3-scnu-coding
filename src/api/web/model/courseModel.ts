@@ -42,7 +42,7 @@ export interface searchCourseResp extends listCourseResp {
 }
 
 export interface searchCourseReq extends pageParams {
-  courseNameOrTeacherName?: string
+  courseName?: string
 }
 
 export interface listCourseStudentReq extends pageParams {
@@ -126,4 +126,10 @@ export interface insertStudent2ClassResp {
 export interface removeFromClassReq {
   userIds: number[]
   courseId: number
+}
+
+export interface joinClassReq {
+  userId?: number
+  courseId: number
+  secretKey: string
 }

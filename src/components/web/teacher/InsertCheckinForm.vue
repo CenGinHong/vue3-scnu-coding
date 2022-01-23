@@ -1,38 +1,39 @@
 <template>
-    <a-form
+  <a-form
       :label-col="{ span: 4 }"
       :model="insertCheckinState"
       :ok-button-props="{ loading: loadingInsertCheckin }"
       :rules="rules"
       :wrapper-col="{ span: 18 }"
       name="custom-validation"
-    >
-      <a-form-item label="签到名称" name="checkinName">
-        <a-input v-model:value="insertCheckinState.checkinName" />
-      </a-form-item>
-      <a-form-item label="签到时长" name="duration">
-        <a-radio-group
+  >
+    <a-form-item label="签到名称" name="checkinName">
+      <a-input v-model:value="insertCheckinState.checkinName"/>
+    </a-form-item>
+    <a-form-item label="签到时长" name="duration">
+      <a-radio-group
           v-model:value="insertCheckinState.duration"
           button-style="solid"
-        >
-          <a-radio-button :value=15>15秒</a-radio-button>
-          <a-radio-button :value=30>30秒</a-radio-button>
-          <a-radio-button :value=90>90秒</a-radio-button>
-          <a-radio-button :value=120>120秒</a-radio-button>
-        </a-radio-group>
-      </a-form-item>
-      <a-form-item label="签到密钥" name="checkinKey">
-        <a-input v-model:value="insertCheckinState.checkinKey" />
-      </a-form-item>
-      <a-form-item :wrapper-col="{ span: 14, offset: 4 }">
-        <a-space>
-          <a-button type="primary" @click="handleInsertCheckinRecord"
-                    :loading="loadingInsertCheckin">创建
-          </a-button>
-          <a-button @click="handleCancel">取消</a-button>
-        </a-space>
-      </a-form-item>
-    </a-form>
+      >
+        <a-radio-button :value=15>15秒</a-radio-button>
+        <a-radio-button :value=30>30秒</a-radio-button>
+        <a-radio-button :value=90>90秒</a-radio-button>
+        <a-radio-button :value=120>120秒</a-radio-button>
+      </a-radio-group>
+    </a-form-item>
+    <a-form-item label="签到密钥" name="checkinKey">
+      <a-input v-model:value="insertCheckinState.checkinKey"/>
+    </a-form-item>
+    <a-form-item :wrapper-col="{ span: 14, offset: 4 }">
+      <a-space>
+        <a-button type="primary" @click="handleInsertCheckinRecord"
+                  :loading="loadingInsertCheckin">
+          <form-outlined/>
+          创建
+        </a-button>
+      </a-space>
+    </a-form-item>
+  </a-form>
 </template>
 <script lang="ts" setup>
 import { useRequest } from 'vue-request'
@@ -42,7 +43,8 @@ import { insertCheckinRecordReq } from '../../../api/web/model/checkinModel'
 import dayjs from 'dayjs'
 import { randomNumberString } from '../../../util/utils'
 import { Form, message } from 'ant-design-vue'
-import {RuleObject} from "ant-design-vue/es/form/interface";
+import { RuleObject } from 'ant-design-vue/es/form/interface'
+import { FormOutlined } from '@ant-design/icons-vue'
 
 const useForm = Form.useForm
 
@@ -53,7 +55,7 @@ const props = defineProps<{
 
 // eslint-disable-next-line no-undef,func-call-spacing
 const emits = defineEmits<{
-  (e:'finish', src:boolean):void
+  (e: 'finish'): void
 }>()
 
 const {
@@ -97,12 +99,9 @@ const handleInsertCheckinRecord = async() => {
   if (errInsertCheckin.value) {
     return
   }
-  emits('finish', true)
+  emits('finish')
 }
 
-const handleCancel = () => {
-  emits('finish', false)
-}
 </script>
 
 <style scoped></style>

@@ -14,7 +14,7 @@
             v-model:value="updateCourseState.courseDes"
             :maxlength="250"
             allow-clear
-            rows="5"
+            rows="8"
             showCount
         />
       </a-form-item>
@@ -33,9 +33,19 @@
       </a-form-item>
       <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
         <a-space>
-          <a-button type="primary" @click="handleUpdateCourse" :loading="loadingUpdateCourse || loadingUpload">修改</a-button>
-          <a-button type="primary" danger @click="handleDeleteCourse" :loading="loadingDeleteCourse">删除</a-button>
-          <a-button @click="handleCancel">取消</a-button>
+          <a-button type="primary" @click="handleUpdateCourse" :loading="loadingUpdateCourse || loadingUpload">
+            <edit-outlined/>
+            修改</a-button>
+          <a-popconfirm
+              title='确认删除课程？信息将不可恢复！'
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleDeleteCourse"
+          >
+          <a-button type="primary" danger :loading="loadingDeleteCourse">
+            <delete-outlined/>
+            删除</a-button>
+          </a-popconfirm>
         </a-space>
       </a-form-item>
     </a-form>
@@ -55,6 +65,7 @@ import UploadImageModal from '../../common/UploadImageModal.vue'
 import { useRouter } from 'vue-router'
 import { ROUTER_NAME } from '../../../router'
 import { RuleObject } from 'ant-design-vue/es/form/interface'
+import {EditOutlined,DeleteOutlined} from "@ant-design/icons-vue";
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{

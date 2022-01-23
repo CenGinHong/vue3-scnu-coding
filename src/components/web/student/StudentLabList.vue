@@ -30,7 +30,7 @@
           @click="handleShowComment(item.labId)"
       >
         <comment-outlined/>
-        查看评论
+        查看讨论
       </a-button>
       <a-tooltip
           :title="
@@ -65,11 +65,10 @@
     </template>
   </base-lab-list>
   <a-modal
-      v-model:visible="visibleCommentModal"
+      title="实验讨论"
+      width="1000px"
       :footer="null"
-      title="实验评论"
-      width="800px"
-  >
+      v-model:visible="visibleCommentModal">
     <lab-comment :lab-id="commentLabId"/>
   </a-modal>
 </template>
@@ -158,13 +157,21 @@ const handleChangeFinish = (index: number) => {
 }
 
 const handleRouteToReportWriteBoard = (labId: number, deadline: Dayjs) => {
-  router.push({
-    name: ROUTER_NAME.REPORT_WRITE_BOARD,
-    query: {
-      labId: labId,
-      isEditable: String(!isDeadLineAfter(deadline))
-    }
-  })
+  if (!isDeadLineAfter(deadline)) {
+    router.push({
+      name: ROUTER_NAME.REPORT_WRITE_BOARD,
+      query: {
+        labId: labId
+      }
+    })
+  } else {
+    router.push({
+      name: ROUTER_NAME.REPORT_READ_BOARD,
+      query: {
+        labId: labId
+      }
+    })
+  }
 }
 
 const {
@@ -193,11 +200,11 @@ const handleOpenIDE = async(labId: number) => {
   }, 1000)
 }
 
-// 打开某实验的评论区
+// 打开某实验的讨论区
 const handleShowComment = (labId: number) => {
-  // 打开该评论框
+  // 打开该讨论框
   visibleCommentModal.value = true
-  // 获取评论
+  // 获取讨论
   commentLabId.value = labId
 }
 

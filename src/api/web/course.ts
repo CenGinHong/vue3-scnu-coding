@@ -6,7 +6,7 @@ import {
   getIsCourseOpenByTeacherReq,
   getIsCourseOpenByTeacherResp,
   insertStudent2ClassReq,
-  insertStudent2ClassResp,
+  insertStudent2ClassResp, joinClassReq,
   listCourseResp,
   listCourseStudentOverviewResp,
   listCourseStudentReq,
@@ -19,18 +19,18 @@ import { pageParams, pageResp, Result } from '../common'
 import instance from '../../util/axios/axios'
 
 enum Api {
-  getCourseByStuId = '/web/course/enroll',
+  courseJoin = '/web/course/join',
+  isCourseJoin = '/web/course/join/is',
   getCourseTeacher = '/web/course/teacher',
   listSearchCourse = '/web/course/search',
   course = '/web/course',
   courseOverview = '/web/course/overview',
-  isCourseEnroll = '/web/course/is-enroll',
   isCourseOpenByTeacher = '/web/course/open',
   manageStudentInClass = '/web/course/student',
 }
 
 export function apiListCourseByStuId(params: pageParams) {
-  return instance.get<Result<pageResp<listCourseResp>>>(Api.getCourseByStuId, {
+  return instance.get<Result<pageResp<listCourseResp>>>(Api.courseJoin, {
     params: params
   })
 }
@@ -64,7 +64,7 @@ export function apiListCourseOverview(params: listCourseStudentReq) {
 }
 
 export function apiGetIsCourseEnroll(params: getIsCourseEnrollReq) {
-  return instance.get<Result<getIsCourseEnrollResp>>(Api.isCourseEnroll, {
+  return instance.get<Result<getIsCourseEnrollResp>>(Api.isCourseJoin, {
     params
   })
 }
@@ -104,4 +104,8 @@ export function apiUpdateCourse(data: updateCourseReq) {
 
 export function apiDeleteCourse(id :number) {
   return instance.delete<Result>(Api.course + '/' + id)
+}
+
+export function apiJoinClass(data: joinClassReq) {
+  return instance.post<Result>(Api.courseJoin, data)
 }

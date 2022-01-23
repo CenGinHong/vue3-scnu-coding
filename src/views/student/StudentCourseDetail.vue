@@ -1,30 +1,32 @@
 <template>
   <a-row class="row1">
-    <a-col class="col1" :span="15" :offset="1">
+    <a-col class="col1" :span="20" :offset="2">
       <a-tabs
           v-model:activeKey="tabsActiveKey"
           size="large"
       >
-        <a-tab-pane key="1" tab="课程实验">
+        <a-tab-pane key="1" tab="课程信息">
+          <div class="courseInfo">
+            <course-info :course-id="props.courseId" />
+          </div>
+        </a-tab-pane>
+        <a-tab-pane key="2" tab="课程实验">
           <student-lab-list :course-id="props.courseId"/>
         </a-tab-pane>
-        <a-tab-pane key="2" tab="课程评论">
+        <a-tab-pane key="3" tab="课程讨论">
           <div class="contentPadding">
             <course-comment :course-id="Number(props.courseId)"/>
           </div>
         </a-tab-pane>
-        <a-tab-pane key="3" tab="课程签到">
+        <a-tab-pane key="4" tab="课程签到">
           <div class="contentPadding">
             <student-checkin-table :course-id="Number(courseId)"/>
           </div>
         </a-tab-pane>
-        <a-tab-pane key="4" tab="课程公告">
+        <a-tab-pane key="5" tab="课程公告">
           <student-announcement-list :course-id="Number(courseId)"/>
         </a-tab-pane>
       </a-tabs>
-    </a-col>
-    <a-col class="teacherDetail" :span="6" :offset="1">
-      <student-course-info-card :course-id="Number(courseId)"/>
     </a-col>
   </a-row>
 </template>
@@ -38,13 +40,14 @@ import { useRequest } from 'vue-request'
 import { apiGetCourseDetail } from '../../api/web/course'
 import StudentAnnouncementList from '../../components/web/student/StudentAnnouncementList.vue'
 import StudentCourseInfoCard from '../../components/web/student/StudentCourseInfoCard.vue'
+import CourseInfo from '../../components/web/CourseInfo.vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   courseId: string
 }>()
 
-const tabsActiveKey = ref<string>('1')
+const tabsActiveKey = ref<string>('2')
 const { data: dataCourseDetail, loading: loadingCourseDetail } = useRequest(
   apiGetCourseDetail,
   {
@@ -92,6 +95,10 @@ const { data: dataCourseDetail, loading: loadingCourseDetail } = useRequest(
 .contentPadding {
   padding-left: 24px;
   padding-right: 24px;
+}
+
+.courseInfo {
+  margin: 0 16px 0 16px;
 }
 
 ::v-deep(.ant-tabs-nav-wrap) {

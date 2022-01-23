@@ -6,7 +6,6 @@
           :option="option"
       />
     </a-skeleton>
-
   </div>
 </template>
 

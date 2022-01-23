@@ -1,37 +1,37 @@
 <template>
   <div class="outer">
     <a-input-search
-      v-model:value="searchValue"
-      class="input"
-      enter-button
-      placeholder="搜索课程名或教师名"
-      @search="onSearch"
+        v-model:value="searchValue"
+        class="input"
+        enter-button
+        placeholder="搜索课程名"
+        @search="onSearch"
     />
     <base-course-list
-      :dataSource="dataSource?.records"
-      :loading="loadingGetDataList"
-      :pag="pag"
-      class="list"
+        :dataSource="dataSource?.records"
+        :loading="loadingSearchCourse"
+        :pag="pag"
+        class="list"
     >
-      <template #actionButton="{ item }">
-        <template v-if="item.isTake">
-          <a-button
-            class="btu"
-            type="primary"
-            @click="handleRouterToCourse(item.courseId)"
-            >进入课程</a-button
-          >
+      <template #tag="{item}">
+        <template v-if="item.isTakeDetail.isTake">
+          <a-tag class="tag" color="success">已加入</a-tag>
         </template>
         <template v-else>
+          <a-tag class="tag" color="default">未加入</a-tag>
+        </template>
+      </template>
+      <template #actionButton="{ item }">
+        <template v-if="!item.isTakeDetail.isTake">
           <a-popover trigger="click">
             <template #content>
               <a-input
-                v-model:value="enterCourseKey"
-                placeholder="请输入密钥"
+                  v-model:value="joinCourseKey"
+                  placeholder="请输入密钥"
               />
-              <a-button class="btu" size="small" type="primary">加入</a-button>
+              <a-button class="btu" size="small" type="primary" @click="joinCourse(item.courseId)">加入</a-button>
             </template>
-            <a-button class="btu">加入课程</a-button>
+            <a-button  size="small" type="link" class="btu">加入课程</a-button>
           </a-popover>
         </template>
       </template>
@@ -40,9 +40,9 @@
 </template>
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { usePagination } from 'vue-request'
+import { usePagination, useRequest } from 'vue-request'
 import { useRouter } from 'vue-router'
-import { apiSearchCourse } from '../../api/web/course'
+import { apiJoinClass, apiSearchCourse } from '../../api/web/course'
 import BaseCourseList from './BaseCourseList.vue'
 import { ROUTER_NAME } from '../../router'
 import { TablePaginationConfig } from 'ant-design-vue/es/table/Table'
@@ -51,7 +51,8 @@ const router = useRouter()
 const {
   run: runSearchCourse,
   data: dataSource,
-  loading: loadingGetDataList,
+  loading: loadingSearchCourse,
+  refresh: refreshSearchCourse,
   total,
   current,
   pageSize
@@ -61,6 +62,8 @@ const {
     return res.data.result
   }
 })
+
+const { run: runJoinClass, loading: loadingJoinClass,  error: errJoinClass } = useRequest(apiJoinClass)
 
 // 分页数据
 const pag = computed<TablePaginationConfig>(() => ({
@@ -72,12 +75,23 @@ const pag = computed<TablePaginationConfig>(() => ({
 }))
 
 const onSearch = (searchValue: string) => {
-  runSearchCourse({ courseNameOrTeacherName: searchValue })
+  runSearchCourse({ courseName: searchValue })
 }
 
 const searchValue = ref<string>('')
 
-const enterCourseKey = ref<string>('')
+const joinCourseKey = ref<string>('')
+
+const joinCourse = async(courseId: number) => {
+  await runJoinClass({
+    courseId: courseId,
+    secretKey: joinCourseKey.value
+  })
+  if (errJoinClass.value) {
+    return
+  }
+  await refreshSearchCourse()
+}
 
 const handleRouterToCourse = (courseId: number) => {
   router.push({
@@ -125,4 +139,9 @@ const handleRouterToCourse = (courseId: number) => {
 .btu {
   margin-top: 20px;
 }
+
+.tag {
+  margin-left: 10px;
+}
+
 </style>

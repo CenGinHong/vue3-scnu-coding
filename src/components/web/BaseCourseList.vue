@@ -1,35 +1,30 @@
 <template>
   <a-list
-    :class="style.list"
-    :data-source="props.dataSource"
-    :loading="props.loading"
-    :pagination="props.pag"
-    item-layout="vertical"
-    size="large"
+      class="list"
+      :data-source="props.dataSource"
+      :loading="props.loading"
+      :pagination="props.pag"
+      item-layout="vertical"
+      size="large"
   >
     <template #renderItem="{ item }">
       <a-list-item :key="item.courseId">
         <template #extra>
           <a-image
-            :width="240"
-            :height="135"
-            :src="item.coverImg"
-            fallback="https://via.placeholder.com/240x135?text=%E5%8A%A0%E8%BD%BD%E5%A4%B1%E8%B4%A5"
+              :width="240"
+              :height="135"
+              :src="item.coverImg"
+              fallback="https://via.placeholder.com/240x135?text=%E5%8A%A0%E8%BD%BD%E5%A4%B1%E8%B4%A5"
           />
         </template>
         <a-list-item-meta>
           <template #title>
             <a
-              :class="style.courseTitle"
-              @click="routerToDetail(item.courseId)"
-              >{{ item.courseName }}</a
+                class="courseTitle"
+                @click="routerToDetail(item.courseId)"
+            >{{ item.courseName }}</a
             >
-            <template v-if="item.isClose">
-              <a-tag :class="style.tag" color="success">进行中</a-tag>
-            </template>
-            <template v-else>
-              <a-tag :class="style.tag" color="default">已结课</a-tag>
-            </template>
+            <slot :item="item" name="tag"/>
           </template>
           <template #description>
             <template v-if="item.teacherDetail">
@@ -37,13 +32,17 @@
             </template>
           </template>
         </a-list-item-meta>
-        {{ item.courseDes }}
+        <p>
+          {{ item.courseDes }}
+        </p>
+        <slot :item="item" name="actionButton"/>
       </a-list-item>
     </template>
+
   </a-list>
 </template>
 <script lang="ts" setup>
-import { ComputedRef, useCssModule } from 'vue'
+import { ComputedRef } from 'vue'
 import { IPagination } from '../../api/common'
 import { useRouter } from 'vue-router'
 import { useStore } from '../../store'
@@ -55,16 +54,14 @@ import { listCourseResp } from '../../api/web/model/courseModel'
 const props = withDefaults(
   // eslint-disable-next-line no-undef
   defineProps<{
-    dataSource?: listCourseResp[]
-    pag: ComputedRef<IPagination>
-    loading: boolean
-  }>(),
+      dataSource?: listCourseResp[]
+      pag: ComputedRef<IPagination>
+      loading: boolean
+    }>(),
   {
     dataSource: () => []
   }
 )
-
-const style = useCssModule()
 const store = useStore()
 const router = useRouter()
 const userInfo = store.getters['user/userInfo']
@@ -92,7 +89,7 @@ const routerToDetail = (courseId: number) => {
 }
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .list {
   text-align: left;
 
@@ -100,8 +97,5 @@ const routerToDetail = (courseId: number) => {
     font-size: 18px;
   }
 
-  .tag {
-    margin-left: 10px;
-  }
 }
 </style>

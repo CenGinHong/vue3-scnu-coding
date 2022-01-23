@@ -4,7 +4,7 @@
       <a-col :flex="1">
         <tree class="tree" :tree-data="code" style="padding-left: 20px"></tree>
       </a-col>
-      <a-divider type="vertical" style="height: inherit" />
+      <a-divider type="vertical" />
       <a-col :flex="5" style="text-align: left">
         {{ codeContent }}
       </a-col>

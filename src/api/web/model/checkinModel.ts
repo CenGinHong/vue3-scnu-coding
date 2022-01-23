@@ -54,7 +54,8 @@ export interface getCheckinRecordReq extends pageParams {
 
 // 教师更新学生的签到情况
 export interface updateCheckinDetailReq {
-  checkinDetailId: number
+  userId: number
+  checkinRecordId: number
   isCheckin: boolean
 }
 
@@ -77,9 +78,6 @@ export interface insertCheckinRecordReq {
   courseId: number
 }
 
-export interface deleteCheckinRecordsReq {
-  checkinRecordIds: number[]
-}
 
 export interface exportCsvReq {
   courseId: number

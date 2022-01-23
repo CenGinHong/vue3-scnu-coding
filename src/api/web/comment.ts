@@ -16,7 +16,7 @@ enum Api {
   LabComment = '/web/comment/lab',
 }
 
-export function apiGetCourseComment(params: getCourseCommentReq) {
+export function apiListCourseComment(params: getCourseCommentReq) {
   return instance.get<Result<pageResp<getCourseCommentResp>>>(
     Api.CourseComment,
     {

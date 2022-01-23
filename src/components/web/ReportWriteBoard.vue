@@ -1,15 +1,13 @@
 <template>
   <a-row class="row">
-    <a-col class="col" :span="22" :offset="1">
+    <a-col class="col" :span="20" :offset="2">
       <v-md-editor
-        v-if="isEditable"
         v-model="reportContent"
         :disabled-menus="[]"
         height="500px"
         @save="handleSave"
         @upload-image="handleUploadImage"
       />
-      <v-md-editor v-else :model-value="reportContent" height="500px" mode="preview" />
     </a-col>
   </a-row>
 </template>
@@ -22,11 +20,10 @@ import {
 } from '../../api/web/labSubmit'
 import { apiUploadFile } from '../../api/web/file'
 import { message } from 'ant-design-vue'
+// eslint-disable-next-line no-undef
 const props = defineProps<{
   labId: number
-  isEditable: boolean
 }>()
-
 
 const reportContent = ref<string>('')
 // 获取之前撰写的实验报告的内容
@@ -61,7 +58,7 @@ const {
     return res.result
   }
 })
-const handleUploadImage = async (
+const handleUploadImage = async(
   event: Event,
   insertImage: (imageConfig: any) => void,
   files: any[]

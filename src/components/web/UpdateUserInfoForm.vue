@@ -59,14 +59,13 @@
       </a-form-item>
       <a-form-item label="重复新密码" name="repeatPassword">
         <a-input-password
-            v-model:value="repeatPassword"
+            v-model:value="updateUserInfoState.repeatPassword"
             :disabled="updateUserInfoState.oldPassword === ''"
             placeholder="确认新密码"
         />
       </a-form-item>
       <a-form-item :wrapper-col="{ span: 14, offset: 4 }">
         <a-space>
-          <a-button @click="handleCancel">取消</a-button>
           <a-button type="primary" @click="handleUpdateUserInfo" :loading="loadingUpdateUserInfo">修改</a-button>
         </a-space>
       </a-form-item>
@@ -79,15 +78,10 @@
 import { useStore } from '../../store'
 import { useRequest } from 'vue-request'
 import { apiGetUserInfo, apiUpdateUserInfo } from '../../api/web/user'
-import { RuleObject } from 'ant-design-vue/es/form/interface'
+import { RuleObject, StoreValue } from 'ant-design-vue/es/form/interface'
 import { reactive, ref } from 'vue'
 import { updateUserInfoReq } from '../../api/web/model/userModel'
 import { radioOption } from '../../api/common'
-
-// eslint-disable-next-line no-undef,func-call-spacing
-const emits = defineEmits<{
-  (e:'finish', src: boolean):void
-}>()
 
 // 性别多选框
 const genderRadioOption: radioOption[] = [
@@ -127,7 +121,8 @@ const updateUserInfoState = reactive<updateUserInfoExtendState>({
 // 获取自己的详细信息
 const {
   data: dataGetUserInfo,
-  loading: loadingGetUserInfo
+  loading: loadingGetUserInfo,
+  refresh: refreshGetUserInfo
 } = useRequest(apiGetUserInfo, {
   manual: false,
   formatResult: (res) => {
@@ -169,13 +164,14 @@ const rules = reactive<Record<string, RuleObject[]>>({
   verCode: [
     { pattern: /^\d{6}$/, message: '验证码为6为纯数字' },
     {
-      validator: (rule: RuleObject, value: string) => {
+      validator: (rule: RuleObject, value: StoreValue) => {
         if (
           updateUserInfoState.email !== dataGetUserInfo.value?.email &&
             value === ''
         ) {
           return Promise.reject(new Error('重置邮箱需要验证码'))
         }
+        return Promise.resolve()
       }
     }
   ],
@@ -187,10 +183,11 @@ const rules = reactive<Record<string, RuleObject[]>>({
   ],
   repeatPassword: [
     {
-      validator: (rule: RuleObject, value: string) => {
+      validator: (rule: RuleObject, value: StoreValue) => {
         if (value !== updateUserInfoState.password) {
           return Promise.reject(new Error('两次输入的密码不一致'))
         }
+        return Promise.resolve()
       }
     }
   ]
@@ -207,11 +204,7 @@ const handleUpdateUserInfo = async() => {
   if (errUpdateUserInfo.value) {
     return
   }
-  emits('finish', true)
-}
-
-const handleCancel = () => {
-  emits('finish', false)
+  await refreshGetUserInfo()
 }
 
 // 发送验证码

@@ -1,19 +1,27 @@
 <template>
   <base-course-list
-    :dataSource="dataSource?.records"
-    :loading="loading"
-    :pag="pag"
-  />
+      :dataSource="dataSource?.records"
+      :loading="loading"
+      :pag="pag"
+  >
+    <template #tag="{item}">
+      <template v-if="item.isClose">
+        <a-tag class="tag" color="success">进行中</a-tag>
+      </template>
+      <template v-else>
+        <a-tag class="tag" color="default">已结课</a-tag>
+      </template>
+    </template>
+  </base-course-list>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { usePagination } from 'vue-request'
-import { IPagination } from '../../../api/common'
-import { apiListCourseByStuId } from '../../../api/web/course'
+import {computed} from 'vue'
+import {usePagination} from 'vue-request'
+import {apiListCourseByStuId} from '../../../api/web/course'
 import BaseCourseList from '../BaseCourseList.vue'
-import { useRouter } from 'vue-router'
-import {TablePaginationConfig} from "ant-design-vue/es/table/Table";
+import {useRouter} from 'vue-router'
+import {TablePaginationConfig} from 'ant-design-vue/es/table/Table'
 
 const router = useRouter()
 const {
@@ -39,4 +47,10 @@ const pag = computed<TablePaginationConfig>(() => ({
 }))
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+.tag {
+  margin-left: 10px;
+}
+
+</style>

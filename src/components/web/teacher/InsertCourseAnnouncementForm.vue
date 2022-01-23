@@ -29,9 +29,10 @@
     <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
       <a-space>
         <a-button type="primary" @click="handleInsertCourseAnnouncement"
-                  :loading="loadingInsertCourseAnnouncement || loadingUpload">创建
+                  :loading="loadingInsertCourseAnnouncement || loadingUpload">
+         <form-outlined/>
+          新建公告
         </a-button>
-        <a-button @click="handleCancel">取消</a-button>
       </a-space>
     </a-form-item>
   </a-form>
@@ -47,7 +48,7 @@ import { message } from 'ant-design-vue'
 import { reactive, ref } from 'vue'
 import { insertCourseAnnouncementReq } from '../../../api/web/model/courseAnnouncement'
 import { uploadApi } from '../../../api/web/file'
-import { UploadOutlined } from '@ant-design/icons-vue'
+import { UploadOutlined,FormOutlined } from '@ant-design/icons-vue'
 import { RuleObject } from 'ant-design-vue/lib/form'
 import { useForm } from 'ant-design-vue/es/form'
 
@@ -84,10 +85,6 @@ const {
   loading: loadingInsertCourseAnnouncement,
   error: errorInsertCourseAnnouncement
 } = useRequest(apiInsertCourseAnnouncement)
-
-const handleCancel = () => {
-  emits('finish', false)
-}
 
 const loadingUpload = ref<boolean>(false)
 

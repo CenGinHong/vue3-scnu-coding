@@ -80,7 +80,7 @@ import { IFileItem } from '../../../api/common'
 import BaseLabList from '../BaseLabList.vue'
 import { ROUTER_NAME } from '../../../router'
 import { fileSrc2File } from '../../../util/utils'
-import InsertLabModal from './InsertLabModal.vue'
+import InsertLabModal from './InsertLabForm.vue'
 import UpdateLabModal from './UpdateLabForm.vue'
 
 export interface updateLabExtendReq extends updateLabReq {

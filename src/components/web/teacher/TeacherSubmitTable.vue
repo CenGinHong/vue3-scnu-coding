@@ -1,4 +1,10 @@
 <template>
+  <a-space class="btuSpace">
+    <a-button @click="handleRefreshListLabSubmit">
+      <reload-outlined/>
+      刷新
+    </a-button>
+  </a-space>
   <a-table
     :columns="columns"
     :data-source="dataListLabSubmit?.records"
@@ -42,6 +48,7 @@ import { apiListLabSubmit } from '../../../api/web/labSubmit'
 import { scoreTagColor } from '../../../util/utils'
 import { ColumnType } from 'ant-design-vue/es/table'
 import { TablePaginationConfig } from 'ant-design-vue'
+import { ReloadOutlined} from "@ant-design/icons-vue";
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -99,6 +106,10 @@ const {
   ]
 })
 
+const handleRefreshListLabSubmit = () => {
+  refreshListLabSubmit()
+}
+
 // 分页数据
 const pag = computed<TablePaginationConfig>(() => ({
   onChange(page: number) {
@@ -119,4 +130,11 @@ const handleTableChange = (pag: TablePaginationConfig, filters: any, sorter: any
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.btuSpace {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+}
+</style>

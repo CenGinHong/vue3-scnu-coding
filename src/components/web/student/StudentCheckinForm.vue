@@ -2,24 +2,17 @@
   <a-row v-if="dataCheckinStatus" align="center">
     <a-col align="center">
       <a-space direction="vertical">
-        <a-progress :percent="percent" type="circle"/>
+        <a-progress :percent="percent" type="circle" />
         <p>{{ dataCheckinStatus.checkinName }}</p>
-        <a-input
-            v-model:value="checkinKey"
-            :max-length="6"
-            class="keyInput"
-            placeholder="输入签到密钥"
-        >
+        <a-input v-model:value="checkinKey" :max-length="6" class="keyInput" placeholder="输入签到密钥">
           <template #enterButton>
-            <a-button
-                @click="handleCheckin" :loading="loadingCheckin">签到
-            </a-button>
+            <a-button @click="handleCheckin" :loading="loadingCheckin">签到</a-button>
           </template>
         </a-input>
       </a-space>
     </a-col>
   </a-row>
-  <a-result v-else title="签到尚未开始"/>
+  <a-result v-else title="签到尚未开始" />
 </template>
 
 <script lang="ts" setup>
@@ -82,7 +75,7 @@ const {
   error: errorCheckin
 } = useRequest(apiCheckIn)
 // 签到行为
-const handleCheckin = async() => {
+const handleCheckin = async () => {
   await runCheckin({
     courseId: props.courseId,
     checkinKey: checkinKey.value
@@ -96,5 +89,4 @@ const handleCheckin = async() => {
 </script>
 
 <style lang="scss" scoped>
-
 </style>

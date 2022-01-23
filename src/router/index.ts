@@ -18,42 +18,42 @@ import 'nprogress/css/nprogress.css' // 进度条样式
 export const key: InjectionKey<Store<IStore>> = Symbol('')
 
 export enum ROUTER_NAME {
-  LOGIN = 'login',
-  ERROR_404 = 'error-404',
-  FORGET_PASSWORD = 'forget-password',
-  STUDENT_HOME_PAGE = 'student-homepage',
-  STUDENT_COURSE_DETAIL = 'student-course-detail',
-  REPORT_WRITE_BOARD = 'report-write-board',
-  TEACHER_HOME_PAGE = 'teacher-homepage',
-  TEACHER_COURSE_DETAIL = 'teacher-course-detail',
-  TEACHER_LAB_DETAIL = 'teacher-lab-detail',
-  // admin
-  USER_MANAGEMENT = 'user_management',
-  STUDENT_MANAGEMENT = 'student_management',
-  TEACHER_MANAGEMENT = 'teacher_management',
-  COURSE_MANAGEMENT = 'course_management',
-  COURSE_MANAGEMENT_LIST = 'course_management_list',
-  COURSE_MANAGEMENT_ENROLL = 'course_management_enroll',
-  COURSE_MANAGEMENT_COMMENT = 'course_management_comment',
-  LAB_MANAGEMENT = 'lab_management',
-  LAB_MANAGEMENT_LIST = 'lab_management_list',
-  LAB_MANAGEMENT_SUBMIT = 'lab_management_submit',
+    LOGIN = 'login',
+    ERROR_404 = 'error-404',
+    FORGET_PASSWORD = 'forget-password',
+    STUDENT_HOME_PAGE = 'student-homepage',
+    STUDENT_COURSE_DETAIL = 'student-course-detail',
+    REPORT_WRITE_BOARD = 'report-write-board',
+    REPORT_READ_BOARD = 'report-read-board',
+    TEACHER_HOME_PAGE = 'teacher-homepage',
+    TEACHER_COURSE_DETAIL = 'teacher-course-detail',
+    TEACHER_LAB_DETAIL = 'teacher-lab-detail',
+    // admin
+    USER_MANAGEMENT = 'user_management',
+    STUDENT_MANAGEMENT = 'student_management',
+    TEACHER_MANAGEMENT = 'teacher_management',
+    COURSE_MANAGEMENT = 'course_management',
+    COURSE_MANAGEMENT_LIST = 'course_management_list',
+    COURSE_MANAGEMENT_ENROLL = 'course_management_enroll',
+    COURSE_MANAGEMENT_COMMENT = 'course_management_comment',
+    LAB_MANAGEMENT = 'lab_management',
+    LAB_MANAGEMENT_LIST = 'lab_management_list',
+    LAB_MANAGEMENT_SUBMIT = 'lab_management_submit',
+    CONTAINER_MANAGEMENT = 'container_management',
+    CONTAINER_LIST = 'container_list',
+    CONTAINER_SERVER_INFO = 'container_server_info'
 }
 
 declare module 'vue-router' {
-  interface RouteMeta {
-    title: string
-    // 每个路由都必须声明
-    requiresAuth: boolean
-    accessRole?: RoleEnum[]
-  }
+    interface RouteMeta {
+        title: string
+        // 每个路由都必须声明
+        requiresAuth: boolean
+        accessRole?: RoleEnum[]
+    }
 }
 
 export const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/',
-    redirect: '/login'
-  },
   {
     path: '/dev',
     name: 'dev',
@@ -63,6 +63,10 @@ export const routes: Array<RouteRecordRaw> = [
       requiresAuth: false
     }
   },
+  // {
+  //   path: '/',
+  //   redirect: '/login'
+  // },
   {
     path: '/error-404',
     name: ROUTER_NAME.ERROR_404,
@@ -93,7 +97,7 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: '/admin',
     name: 'admin',
-    component: AdminLayout,
+    component: () => import('../layout/admin/index.vue'),
     redirect: '/user',
     meta: {
       title: '管理员',
@@ -105,10 +109,9 @@ export const routes: Array<RouteRecordRaw> = [
         name: ROUTER_NAME.USER_MANAGEMENT,
         meta: {
           requiresAuth: false,
-          title: '用户管理',
-          icon: 'DashboardOutlined'
+          title: '用户管理'
         },
-        component: () => RouterTransition,
+        component: RouterTransition,
         children: [
           {
             path: 'student',
@@ -116,13 +119,9 @@ export const routes: Array<RouteRecordRaw> = [
             meta: {
               requiresAuth: false,
               title: '学生管理',
-              icon: 'DashboardOutlined',
               isMenuItem: true
             },
-            component: () => import('../components/admin/StudentInfoTable.vue'),
-            props: {
-              role: RoleEnum.STUDENT
-            }
+            component: () => import('../components/admin/StudentInfoTable.vue')
           },
           {
             path: 'teacher',
@@ -130,109 +129,58 @@ export const routes: Array<RouteRecordRaw> = [
             meta: {
               requiresAuth: false,
               title: '教师管理',
-              icon: 'DashboardOutlined',
               isMenuItem: true
             },
-            component: () => import('../components/admin/TeacherInfoTable.vue'),
-            props: {
-              role: RoleEnum.TEACHER
-            }
+            component: () => import('../components/admin/TeacherInfoTable.vue')
+            // props: {
+            //   role: RoleEnum.TEACHER
+            // }
           }
         ]
       },
       {
         path: '/course',
         name: ROUTER_NAME.COURSE_MANAGEMENT,
-        component: () => RouterTransition,
+        component: () => import('../components/admin/CourseDetail.vue'),
         meta: {
           requiresAuth: false,
-          title: '课程管理',
-          icon: 'DashboardOutlined'
+          title: '课程管理'
         },
-        children: [
-          {
-            path: 'list',
-            name: ROUTER_NAME.COURSE_MANAGEMENT_LIST,
-            meta: {
-              requiresAuth: false,
-              title: '课程列表',
-              icon: 'DashboardOutlined',
-              isMenuItem: true
-            },
-            component: () => import('../components/admin/CourseDetail.vue')
-          },
-          {
-            path: 'enroll',
-            name: ROUTER_NAME.COURSE_MANAGEMENT_ENROLL,
-            meta: {
-              requiresAuth: false,
-              title: '选课管理',
-              icon: 'DashboardOutlined',
-              isMenuItem: false
-            },
-            component: () => import('../components/admin/CourseEnrollTable.vue'),
-            props: route => ({
-              courseId: Number(route.query.courseId)
-            })
-          },
-          {
-            path: 'comment',
-            name: ROUTER_NAME.COURSE_MANAGEMENT_COMMENT,
-            meta: {
-              requiresAuth: false,
-              title: '讨论管理',
-              icon: 'DashboardOutlined',
-              isMenuItem: false
-            },
-            component: () => import('../components/web/Demo.vue')
-          }
-        ]
       },
       {
         path: '/lab',
         name: ROUTER_NAME.LAB_MANAGEMENT,
         meta: {
           requiresAuth: false,
-          title: '课程管理',
-          icon: 'DashboardOutlined'
+          title: '实验管理'
         },
-        component: () => RouterTransition,
+        component: () => import('../components/admin/LabTable.vue')
+      },
+      {
+        path: '/container',
+        name: ROUTER_NAME.CONTAINER_MANAGEMENT,
+        meta: {
+          requiresAuth: false,
+          title: '容器管理'
+        },
+        component: RouterTransition,
         children: [
           {
-            path: 'list',
-            name: ROUTER_NAME.LAB_MANAGEMENT_LIST,
+            path: '/info',
+            name: ROUTER_NAME.CONTAINER_SERVER_INFO,
             meta: {
               requiresAuth: false,
-              title: '实验列表',
-              icon: 'DashboardOutlined',
-              isMenuItem: true
+              title: '容器主机'
             },
-            component: () => import('../components/admin/LabTable.vue')
-          },
-          {
-            path: 'enroll',
-            name: ROUTER_NAME.LAB_MANAGEMENT_SUBMIT,
+            component: () => import('../components/admin/ContainerServerInfo.vue')
+          }, {
+            path: '/list',
+            name: ROUTER_NAME.CONTAINER_LIST,
             meta: {
               requiresAuth: false,
-              title: '提交详情',
-              icon: 'DashboardOutlined',
-              isMenuItem: false
+              title: '容器管理'
             },
-            component: () => import('../components/admin/LabSubmitTable.vue'),
-            props: route => ({
-              labId: Number(route.query.labId)
-            })
-          },
-          {
-            path: 'comment',
-            name: ROUTER_NAME.COURSE_MANAGEMENT_COMMENT,
-            meta: {
-              requiresAuth: false,
-              title: '讨论管理',
-              icon: 'DashboardOutlined',
-              isMenuItem: false
-            },
-            component: () => import('../components/web/Demo.vue')
+            component: () => import('../components/admin/ContainerTable.vue')
           }
         ]
       }
@@ -296,7 +244,20 @@ export const routes: Array<RouteRecordRaw> = [
         },
         props: route => ({
           labId: Number(route.query.labId),
-          isEditable: Number(route.query.isEditable)
+          isEditable: Boolean(route.query.isEditable)
+        })
+      },
+      {
+        path: 'report-read-board',
+        name: ROUTER_NAME.REPORT_READ_BOARD,
+        component: () => import('../components/web/ReportReadBoard.vue'),
+        meta: {
+          title: '实验报告',
+          requiresAuth: true,
+          accessRole: [RoleEnum.STUDENT]
+        },
+        props: route => ({
+          labId: Number(route.query.labId),
         })
       },
       {

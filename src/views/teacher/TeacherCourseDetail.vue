@@ -1,36 +1,38 @@
 <template>
   <a-row class="row1">
-    <a-col :span="15" :offset="1">
+    <a-col :span="20" :offset="2">
       <a-tabs
           v-model:activeKey="tabsActiveKey"
           class="col1"
           size="large"
       >
-        <a-tab-pane key="1" tab="课程实验">
+        <a-tab-pane key="1" tab="课程详情">
+          <div class="courseInfo">
+          <teacher-course-info :course-id="Number(courseId)"/>
+          </div>
+        </a-tab-pane>
+        <a-tab-pane key="2" tab="课程实验">
           <teacher-lab-list :course-id="Number(courseId)"/>
         </a-tab-pane>
-        <a-tab-pane key="2" tab="课程公告">
+        <a-tab-pane key="3" tab="课程公告">
           <teacher-announcement-list :course-id="Number(courseId)"/>
         </a-tab-pane>
-        <a-tab-pane key="3" tab="课程评论">
+        <a-tab-pane key="4" tab="课程讨论">
           <div class="contentPadding">
             <course-comment :course-id="Number(courseId)"/>
           </div>
         </a-tab-pane>
-        <a-tab-pane key="4" tab="课程签到">
+        <a-tab-pane key="5" tab="课程签到">
           <div class="contentPadding">
             <teacher-checkin-table :course-id="Number(courseId)"/>
           </div>
         </a-tab-pane>
-        <a-tab-pane key="5" tab="学生管理">
+        <a-tab-pane key="6" tab="学生管理">
           <div class="contentPadding">
             <teacher-course-overview-table :course-id="Number(courseId)"/>
           </div>
         </a-tab-pane>
       </a-tabs>
-    </a-col>
-    <a-col :span="6" :offset="1" class="col2">
-      <teacher-course-info-card :course-id="Number(courseId)"/>
     </a-col>
   </a-row>
 </template>
@@ -43,9 +45,10 @@ import TeacherCheckinTable from '../../components/web/teacher/TeacherCheckinTabl
 import CourseComment from '../../components/web/CourseComment.vue'
 import TeacherAnnouncementList from '../../components/web/teacher/TeacherAnnouncementList.vue'
 import 'vue-cropper/dist/index.css'
-import TeacherCourseInfoCard from '../../components/web/teacher/TeacherCourseInfoCard.vue'
 import TeacherCourseOverviewTable from '../../components/web/teacher/TeacherCourseOverviewTable.vue'
-
+import CourseInfo from '../../components/web/CourseInfo.vue'
+import { EditOutlined } from '@ant-design/icons-vue'
+import TeacherCourseInfo from '../../components/web/teacher/TeacherCourseInfo.vue'
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   courseId: string
@@ -82,11 +85,13 @@ const route = useRoute()
     padding-left: 16px;
     padding-right: 16px;
   }
+  .courseInfo {
+    margin: 0 16px 0 16px;
+  }
+  ::v-deep(.ant-tabs-nav-wrap) {
+    margin-left: 16px;
+  }
 }
 </style>
 
-<style lang="scss" scoped>
-::v-deep(.ant-tabs-nav-wrap) {
-  margin-left: 16px;
-}
-</style>
+

@@ -1,11 +1,11 @@
 <template>
   <a-space class="btnSpace">
     <a-button
-        class="insertBtn"
         type="primary"
         @click="handleShowModalInsertCourse"
-    >   <form-outlined/>
-    新建课程
+    >
+      <form-outlined/>
+      新建课程
     </a-button>
   </a-space>
 
@@ -29,7 +29,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { usePagination } from 'vue-request'
-import { IPagination } from '../../../api/common'
 import {
   apiListCourseByTeacherId
 } from '../../../api/web/course'
@@ -37,6 +36,7 @@ import { useRouter } from 'vue-router'
 import BaseCourseList from '../BaseCourseList.vue'
 import { FormOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import InsertCourseForm from './InsertCourseForm.vue'
+import { PaginationConfig } from 'ant-design-vue/es/pagination'
 
 // 路由
 const router = useRouter()
@@ -56,7 +56,7 @@ const {
 })
 
 // 分页数据
-const pag = computed<IPagination>(() => ({
+const pag = computed<PaginationConfig>(() => ({
   onChange(page: number) {
     current.value = page
   },
@@ -83,6 +83,6 @@ const handleFinishInsertCourse = (res: boolean) => {
 <style lang="scss" scoped>
 .btnSpace {
   display: flex;
-  margin-bottom: 26px;
+  margin: 0 0 16px 16px;
 }
 </style>

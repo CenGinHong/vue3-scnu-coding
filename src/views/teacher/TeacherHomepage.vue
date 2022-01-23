@@ -1,60 +1,44 @@
 <template>
   <a-row class="row1">
-    <a-col :span="6" :offset="1">
+    <a-col :span="5" :offset="2">
       <a-card class="card">
         <template #cover>
-          <img alt="example" src="/src/assets/gate.jpg" />
+          <img alt="example" src="/src/assets/gate.jpg"/>
         </template>
-        <template #actions class="ant-card-actions">
-          <edit-outlined @click="visibleUpdateUserInfo=true" />
-          <send-outlined @click="visibleModalOpenIDE = true" />
+        <template #actions>
+          <edit-outlined @click="handleShowDrawer"/>
+          <code-sandbox-outlined @click="visibleModalOpenIDE = true"/>
         </template>
         <a-card-meta description="This is the description" title="陈健航">
           <template #avatar>
             <a-avatar
-              src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+                src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
             />
           </template>
         </a-card-meta>
       </a-card>
     </a-col>
-    <a-col :span="1"> </a-col>
-    <a-col :span="15" class="col1">
-      <teacher-course-list />
-<!--      <a-tabs v-model:activeKey="tabsActiveKey" size="large">-->
-<!--        <a-tab-pane key="1" tab="我的课程">-->
-<!--          -->
-<!--        </a-tab-pane>-->
-<!--        <a-tab-pane key="2" tab="所有课程"> </a-tab-pane>-->
-<!--      </a-tabs>-->
+    <a-col :span="1"></a-col>
+    <a-col :span="14" class="col1">
+      <a-tabs v-model:activeKey="tabsActiveKey" size="large">
+        <a-tab-pane key="1" tab="我的课程">
+          <teacher-course-list/>
+        </a-tab-pane>
+        <a-tab-pane key="2" tab="所有课程"></a-tab-pane>
+      </a-tabs>
     </a-col>
   </a-row>
   <a-modal
-    v-model:visible="visibleUpdateUserInfo"
-    title="修改个人资料"
-    width="520px"
-    :footer="null"
-  >
-    <update-user-info-form @finish="handleFinishUpdateUserInfo"/>
-  </a-modal>
-  <a-modal
-    v-model:visible="visibleModalOpenIDE"
-    @ok="handleOpenIDE"
-    :ok-button-props="{ loading: loadingOpenIde }"
-    cancel-text="取消"
-    ok-text="打开IDE"
-    title="请选择IDE的语言环境"
-    width="280px"
-  >
-    <a-radio-group
-      v-model:value="selectLanguageValue"
-      :options="languageRadioOption"
-    />
+      title="个人信息"
+      :width="740"
+      :footer="null"
+      v-model:visible="visibleDrawer">
+    <update-user-info-form/>
   </a-modal>
 </template>
 
 <script lang="ts" setup>
-import { EditOutlined, SendOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, CodeSandboxOutlined } from '@ant-design/icons-vue'
 import { ref } from 'vue'
 import { useRequest } from 'vue-request'
 import { OpenIDE } from '../../api/web/ide'
@@ -64,7 +48,7 @@ import TeacherCourseList from '../../components/web/teacher/TeacherCourseList.vu
 import UpdateUserInfoForm from '../../components/web/UpdateUserInfoForm.vue'
 import { useStore } from '../../store'
 
-// const tabsActiveKey = ref<string>('1')
+const tabsActiveKey = ref<string>('1')
 
 const store = useStore()
 const userInfo = store.getters['user/userInfo']
@@ -114,12 +98,10 @@ const languageRadioOption: radioOption[] = [
 
 const visibleUpdateUserInfo = ref<boolean>(false)
 
-const handleFinishUpdateUserInfo = (res:boolean) => {
-  if (res) {
-    // 刷新用户信息
-    store.dispatch('user/getUserInfo')
-  }
-  visibleUpdateUserInfo.value = false
+const visibleDrawer = ref<boolean>(false)
+
+const handleShowDrawer = () => {
+  visibleDrawer.value = true
 }
 
 </script>
@@ -136,5 +118,11 @@ const handleFinishUpdateUserInfo = (res:boolean) => {
     border-radius: 10px;
     padding: 20px 10px 20px 10px;
   }
+}
+</style>
+
+<style lang="scss" scoped>
+::v-deep(.ant-tabs-nav-wrap) {
+  margin-left: 16px;
 }
 </style>

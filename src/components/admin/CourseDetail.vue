@@ -1,9 +1,9 @@
 <template>
   <a-table
-    :columns="columns"
-    :data-source="dataAllCourse?.records"
-    :loading="loadingAllCourse"
-    :pagination="pagCourseList"
+      :columns="columns"
+      :data-source="dataAllCourse?.records"
+      :loading="loadingAllCourse"
+      :pagination="pagCourseList"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'updatedAt'">
@@ -18,81 +18,123 @@
         </template>
       </template>
       <template v-if="column.key === 'operation'">
-          <a-dropdown-button @click="handleButtonClick" size="small">
-            <edit-outlined/>
-            <template #overlay>
-              <a-menu >
-                <a-menu-item @click="handleRouteToEnrollList(record.courseId)">
-                  <team-outlined/>
-                  学生管理
-                </a-menu-item>
-                <a-menu-item key="2">
-                  <comment-outlined />
-                  课程讨论
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown-button>
+        <a-space>
+          <a-tooltip title="编辑">
+            <a @click="handleShowUpdateCourseModal(record)">
+              <edit-outlined/>
+            </a>
+          </a-tooltip>
+          <a-tooltip title="选课">
+            <a @click="handleShowCourseEnroll(record.courseId)">
+              <team-outlined/>
+            </a>
+          </a-tooltip>
+          <a-tooltip title="讨论">
+            <a @click="handleShowDrawerComment(record.courseId)">
+              <comment-outlined/>
+            </a>
+          </a-tooltip>
+        </a-space>
+
+        <!--          <a-dropdown-button @click="handleButtonClick" size="small">-->
+        <!--            <edit-outlined/>-->
+        <!--            <template #overlay>-->
+        <!--              <a-menu >-->
+        <!--                <a-menu-item @click="handleRouteToEnrollList(record.courseId)">-->
+        <!--                  <team-outlined/>-->
+        <!--                  学生管理-->
+        <!--                </a-menu-item>-->
+        <!--                <a-menu-item key="2">-->
+        <!--                  <comment-outlined />-->
+        <!--                  课程讨论-->
+        <!--                </a-menu-item>-->
+        <!--              </a-menu>-->
+        <!--            </template>-->
+        <!--          </a-dropdown-button>-->
       </template>
     </template>
   </a-table>
-  <a-modal
-    v-model:visible="visibleModalUpdateCourse"
-    :ok-button-props="{ loading: loadingUpdateCourse || loadingUpload }"
-    :disable="loadingUpload"
-    cancel-text="取消"
-    ok-text="修改"
-    width="800px"
-    @ok="handleUpdateCourse"
+  <a-drawer
+      title="修改课程"
+      :width="720"
+      :visible="visibleModalUpdateCourse"
+      :body-style="{ paddingBottom: '80px' }"
+      :footer-style="{ textAlign: 'right' }"
+      @close="handleDrawerClose"
   >
     <a-form
-      :label-col="{ span: 3 }"
-      :model="updateCourseState"
-      :rules="rules"
-      :wrapper-col="{ span: 20 }"
+        :label-col="{ span: 3 }"
+        :model="updateCourseState"
+        :rules="rules"
+        :wrapper-col="{ span: 20 }"
     >
       <a-form-item label="课程名称" name="courseName">
-        <a-input v-model:value="updateCourseState.courseName" />
+        <a-input v-model:value="updateCourseState.courseName"/>
       </a-form-item>
       <a-form-item label="课程描述" name="courseDes">
         <a-textarea
-          v-model:value="updateCourseState.courseDes"
-          :maxlength="250"
-          allow-clear
-          rows="5"
-          showCount
+            v-model:value="updateCourseState.courseDes"
+            :maxlength="250"
+            allow-clear
+            rows="5"
+            showCount
         />
       </a-form-item>
       <a-form-item label="课程密钥" name="secretKey">
-        <a-input v-model:value="updateCourseState.secretKey" />
+        <a-input v-model:value="updateCourseState.secretKey"/>
       </a-form-item>
       <a-form-item label="编程语言">
         <a-radio-group
-          :options="languageEnumRadioOption"
-          v-model:value="updateCourseState.languageType"
+            :options="languageEnumRadioOption"
+            v-model:value="updateCourseState.languageType"
         ></a-radio-group>
       </a-form-item>
       <a-form-item label="是否结课">
-        <a-switch v-model:checked="updateCourseState.isClose" />
+        <a-switch v-model:checked="updateCourseState.isClose"/>
       </a-form-item>
-      <a-form-item label="课程封面">
-        <upload-image-modal
-          v-model:image-init-list="updateCourseImageInitList"
-          v-model:loading="loadingUpload"
-          :size-limits="2"
-        />
+      <a-form-item :wrapper-col="{offset: 3}">
+        <a-space>
+          <a-button type="primary">
+            确认修改
+          </a-button>
+          <a-button @click="handleDrawerClose">
+            取消
+          </a-button>
+        </a-space>
       </a-form-item>
+      <!--      <a-form-item label="课程封面">-->
+      <!--        <upload-image-modal-->
+      <!--            v-model:image-init-list="updateCourseImageInitList"-->
+      <!--            v-model:loading="loadingUpload"-->
+      <!--            :size-limits="2"-->
+      <!--        />-->
+      <!--      </a-form-item>-->
     </a-form>
-  </a-modal>
-  <!-- <a-modal
-    v-model:visible="visibleEnrollTable"
-    width="1200px"
-    :destroyOnClose="true"
-    :footer="null"
-  >
-    <course-enroll-table :course-id="EnrollTableCourseId">
-    </course-enroll-table>
-  </a-modal> -->
+  </a-drawer>
+  <!--  <a-modal-->
+  <!--    v-model:visible="visibleEnrollTable"-->
+  <!--    width="1200px"-->
+  <!--    :destroyOnClose="true"-->
+  <!--    :footer="null"-->
+  <!--  >-->
+  <!--    <course-enroll-table :course-id="EnrollTableCourseId">-->
+  <!--    </course-enroll-table>-->
+  <!--  </a-modal> -->
+  <a-drawer
+      title="选课记录"
+      :width="1020"
+      :visible="visibleDrawerCourseEnroll"
+      :body-style="{ paddingBottom: '80px' }"
+      :footer-style="{ textAlign: 'right' }"
+      @close="handleDrawerClose">
+    <course-enroll-table :course-id="selectedCourseId"/>
+  </a-drawer>
+  <a-drawer
+      title="讨论列表"
+      :width="1020"
+      v-model:visible="visibleDrawerComment">
+    <course-comment :course-id="selectedCourseId"/>
+  </a-drawer>
 </template>
 
 <script lang="ts" setup>
@@ -112,6 +154,8 @@ import { RuleObject } from 'ant-design-vue/es/form/interface'
 import { useRouter } from 'vue-router'
 import { ROUTER_NAME } from '../../router'
 import { EditOutlined, BarsOutlined, TeamOutlined, CommentOutlined } from '@ant-design/icons-vue'
+import CourseEnrollTable from './CourseEnrollTable.vue'
+import CourseComment from '../web/CourseComment.vue'
 
 const router = useRouter()
 
@@ -178,7 +222,7 @@ const columns: ColumnType[] = [
   {
     title: '操作',
     key: 'operation',
-    width: '6%'
+    width: '10%'
   }
 ]
 
@@ -209,10 +253,10 @@ const handleShowUpdateCourseModal = (record: listCourseResp) => {
   updateCourseState.secretKey = record.secretKey
   updateCourseState.languageType = record.languageType
   // 注意这下面两句不能调换，否则不能正确监听图片的变化
-  if (record.coverImg !== '') {
-    updateCourseImageInitList.value = [fileSrc2File(record.coverImg)]
-  }
-  updateCourseState.coverImg = undefined
+  // if (record.coverImg !== '') {
+  //   updateCourseImageInitList.value = [fileSrc2File(record.coverImg)]
+  // }
+  // updateCourseState.coverImg = undefined
   visibleModalUpdateCourse.value = true
 }
 
@@ -238,11 +282,21 @@ watchEffect(() => {
   // 当有图片上传完成
   if (updateCourseImageInitList.value[0].status === 'done') {
     updateCourseState.coverImg =
-      updateCourseImageInitList.value[0].response!.result!.fileSrc
+        updateCourseImageInitList.value[0].response!.result!.fileSrc
   }
 })
 
 const visibleModalUpdateCourse = ref<boolean>(false)
+
+const handleVisibleDrawer = () => {
+  visibleModalUpdateCourse.value = true
+}
+
+const handleDrawerClose = () => {
+  visibleModalUpdateCourse.value = false
+  visibleDrawerCourseEnroll.value = false
+  visibleDrawerComment.value = false
+}
 
 const {
   run: runUpdateCourse,
@@ -256,6 +310,21 @@ const handleUpdateCourse = async() => {
   }
   visibleModalUpdateCourse.value = false
   await refreshAllCourse()
+}
+
+const visibleDrawerCourseEnroll = ref<boolean>(false)
+const selectedCourseId = ref<number>(0)
+
+const handleShowCourseEnroll = (courseId: number) => {
+  selectedCourseId.value = courseId
+  visibleDrawerCourseEnroll.value = true
+}
+
+const visibleDrawerComment = ref<boolean>(false)
+
+const handleShowDrawerComment = (courseId: number) => {
+  selectedCourseId.value = courseId
+  visibleDrawerComment.value = true
 }
 
 const handleRouteToEnrollList = (courseId: number) => {
