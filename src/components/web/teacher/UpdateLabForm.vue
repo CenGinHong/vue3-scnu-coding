@@ -22,9 +22,9 @@
       </a-form-item>
       <a-form-item label="上传附件">
         <a-upload
-            v-model:file-list="fileList"
-            :action="uploadApi"
-            @change="handleUpdateUploadChange"
+            :file-list="fileList"
+            :before-upload="beforeUpload"
+            :remove="handleRemove"
         >
           <a-button :disabled="fileList.length !== 0">
             <upload-outlined/>
@@ -34,7 +34,10 @@
       </a-form-item>
       <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
         <a-space>
-          <a-button type="primary" @click="handleUpdateLab" :loading="loadingUpdateLab || loadingUpload">修改</a-button>
+          <a-button type="primary" @click="handleUpdateLab" :loading="loadingUpdateLab">
+            <form-outlined/>
+            修改
+          </a-button>
           <a-popconfirm
               title="确认删除?"
               ok-text="确认"
@@ -42,8 +45,9 @@
               @confirm="handleDeleteLab"
           >
             <a-button type="primary" danger :loading="loadingDeleteLab">
-              <form-outlined/>
-              删除</a-button>
+              <delete-outlined/>
+              删除
+            </a-button>
           </a-popconfirm>
         </a-space>
       </a-form-item>
@@ -54,27 +58,33 @@
 <script lang="ts" setup>
 import { updateLabReq } from '../../../api/web/model/lab'
 import { reactive, ref, watch } from 'vue'
-import { FileInfo, IFileItem } from '../../../api/common'
-import { uploadApi } from '../../../api/web/file'
-import { Form, message, Modal } from 'ant-design-vue'
+import { Form, message } from 'ant-design-vue'
 import { apiDeleteLab, apiGetLabDetail, apiUpdateLab } from '../../../api/web/lab'
-import { ExclamationCircleOutlined, UploadOutlined, FormOutlined } from '@ant-design/icons-vue'
+import { UploadOutlined, FormOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { useRequest } from 'vue-request'
 import { fileSrc2File } from '../../../util/utils'
+import type { UploadProps } from 'ant-design-vue'
 import dayjs from 'dayjs'
+import { UploadFile } from 'ant-design-vue/es/upload/interface'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   labId: number
 }>()
 
+// eslint-disable-next-line no-undef,func-call-spacing
+const emits = defineEmits<{
+  (e: 'finish'): void
+}>()
+
 const updateLabState = reactive<updateLabReq>({
   labId: 0,
   title: '',
   content: '',
+  isRemoveFile: false,
   deadline: null
 })
-const fileList = ref<IFileItem[]>([])
+
 const { run: runGetLabDetail, loading: loadingLabDetail } = useRequest(apiGetLabDetail, {
   manual: false,
   defaultParams: [
@@ -90,53 +100,34 @@ const { run: runGetLabDetail, loading: loadingLabDetail } = useRequest(apiGetLab
     if (res.deadline !== '') {
       updateLabState.deadline = dayjs(res.deadline)
     }
-    if (res.attachmentSrc) {
+    if (res.attachmentSrc !== '') {
       fileList.value = [
         fileSrc2File(res.attachmentSrc)
       ]
     }
-    updateLabState.attachmentSrc = undefined
   }
 })
 
-// eslint-disable-next-line no-undef,func-call-spacing
-const emits = defineEmits<{
-  (e: 'finish'): void
-}>()
+const fileList = ref<UploadFile[]>([])
 
-const loadingUpload = ref<boolean>(false)
-
-const handleUpdateUploadChange = (info: FileInfo) => {
-  const status = info.file.status
-  // 上传成功
-  switch (status) {
-    case 'done': {
-      loadingUpload.value = false
-      message.success(`${info.file.name}上传成功`)
-      // 将文件url置入
-      if (info.file.response!.code === 0) {
-        updateLabState.attachmentSrc = info.file.response!.result!.fileSrc
-      }
-      break
-    }
-    case 'error': {
-      loadingUpload.value = false
-      message.error(`${info.file.name}上传失败`)
-      break
-    }
-    case 'removed': {
-      loadingUpload.value = false
-      updateLabState.attachmentSrc = ''
-      break
-    }
-    case 'uploading ': {
-      loadingUpload.value = true
-      break
-    }
-  }
+const handleRemove: UploadProps['onRemove'] = file => {
+  const index = fileList.value!.indexOf(file)
+  const newFileList = fileList.value!.slice()
+  newFileList.splice(index, 1)
+  fileList.value = newFileList
 }
 
-const useForm = Form.useForm
+watch(() => fileList.value.length, (oldV, newV) => {
+  if (oldV > 0 && newV === 0) {
+    updateLabState.isRemoveFile = true
+  }
+})
+
+const beforeUpload: UploadProps['beforeUpload'] = file => {
+  fileList.value = [file]
+  console.log(fileList.value[0])
+  return false
+}
 
 const rules = reactive({
   title: [
@@ -145,6 +136,8 @@ const rules = reactive({
   ],
   content: [{ required: true, message: '请输入内容' }]
 })
+
+const useForm = Form.useForm
 
 const { validate: validateUpdateLab } = useForm(updateLabState, rules)
 
@@ -161,11 +154,27 @@ const handleUpdateLab = async() => {
     message.error('输入数据不满足提交要求')
     return
   }
-  await runUpdateLab(updateLabState)
+  const formData = prepareUpdateData()
+  await runUpdateLab(formData)
   if (errorUpdateLab.value) {
     return
   }
   emits('finish')
+}
+
+const prepareUpdateData = (): FormData => {
+  const formData = new FormData()
+  formData.set('title', updateLabState.title)
+  formData.set('content', updateLabState.content)
+  formData.set('labId', String(updateLabState.labId))
+  formData.set('isRemoveFile', String(updateLabState.isRemoveFile))
+  if (updateLabState.deadline !== null) {
+    formData.set('deadline', updateLabState.deadline.toJSON())
+  }
+  if (fileList.value.length > 0) {
+    formData.set('file', fileList.value[0] as any)
+  }
+  return formData
 }
 
 // 删除实验

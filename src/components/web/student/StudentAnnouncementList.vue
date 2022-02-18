@@ -14,7 +14,7 @@ import { apiListCourseAnnouncement } from '../../../api/web/courseAnnouncement'
 import { courseAnnouncementDetailResp } from '../../../api/web/model/courseAnnouncement'
 import { fileSrc2File } from '../../../util/utils'
 import { computed } from 'vue'
-import { IPagination } from '../../../api/common'
+import { TablePaginationConfig } from 'ant-design-vue/es/table/Table'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -47,7 +47,7 @@ const {
 })
 
 // 分页数据
-const pag = computed<IPagination>(() => ({
+const pag = computed<TablePaginationConfig>(() => ({
   onChange: (page: number) => {
     current.value = page
   },

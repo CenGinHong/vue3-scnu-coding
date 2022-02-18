@@ -1,26 +1,24 @@
 <template>
-  <router-view v-slot="{ Component }">
-    <component :is="Component" />
-  </router-view>
+<!--  <a-config-provider :locale="locale">-->
+    <router-view v-slot="{ Component }">
+      <component :is="Component"/>
+    </router-view>
+<!--  </a-config-provider>-->
   <!--<router-view/>-->
   <!--<img alt="Vue logo" src="./assets/logo.png" />-->
   <!--<HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />-->
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
 import HelloWorld from './components/HelloWorld.vue'
 
-export default defineComponent({
-  name: 'App',
-  components: {
-    HelloWorld
-  },
-  setup() {
-    // const store = useStore()
-    // store.dispatch('user/getUserInfo')
-  }
-})
+dayjs.locale('zh-cn')
+
+const locale = zhCN
+
 </script>
 
 <style>

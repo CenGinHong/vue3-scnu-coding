@@ -1,5 +1,5 @@
 <template>
-  <a-spin :spinning="loadingListComment">
+  <a-skeleton avatar active :loading="loadingListComment">
     <!--讨论编辑框-->
     <a-comment>
       <template #avatar>
@@ -10,15 +10,17 @@
           <a-textarea v-model:value="replyCommentRecord[0]" :rows="4"/>
         </a-form-item>
         <a-form-item>
-          <a-button
-              class="replyButton"
-              :loading="queriesInsertLabComment[0]?.loading"
-              type="primary"
-              @click="handleReplyComment(0)"
-          >
-            <form-outlined/>
-            新增讨论
-          </a-button>
+          <div class="replyButton">
+            <a-button
+                :loading="queriesInsertLabComment[0]?.loading"
+                type="primary"
+                @click="handleReplyComment(0)"
+            >
+              <form-outlined/>
+              新增讨论
+            </a-button>
+          </div>
+
         </a-form-item>
       </template>
     </a-comment>
@@ -89,7 +91,7 @@
         />
       </div>
     </template>
-  </a-spin>
+  </a-skeleton>
 </template>
 
 <script lang="ts" setup>
@@ -202,7 +204,7 @@ const handleDeleteComment = async(labCommentId: number) => {
 
 <style lang="scss" scoped>
 .replyButton {
-  float: left;
+  display: flex;
 }
 
 .delBtn {

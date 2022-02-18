@@ -41,21 +41,21 @@
                 :columns="columnsListOneStudentScore"
                 :data-source="dataListOneStudentScore?.records"
                 :loading="loadingListOneStudentScore"
-                :pagination="paginationListOneStudentScore"
+                :pagination="pagListOneStudentScore"
                 :row-key="(record) => record.labSubmitDetail.labSubmitId"
                 size="small"
             >
-              <template #bodyCell="{ column }">
-                <template v-if="column.dataIndex='score'">
-                  <a-tag :color="scoreTagColor(text)">
-                    {{ text }}
+              <template #bodyCell="{ column,record }">
+                <template v-if="column.key === 'score'">
+                  <a-tag :color="scoreTagColor(record.labSubmitDetail.score)">
+                    {{ record.labSubmitDetail.score }}
                   </a-tag>
                 </template>
               </template>
             </a-table>
           </template>
           <a-tooltip title="点击查看详情成绩">
-            <a-tag :color="scoreTagColor(record.avgScoreDetail.score)">
+            <a-tag :color="scoreTagColor(record.avgScoreDetail.score)" @click="handleClickChange(record.userId)">
               {{ record.avgScoreDetail.score }}
             </a-tag>
           </a-tooltip>
@@ -116,7 +116,6 @@
       </template>
     </a-table>
   </a-modal>
-
   <a-modal
       v-model:visible="visibleModalExportScore"
       :ok-button-props="{ loading: loadingExportScore }"
@@ -143,7 +142,7 @@ import { ITransfer } from '../../../api/common'
 import { usePagination, useRequest } from 'vue-request'
 import {
   apiInsertStudent2Class,
-  apiListCourseOverview,
+  apiListCourseOverview, apiListOneStudentScore,
   apiRemoveStudentFromClass
 } from '../../../api/web/course'
 import {
@@ -156,8 +155,7 @@ import { message, Modal, TablePaginationConfig } from 'ant-design-vue'
 
 import { scoreTagColor } from '../../../util/utils'
 import {
-  apiListLabByCourseId,
-  apiListOneStudentScoreResp
+  apiListLabByCourseId
 } from '../../../api/web/lab'
 import { apiExportScore } from '../../../api/web/labSubmit'
 import { ColumnType } from 'ant-design-vue/es/table'
@@ -289,14 +287,14 @@ const {
   pageSize: pageSizeListOneStudentScore,
   current: currentListOneStudentScore,
   total: totalListOneStudentScore
-} = usePagination(apiListOneStudentScoreResp, {
+} = usePagination(apiListOneStudentScore, {
   formatResult: (res) => {
     return res.data.result
   }
 })
 
 // 分页
-const paginationListOneStudentScore = computed(() => ({
+const pagListOneStudentScore = computed(() => ({
   size: 'small',
   onChange(page: number) {
     currentListOneStudentScore.value = page
@@ -309,12 +307,13 @@ const columnsListOneStudentScore: ColumnType[] = [
   {
     title: '实验名称',
     dataIndex: 'title',
-    width: '200px'
+    width: '80%'
   },
   {
     title: '成绩',
     dataIndex: ['labSubmitDetail', 'score'],
-    width: '50px'
+    key: 'score',
+    width: '20%'
   }
 ]
 
@@ -325,14 +324,15 @@ const handleShowModalCodingTime = (userId: number) => {
   visible.value = true
 }
 
-const handleShowCodingTime = (userId:number) => {
+const handleShowCodingTime = (userId: number) => {
   codingTimeUserId.value = userId
   visible.value = true
 }
 
 const handleClickChange = (studentId: number) => {
+  console.log(studentId)
   runListOneStudentScore({
-    studentId,
+    userId: studentId,
     courseId: props.courseId
   })
 }
@@ -420,7 +420,7 @@ const {
   },
   onSuccess: (res) => {
     const labIds: string[] = []
-    res.records.forEach((item) => {
+    res.records.forEach((item: { type: number; labId: any }) => {
       if (item.type === 1) {
         labIds.push(String(item.labId))
       }

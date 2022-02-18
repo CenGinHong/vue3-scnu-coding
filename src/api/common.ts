@@ -5,7 +5,7 @@
 // }
 
 // 分页约束
-import {ColumnFilterItem, FilterValue} from 'ant-design-vue/es/table/interface'
+import { ColumnFilterItem, FilterValue } from 'ant-design-vue/es/table/interface'
 
 export interface pageResp<T> {
   records: T[]

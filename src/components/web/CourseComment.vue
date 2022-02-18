@@ -1,5 +1,5 @@
 <template>
-  <a-spin :spinning="loadingComment">
+  <a-skeleton avatar active :loading="loadingComment">
     <!--讨论编辑框-->
     <a-comment>
       <template #avatar>
@@ -11,16 +11,18 @@
         <a-form-item>
           <a-textarea v-model:value="replyCommentRecord[0]" :rows="4"/>
         </a-form-item>
-        <a-form-item :class="style.replyButton">
-          <a-button
-              :loading="queriesInsertCourseComment[0]?.loading"
-              html-type="submit"
-              type="primary"
-              @click="handleReplyComment(0)"
-          >
-            <form-outlined/>
-            新增讨论
-          </a-button>
+        <a-form-item>
+          <div class="replyButton">
+            <a-button
+                :loading="queriesInsertCourseComment[0]?.loading"
+                html-type="submit"
+                type="primary"
+                @click="handleReplyComment(0)"
+            >
+              <form-outlined/>
+              新增讨论
+            </a-button>
+          </div>
         </a-form-item>
       </template>
     </a-comment>
@@ -46,7 +48,7 @@
                   @confirm="handleDeleteComment(record.commentId)"
               >
                 <span
-                    :class="style.delBtn"
+                    class="delBtn"
                 >
                 <delete-outlined/>
                 删除
@@ -66,7 +68,7 @@
                         :rows="4"
                     />
                   </a-form-item>
-                  <a-form-item :class="style.replyButton">
+                  <a-form-item class="replyButton">
                     <a-button
                         :loading="
                         queriesInsertCourseComment[record.commentId]?.loading
@@ -90,19 +92,20 @@
         </comment-item>
       </template>
     </template>
-    <a-pagination
-        v-if="dataComment?.records.length !== 0"
-        v-model:current="currentComment"
-        :class="style.pagination"
-        :pageSize="pageSizeComment"
-        :total="totalComment"
-        show-less-items
-    />
-  </a-spin>
+    <div class="pagination">
+      <a-pagination
+          v-if="dataComment?.records.length !== 0"
+          v-model:current="currentComment"
+          :pageSize="pageSizeComment"
+          :total="totalComment"
+          show-less-items
+      />
+    </div>
+  </a-skeleton>
 </template>
 
 <script lang="ts" setup>
-import { computed, createVNode, ref, useCssModule, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import CommentItem from './CommentItem.vue'
 import { usePagination, useRequest } from 'vue-request'
 import {
@@ -156,7 +159,10 @@ const handleChangeOpenCommentArea = (id: number) => {
   openCommentArea.value[id] = !openCommentArea.value[id] ?? true
 }
 
-const { run: runInsertCourseComment, queries: queriesInsertCourseComment } =
+const {
+  run: runInsertCourseComment,
+  queries: queriesInsertCourseComment
+} =
     useRequest(apiInsertCourseComment, {
       queryKey: (insertCourseCommentReq) => String(insertCourseCommentReq.pid)
     })
@@ -222,16 +228,11 @@ watch(props, () => {
   })
 })
 
-const style = useCssModule()
 </script>
 
-<style lang="scss" module>
-.clearfix {
-  overflow: auto;
-}
-
+<style lang="scss" scoped>
 .replyButton {
-  float: left;
+  display: flex;
 }
 
 .delBtn {
@@ -239,6 +240,7 @@ const style = useCssModule()
 }
 
 .pagination {
-  float: right;
+  display: flex;
+  flex-direction: row-reverse;
 }
 </style>

@@ -5,6 +5,7 @@ export interface updateLabReq {
   labId: number
   title: string
   content: string
+  isRemoveFile: boolean
   attachmentSrc?: string
   deadline: Dayjs | null
 }
@@ -12,9 +13,8 @@ export interface updateLabReq {
 export interface insertLabReq {
   title: string
   content: string
-  attachmentSrc: string
   courseId: number
-  deadline?: Dayjs
+  deadline: Dayjs | null
 }
 
 export interface listLabByCourseIdReq extends pageParams {
@@ -49,7 +49,7 @@ export interface deleteLabReq {
 }
 
 export interface ListOneStudentScoreReq {
-  studentId: number
+  userId: number
   courseId: number
 }
 

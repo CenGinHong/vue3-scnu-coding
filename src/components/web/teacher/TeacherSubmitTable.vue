@@ -6,33 +6,45 @@
     </a-button>
   </a-space>
   <a-table
-    :columns="columns"
-    :data-source="dataListLabSubmit?.records"
-    :loading="loadingListLabSubmit"
-    :pagination="pag"
-    :row-key="(record) => record.userId"
-    @change="handleTableChange"
+      :columns="columns"
+      :data-source="dataListLabSubmit?.records"
+      :loading="loadingListLabSubmit"
+      :pagination="pag"
+      :row-key="(record) => record.userId"
+      @change="handleTableChange"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'score'">
         <a-tag
-          v-if="record.labSubmitDetail"
-          :color="scoreTagColor(record.labSubmitDetail.score)"
+            v-if="record.labSubmitDetail"
+            :color="scoreTagColor(record.labSubmitDetail.score)"
         >
           {{ record.labSubmitDetail.score }}
         </a-tag>
         <a-tag v-else color="gray">未评分</a-tag>
       </template>
-      <template v-if="column.dataIndex === 'updatedAt'">
-        {{
-          record.labSubmitDetail.updatedAt === undefined
-            ? '无'
-            : dayjs(record.labSubmitDetail.updatedAt).format('YYYY-MM-DD hh:mm')
-        }}
+      <template v-if="column.dataIndex === 'isIDERunning'">
+        <a-tag
+            v-if="record.isIDERunning"
+            color="success"
+        >
+          运行中
+        </a-tag>
+        <a-tag v-else color="default">
+          未运行
+        </a-tag>
       </template>
+      <!--      <template v-if="column.dataIndex === 'updatedAt'">-->
+      <!--        {{-->
+      <!--          record.labSubmitDetail.updatedAt === undefined-->
+      <!--              ? '无'-->
+      <!--              : dayjs(record.labSubmitDetail.updatedAt).format('YYYY-MM-DD hh:mm')-->
+      <!--        }}-->
+      <!--      </template>-->
       <template v-if="column.dataIndex === 'isFinish'">
         <a-tag v-if="record.labSubmitDetail?.isFinish" color="success"
-          >已完成</a-tag
+        >已完成
+        </a-tag
         >
         <a-tag v-else color="error">未完成</a-tag>
       </template>
@@ -48,7 +60,7 @@ import { apiListLabSubmit } from '../../../api/web/labSubmit'
 import { scoreTagColor } from '../../../util/utils'
 import { ColumnType } from 'ant-design-vue/es/table'
 import { TablePaginationConfig } from 'ant-design-vue'
-import { ReloadOutlined} from "@ant-design/icons-vue";
+import { ReloadOutlined } from '@ant-design/icons-vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -67,6 +79,10 @@ const columns: ColumnType[] = [
     dataIndex: ['userDetail', 'userNum']
   },
   {
+    title: 'IDE状态',
+    dataIndex: 'isIDERunning'
+  },
+  {
     title: '是否完成',
     dataIndex: 'isFinish',
     width: '120px'
@@ -79,11 +95,6 @@ const columns: ColumnType[] = [
   {
     title: '评语',
     dataIndex: ['labSubmitDetail', 'labSubmitComment']
-  },
-  {
-    title: '最后更新',
-    width: '160px',
-    dataIndex: 'updatedAt'
   }
 ]
 const {

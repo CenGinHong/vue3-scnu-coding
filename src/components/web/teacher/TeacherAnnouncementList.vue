@@ -4,6 +4,10 @@
       <form-outlined/>
       新建公告
     </a-button>
+    <a-button @click="handleRefresh">
+      <reload-outlined/>
+      刷新
+    </a-button>
   </a-space>
   <base-course-announcement-list
       :data-course="dataCourseAnnouncement?.records"
@@ -60,7 +64,8 @@ import {
 import {
   courseAnnouncementDetailResp
 } from '../../../api/web/model/courseAnnouncement'
-import { Modal, TablePaginationConfig } from 'ant-design-vue'
+import { TablePaginationConfig } from 'ant-design-vue'
+import {ReloadOutlined} from "@ant-design/icons-vue";
 import { fileSrc2File } from '../../../util/utils'
 import InsertCourseAnnouncementForm from './InsertCourseAnnouncementForm.vue'
 import UpdateCourseAnnouncementModal from './UpdateCourseAnnouncementForm.vue'
@@ -95,6 +100,10 @@ const {
     }
   ]
 })
+
+const handleRefresh = () => {
+  refreshCourseAnnouncement()
+}
 
 // 分页数据
 const pag = computed<TablePaginationConfig|null>(() => {

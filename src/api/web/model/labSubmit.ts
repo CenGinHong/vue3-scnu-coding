@@ -48,6 +48,7 @@ export interface listLabSubmitResp {
     labSubmitComment: string
     updatedAt: string
   }
+  isIDERunning: boolean
 }
 
 // export interface listLabSubmitIdResp {

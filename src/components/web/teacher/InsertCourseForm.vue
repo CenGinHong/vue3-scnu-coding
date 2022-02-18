@@ -48,15 +48,16 @@
 
 <script lang="ts" setup>
 import { createCourseReq } from '../../../api/web/model/courseModel'
-import { reactive, ref, watchEffect } from 'vue'
-import { IFileItem, radioOption } from '../../../api/common'
+import { reactive, ref } from 'vue'
+import { radioOption } from '../../../api/common'
 import { useRequest } from 'vue-request'
 import { apiCreateCourse } from '../../../api/web/course'
 import UploadImageModal from '../../common/UploadImageModal.vue'
 import { message } from 'ant-design-vue'
 import { useForm } from 'ant-design-vue/es/form'
 import { RuleObject } from 'ant-design-vue/es/form/interface'
-import {FormOutlined} from "@ant-design/icons-vue";
+import { FormOutlined } from '@ant-design/icons-vue'
+import { UploadFile } from 'ant-design-vue/es/upload/interface'
 
 // eslint-disable-next-line no-undef,,func-call-spacing
 const emits = defineEmits<{
@@ -72,16 +73,16 @@ const insertCourseState = reactive<createCourseReq>({
 })
 
 const loadingUpload = ref<boolean>(false)
-const fileList = ref<IFileItem[]>([])
+const fileList = ref<UploadFile[]>([])
 
-watchEffect(() => {
-  if (fileList.value.length === 0) {
-    fileList.coverImg = ''
-  } else if (fileList.value[0].status === 'done') {
-    fileList.coverImg =
-        fileList.value[0].response.result.fileSrc
-  }
-})
+// watchEffect(() => {
+//   if (fileList.value.length === 0) {
+//     fileList.coverImg = ''
+//   } else if (fileList.value[0].status === 'done') {
+//     fileList.coverImg =
+//         fileList.value[0].response.result.fileSrc
+//   }
+// })
 
 // 可选的语言
 const languageRadioOption = reactive<radioOption[]>([

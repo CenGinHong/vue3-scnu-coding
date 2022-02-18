@@ -8,12 +8,20 @@
       新建课程
     </a-button>
   </a-space>
-
   <base-course-list
       :dataSource="dataSource?.records"
       :loading="loading"
       :pag="pag"
-  />
+  >
+    <template #tag="{item}">
+      <template v-if="item.isClose">
+        <a-tag class="tag" color="success">进行中</a-tag>
+      </template>
+      <template v-else>
+        <a-tag class="tag" color="default">已结课</a-tag>
+      </template>
+    </template>
+  </base-course-list>
   <a-modal
       v-model:visible="visibleModalInsertCourse"
       title="新建课程"
@@ -34,9 +42,9 @@ import {
 } from '../../../api/web/course'
 import { useRouter } from 'vue-router'
 import BaseCourseList from '../BaseCourseList.vue'
-import { FormOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import { FormOutlined } from '@ant-design/icons-vue'
 import InsertCourseForm from './InsertCourseForm.vue'
-import { PaginationConfig } from 'ant-design-vue/es/pagination'
+import { TablePaginationConfig } from 'ant-design-vue/es/table/Table'
 
 // 路由
 const router = useRouter()
@@ -56,7 +64,7 @@ const {
 })
 
 // 分页数据
-const pag = computed<PaginationConfig>(() => ({
+const pag = computed<TablePaginationConfig>(() => ({
   onChange(page: number) {
     current.value = page
   },
@@ -71,10 +79,7 @@ const handleShowModalInsertCourse = () => {
   visibleModalInsertCourse.value = true
 }
 
-const handleFinishInsertCourse = (res: boolean) => {
-  if (res) {
-    refreshListCourse()
-  }
+const handleFinishInsertCourse = () => {
   visibleModalInsertCourse.value = false
 }
 
@@ -84,5 +89,9 @@ const handleFinishInsertCourse = (res: boolean) => {
 .btnSpace {
   display: flex;
   margin: 0 0 16px 16px;
+}
+
+.tag {
+  margin-left: 10px;
 }
 </style>

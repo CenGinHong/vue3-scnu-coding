@@ -56,7 +56,7 @@
             title="评语"
             trigger="hover"
         >
-          <a-tag :color="scoreTagColor(item.labSubmitDetail.score)">{{
+          成绩： <a-tag :color="scoreTagColor(item.labSubmitDetail.score)">{{
               item.labSubmitDetail.score
             }}
           </a-tag>

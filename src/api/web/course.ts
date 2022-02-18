@@ -17,6 +17,7 @@ import {
 } from './model/courseModel'
 import { pageParams, pageResp, Result } from '../common'
 import instance from '../../util/axios/axios'
+import {ListOneStudentScoreReq, ListOneStudentScoreResp} from "./model/lab";
 
 enum Api {
   courseJoin = '/web/course/join',
@@ -27,6 +28,7 @@ enum Api {
   courseOverview = '/web/course/overview',
   isCourseOpenByTeacher = '/web/course/open',
   manageStudentInClass = '/web/course/student',
+  score = '/web/course/score',
 }
 
 export function apiListCourseByStuId(params: pageParams) {
@@ -108,4 +110,10 @@ export function apiDeleteCourse(id :number) {
 
 export function apiJoinClass(data: joinClassReq) {
   return instance.post<Result>(Api.courseJoin, data)
+}
+
+export function apiListOneStudentScore(params: ListOneStudentScoreReq) {
+  return instance.get<Result<pageResp<ListOneStudentScoreResp>>>(Api.score, {
+    params: params
+  })
 }

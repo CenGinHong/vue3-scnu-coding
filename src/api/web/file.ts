@@ -1,6 +1,6 @@
 import instance, { baseURL } from '../../util/axios/axios'
 import { Result, uploadResp } from '../common'
-import { deleteFileReq } from './model/file'
+import {deleteFileReq, getObjectUrlResp} from './model/file'
 
 enum Api {
   file = '/file',
@@ -13,6 +13,12 @@ export function apiUploadFile(data: FormData) {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
+  })
+}
+
+export function apiGetObjectUrl(filename: string) {
+  return instance.get<Result<getObjectUrlResp>>(Api.file, {
+    params: filename
   })
 }
 

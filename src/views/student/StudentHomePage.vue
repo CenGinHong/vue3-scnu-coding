@@ -1,7 +1,7 @@
 <template>
   <a-row class="row1">
     <a-col :span="6" :offset="2">
-      <a-card class="card" hoverable>
+      <a-card class="card">
         <template #cover>
           <img alt="example" src="/src/assets/gate.jpg" />
         </template>
@@ -21,6 +21,7 @@
     </a-col>
     <a-col :span="13" :offset="1">
       <div class="codingTimeDiv">
+        我的累计编码时间
         <coding-time-div/>
       </div>
       <div class="courseList" >
@@ -35,13 +36,13 @@
       </div>
     </a-col>
   </a-row>
-  <a-drawer
+  <a-modal
+      :footer="null"
       title="个人信息"
-      :width="740"
+      width="420px"
       v-model:visible="visibleDrawer">
-    <coding-time-div />
     <update-user-info-form/>
-  </a-drawer>
+  </a-modal>
   <a-modal
     v-model:visible="visibleModalOpenIDE"
     :ok-button-props="{ loading: loadingOpenIde }"
@@ -147,8 +148,6 @@ const style = useCssModule()
   .codingTimeDiv {
     background-color: white;
     border-radius: 8px;
-    padding-left: 200px;
-    padding-right: 20px;
     padding-bottom: 20px;
     transition: box-shadow 0.3s;
   }

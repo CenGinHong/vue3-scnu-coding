@@ -4,15 +4,16 @@
       <form-outlined/>
       新建实验
     </a-button>
+    <a-button @click="handleRefresh">
+      <reload-outlined/>
+      刷新
+    </a-button>
   </a-space>
   <base-lab-list
       :data-source="dataListLab?.records"
       :loading="loadingListLab"
       :pag="pag"
   >
-    <template #attachment="{ item }">
-      <a-upload :file-list="item.fileList" :remove="removeFile"/>
-    </template>
     <template #actions="{ item }">
       <a-button
           class="firstBtu"
@@ -58,14 +59,11 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePagination } from 'vue-request'
 import {
-  apiListLabByCourseId
-} from '../../../api/web/lab'
-
-import {
+  ReloadOutlined,
   DeleteOutlined,
   EditOutlined,
   ExclamationCircleOutlined,
@@ -73,19 +71,17 @@ import {
   SendOutlined
 } from '@ant-design/icons-vue'
 import {
-  labDetailResp,
-  updateLabReq
+  apiListLabByCourseId
+} from '../../../api/web/lab'
+
+import {
+  labDetailResp
 } from '../../../api/web/model/lab'
-import { IFileItem } from '../../../api/common'
 import BaseLabList from '../BaseLabList.vue'
 import { ROUTER_NAME } from '../../../router'
 import { fileSrc2File } from '../../../util/utils'
 import InsertLabModal from './InsertLabForm.vue'
 import UpdateLabModal from './UpdateLabForm.vue'
-
-export interface updateLabExtendReq extends updateLabReq {
-  fileList: IFileItem[]
-}
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -119,6 +115,10 @@ const {
   ]
 })
 
+const handleRefresh = () => {
+  refreshListLab()
+}
+
 // 分页数据
 const pag = computed(() => {
   return total.value > 0
@@ -131,11 +131,6 @@ const pag = computed(() => {
       }
     : null
 })
-
-// 在列表处阻断删除
-const removeFile = () => {
-  return false
-}
 
 // 跳转到实验详情
 const handleRouterToLabDetail = (labId: number) => {

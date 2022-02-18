@@ -1,5 +1,5 @@
-import { IFileItem } from '../api/common'
-import { getUUID } from 'ant-design-vue/es/vc-select/utils/commonUtil'
+import { UploadFile } from 'ant-design-vue/lib/upload/interface'
+import { getUUID } from 'ant-design-vue/es/vc-dialog/util'
 
 export function scoreTagColor(score: number): string {
   if (score >= 90) {
@@ -52,11 +52,13 @@ export function getBase64(file: File): Promise<String> {
   })
 }
 
-export function fileSrc2File(src: string): IFileItem {
-  const fileName = src.substring(src.lastIndexOf('/') + 1)
+export function fileSrc2File(src: string): UploadFile {
+  let name = src.substring(src.lastIndexOf('/') + 1, src.length)
+  name = name.substring(name.indexOf('_') + 1, src.length)
   return {
-    uid: getUUID(),
-    url: src,
-    name: fileName
+    uid: getUUID().toString(),
+    name,
+    status: 'done',
+    url: src
   }
 }

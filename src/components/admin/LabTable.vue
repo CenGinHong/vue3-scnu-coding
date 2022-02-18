@@ -30,42 +30,50 @@
       <template
           v-if="column.key === 'operation'"
       >
-        <a-tooltip title="编辑">
-          <a-button type="link" @click="showDrawerUpdateLab(record.labId)">
-            <edit-outlined/>
-          </a-button>
-        </a-tooltip>
-        <a-tooltip title="提交详情">
-          <a-button type="link" @click="showDrawerSubmitTable(record.labId)">
-            <bars-outlined/>
-          </a-button>
-        </a-tooltip>
-        <a-tooltip title="讨论">
-          <a-button type="link" @click="showDrawerSubmitTable(record.labId)">
-            <comment-outlined/>
-          </a-button>
-        </a-tooltip>
+        <a-space>
+          <a-tooltip title="编辑">
+            <a @click="showModalUpdateLab(record.labId)">
+              <edit-outlined/>
+            </a>
+          </a-tooltip>
+          <a-tooltip title="提交详情">
+            <a @click="showModalSubmitTable(record.labId)">
+              <bars-outlined/>
+            </a>
+          </a-tooltip>
+          <a-tooltip title="讨论">
+            <a @click="showModalLabComment(record.labId)">
+              <comment-outlined/>
+            </a>
+          </a-tooltip>
+        </a-space>
       </template>
     </template>
   </a-table>
-  <a-drawer
+  <a-modal
       title="修改实验"
-      :width="1020"
-      v-model:visible="visibleDrawerUpdateLab"
-      :body-style="{ paddingBottom: '80px' }"
-      :footer-style="{ textAlign: 'right' }"
+      :width="720"
+      :footer="null"
+      v-model:visible="visibleModalUpdateLab"
   >
     <update-lab-form :labId="selectedLabId"/>
-  </a-drawer>
-  <a-drawer
+  </a-modal>
+  <a-modal
       title="实验提交"
-      :width="1380"
-      v-model:visible="visibleDrawerSubmitTable"
-      :body-style="{ paddingBottom: '80px' }"
-      :footer-style="{ textAlign: 'right' }"
+      :width="1020"
+      :footer="null"
+      v-model:visible="visibleModalSubmitTable"
   >
     <lab-submit-table :lab-id="selectedLabId"/>
-  </a-drawer>
+  </a-modal>
+  <a-modal
+      title="实验讨论"
+      :width="720"
+      :footer="null"
+      v-model:visible="visibleModalLabComment"
+  >
+    <lab-comment :lab-id="selectedLabId"/>
+  </a-modal>
 </template>
 
 <script lang="ts" setup>
@@ -80,6 +88,7 @@ import { ROUTER_NAME } from '../../router'
 import { useRouter } from 'vue-router'
 import UpdateLabForm from '../web/teacher/UpdateLabForm.vue'
 import LabSubmitTable from './LabSubmitTable.vue'
+import LabComment from '../web/LabComment.vue'
 
 const columns = computed<ColumnType[]>(() => [
   {
@@ -166,19 +175,25 @@ const handleTableChange: TableProps['onChange'] = (
 
 const selectedLabId = ref<number>(0)
 
-const visibleDrawerUpdateLab = ref<boolean>(false)
+const visibleModalUpdateLab = ref<boolean>(false)
 
-const showDrawerUpdateLab = (labId: number) => {
+const showModalUpdateLab = (labId: number) => {
   selectedLabId.value = labId
-  visibleDrawerUpdateLab.value = true
+  visibleModalUpdateLab.value = true
 }
 
-const visibleDrawerSubmitTable = ref<boolean>(false)
+const visibleModalSubmitTable = ref<boolean>(false)
 
-const showDrawerSubmitTable = (labId: number) => {
-  console.log(labId)
+const showModalSubmitTable = (labId: number) => {
   selectedLabId.value = labId
-  visibleDrawerSubmitTable.value = true
+  visibleModalSubmitTable.value = true
+}
+
+const visibleModalLabComment = ref<boolean>(false)
+
+const showModalLabComment = (labId: number) => {
+  selectedLabId.value = labId;
+  visibleModalLabComment.value = true
 }
 
 const router = useRouter()

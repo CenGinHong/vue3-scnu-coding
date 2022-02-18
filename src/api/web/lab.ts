@@ -1,18 +1,14 @@
 import { pageResp, Result, saveResp } from '../common'
 import {
-  deleteLabReq,
   insertLabReq,
   labDetailResp,
   listLabByCourseIdReq,
-  ListOneStudentScoreReq,
-  ListOneStudentScoreResp,
   updateLabReq
 } from './model/lab'
 import instance from '../../util/axios/axios'
 
 enum Api {
-  lab = '/web/lab',
-  score = '/web/lab/score',
+    lab = '/web/lab',
 }
 
 export function apiListLabByCourseId(params: listLabByCourseIdReq) {
@@ -25,19 +21,21 @@ export function apiDeleteLab(id: number) {
   return instance.delete<Result>(Api.lab + '/' + id)
 }
 
-export function apiUpdateLab(data: updateLabReq) {
-  return instance.put<updateLabReq, Result>(Api.lab, data)
-}
-
-export function apiInsertLab(data: insertLabReq) {
-  return instance.post<insertLabReq, Result<saveResp>>(Api.lab, data)
-}
-
-export function apiListOneStudentScoreResp(params: ListOneStudentScoreReq) {
-  return instance.get<Result<pageResp<ListOneStudentScoreResp>>>(Api.score, {
-    params: params
+export function apiUpdateLab(data: FormData) {
+  return instance.put<updateLabReq, Result>(Api.lab, data, {
+    headers: {
+      'Content-Type': ':multipart/form-data'
+    }
   })
 }
+
+export function apiInsertLab(data: FormData) {
+  return instance.post<insertLabReq, Result<saveResp>>(Api.lab, data, {
+    headers: {}
+  })
+}
+
+
 
 export function apiGetLabDetail(id: number) {
   return instance.get<Result<labDetailResp>>(Api.lab + '/' + id)

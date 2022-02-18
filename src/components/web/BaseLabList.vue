@@ -20,7 +20,7 @@
           </a-list-item-meta>
           <p>{{ item.content }}</p>
           <p>截止日期：{{ item.deadline === '' ? '无' : item.deadline }}</p>
-          <slot :item="item" name="attachment"></slot>
+          <a-upload :file-list="item.fileList" :showUploadList="{ showPreviewIcon: false, showRemoveIcon: false }"/>
         </a-list-item>
       </template>
     </a-list>
@@ -29,6 +29,8 @@
 import { labDetailResp } from '../../api/web/model/lab'
 import { ExclamationCircleOutlined, LinkOutlined } from '@ant-design/icons-vue'
 import { TablePaginationConfig } from 'ant-design-vue'
+import { useRequest } from 'vue-request'
+import { apiGetObjectUrl } from '../../api/web/file'
 
 // eslint-disable-next-line no-undef
 const props = withDefaults(
@@ -42,6 +44,20 @@ const props = withDefaults(
     dataSource: () => []
   }
 )
+
+const { run: runGetObjectUrl, error: errGetObjectUrl, data: dataObjectUrl } = useRequest(apiGetObjectUrl, {
+  formatResult: res => {
+    return res.data.result
+  }
+})
+
+const handleGetObject = async(filename: string) => {
+  await runGetObjectUrl(filename)
+  if (errGetObjectUrl.value) {
+    return
+  }
+  window.location.href = dataObjectUrl.value!.url
+}
 
 </script>
 

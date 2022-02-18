@@ -59,7 +59,7 @@
       </a-form-item>
       <a-form-item label="重复新密码" name="repeatPassword">
         <a-input-password
-            v-model:value="updateUserInfoState.repeatPassword"
+            v-model:value="repeatPassword"
             :disabled="updateUserInfoState.oldPassword === ''"
             placeholder="确认新密码"
         />
@@ -83,6 +83,11 @@ import { reactive, ref } from 'vue'
 import { updateUserInfoReq } from '../../api/web/model/userModel'
 import { radioOption } from '../../api/common'
 
+// eslint-disable-next-line no-undef
+const emits = defineEmits<{
+  (e: 'finish', refresh: boolean): void
+}>()
+
 // 性别多选框
 const genderRadioOption: radioOption[] = [
   {
@@ -95,14 +100,10 @@ const genderRadioOption: radioOption[] = [
   }
 ]
 
-interface updateUserInfoExtendState extends updateUserInfoReq {
-  repeatPassword: string
-}
-
 const store = useStore()
 
 // 更新用户数据
-const updateUserInfoState = reactive<updateUserInfoExtendState>({
+const updateUserInfoState = reactive<updateUserInfoReq>({
   username: '',
   userNum: '',
   email: '',
@@ -114,15 +115,15 @@ const updateUserInfoState = reactive<updateUserInfoExtendState>({
   major: '',
   oldPassword: '',
   password: '',
-  repeatPassword: '',
   organization: ''
 })
+
+const repeatPassword = ref<string>('')
 
 // 获取自己的详细信息
 const {
   data: dataGetUserInfo,
   loading: loadingGetUserInfo,
-  refresh: refreshGetUserInfo
 } = useRequest(apiGetUserInfo, {
   manual: false,
   formatResult: (res) => {
@@ -193,8 +194,6 @@ const rules = reactive<Record<string, RuleObject[]>>({
   ]
 })
 
-const repeatPassword = ref<string>('')
-
 const { run: runUpdateUserInfo, loading: loadingUpdateUserInfo, error: errUpdateUserInfo } =
     useRequest(apiUpdateUserInfo)
 
@@ -204,30 +203,7 @@ const handleUpdateUserInfo = async() => {
   if (errUpdateUserInfo.value) {
     return
   }
-  await refreshGetUserInfo()
-}
-
-// 发送验证码
-const sendMailBtuText = ref<string>('获取验证码')
-const disabledSendMail = ref<boolean>(false)
-let timer: any
-const handleSendMail = () => {
-  const TIME_COUNT = 60
-  if (!timer) {
-    disabledSendMail.value = true
-    let count = TIME_COUNT
-    timer = setInterval(() => {
-      if (count > 0 && count <= TIME_COUNT) {
-        count--
-        sendMailBtuText.value = String(count) + 's后可重发'
-      } else {
-        clearInterval(timer)
-        timer = null
-        sendMailBtuText.value = '获取验证码'
-        disabledSendMail.value = false
-      }
-    }, 1000)
-  }
+  emits('finish',true)
 }
 
 </script>

@@ -22,7 +22,7 @@
           </a-list-item-meta>
           <p :class="style.announcementContent">{{ item.content }}</p>
           <p>更新日期：{{ dayjs(item.updatedAt).format('YYYY-MM-DD') }}</p>
-          <a-upload :file-list="item.fileList" :remove="removeFile" />
+          <a-upload :file-list="item.fileList" :showUploadList = "{ showRemoveIcon: false }" />
         </a-list-item>
       </template>
     </a-list>
@@ -49,12 +49,6 @@ const props = withDefaults(
     dataCourse: () => []
   }
 )
-
-// 在列表处阻断删除
-const removeFile = () => {
-  message.info('请在修改处删除文件')
-  return false
-}
 
 const style = useCssModule()
 </script>

@@ -20,17 +20,18 @@
     </a-col>
     <a-col :span="1"></a-col>
     <a-col :span="14" class="col1">
-      <a-tabs v-model:activeKey="tabsActiveKey" size="large">
-        <a-tab-pane key="1" tab="我的课程">
-          <teacher-course-list/>
-        </a-tab-pane>
-        <a-tab-pane key="2" tab="所有课程"></a-tab-pane>
-      </a-tabs>
+      <teacher-course-list/>
+<!--      <a-tabs v-model:activeKey="tabsActiveKey" size="large">-->
+<!--        <a-tab-pane key="1" tab="我的课程">-->
+<!--          <teacher-course-list/>-->
+<!--        </a-tab-pane>-->
+<!--        <a-tab-pane key="2" tab="所有课程"></a-tab-pane>-->
+<!--      </a-tabs>-->
     </a-col>
   </a-row>
   <a-modal
       title="个人信息"
-      :width="740"
+      width="420px"
       :footer="null"
       v-model:visible="visibleDrawer">
     <update-user-info-form/>

@@ -2,7 +2,6 @@
   <a-row class="row1">
     <a-skeleton :loading="loadingCourseDetail">
       <a-col :span="9">
-
         <a-image
             src="/src/assets/gate.jpg"
             fallback="https://via.placeholder.com/240x135?text=%E5%8A%A0%E8%BD%BD%E5%A4%B1%E8%B4%A5"
@@ -31,7 +30,6 @@
 
 <script lang="ts" setup>
 
-import { ref } from 'vue'
 import { useRequest } from 'vue-request'
 import { apiGetCourseDetail } from '../../api/web/course'
 // eslint-disable-next-line no-undef

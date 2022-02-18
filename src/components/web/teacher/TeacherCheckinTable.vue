@@ -11,10 +11,6 @@
         <reload-outlined/>
         刷新
       </a-button>
-      <a-button :loading="loadingExportCsv" @click="handleExportCheckinCsv">
-        <export-outlined/>
-        导出CSV
-      </a-button>
     </a-space>
   <a-table
       :columns="columnCheckinRecord"

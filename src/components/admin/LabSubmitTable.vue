@@ -35,30 +35,31 @@
       >
         <a-space>
           <a-tooltip title="编辑">
-            <a-button type="link">
+            <a>
               <edit-outlined/>
-            </a-button>
+            </a>
           </a-tooltip>
           <a-tooltip title="查看代码">
-            <a-button type="link">
+            <a>
               <code-sandbox-outlined/>
-            </a-button>
+            </a>
           </a-tooltip>
           <a-tooltip title="查看报告" @click="handleShowReport(record.labId)">
-            <a-button type="link">
+            <a>
               <read-outlined/>
-            </a-button>
+            </a>
           </a-tooltip>
         </a-space>
       </template>
     </template>
   </a-table>
-  <a-drawer
+  <a-modal
       title="实验报告"
       :width="920"
+      :footer="null"
       v-model:visible="visibleReport">
     <report-read-board />
-  </a-drawer>
+  </a-modal>
 </template>
 
 <script lang="ts" setup>

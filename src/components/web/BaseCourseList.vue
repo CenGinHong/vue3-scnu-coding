@@ -42,20 +42,20 @@
   </a-list>
 </template>
 <script lang="ts" setup>
-import { ComputedRef } from 'vue'
-import { IPagination } from '../../api/common'
+import { ComputedRef, UnwrapRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from '../../store'
 import { RoleEnum } from '../../enums/roleEnum'
 import { ROUTER_NAME } from '../../router'
 import { listCourseResp } from '../../api/web/model/courseModel'
+import { TablePaginationConfig } from 'ant-design-vue/es/table/Table'
 
 // eslint-disable-next-line no-undef
 const props = withDefaults(
   // eslint-disable-next-line no-undef
   defineProps<{
       dataSource?: listCourseResp[]
-      pag: ComputedRef<IPagination>
+      pag: UnwrapRef<ComputedRef<TablePaginationConfig>>
       loading: boolean
     }>(),
   {

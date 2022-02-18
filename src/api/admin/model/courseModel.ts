@@ -46,6 +46,11 @@ export interface removeCourseEnroll {
   userId: number
 }
 
+export interface addStudent2Class {
+  courseId: number
+  studentNum: string[]
+}
+
 //
 // export interface courseDetailResp {
 //   courseId: number

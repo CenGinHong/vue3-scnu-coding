@@ -35,16 +35,18 @@
         <a-space>
           <a-button type="primary" @click="handleUpdateCourse" :loading="loadingUpdateCourse || loadingUpload">
             <edit-outlined/>
-            修改</a-button>
+            修改
+          </a-button>
           <a-popconfirm
               title='确认删除课程？信息将不可恢复！'
               ok-text="确定"
               cancel-text="取消"
               @confirm="handleDeleteCourse"
           >
-          <a-button type="primary" danger :loading="loadingDeleteCourse">
-            <delete-outlined/>
-            删除</a-button>
+            <a-button type="primary" danger :loading="loadingDeleteCourse">
+              <delete-outlined/>
+              删除
+            </a-button>
           </a-popconfirm>
         </a-space>
       </a-form-item>
@@ -55,9 +57,8 @@
 <script lang="ts" setup>
 import { useRequest } from 'vue-request'
 import { apiDeleteCourse, apiGetCourseDetail, apiUpdateCourse } from '../../../api/web/course'
-import { reactive, ref, watchEffect } from 'vue'
+import { reactive, ref } from 'vue'
 import { updateCourseReq } from '../../../api/web/model/courseModel'
-import { IFileItem } from '../../../api/common'
 import { message } from 'ant-design-vue'
 import { fileSrc2File } from '../../../util/utils'
 import { useForm } from 'ant-design-vue/es/form'
@@ -65,7 +66,8 @@ import UploadImageModal from '../../common/UploadImageModal.vue'
 import { useRouter } from 'vue-router'
 import { ROUTER_NAME } from '../../../router'
 import { RuleObject } from 'ant-design-vue/es/form/interface'
-import {EditOutlined,DeleteOutlined} from "@ant-design/icons-vue";
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+import { UploadFile } from 'ant-design-vue/es/upload/interface'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -74,7 +76,7 @@ const props = defineProps<{
 
 // eslint-disable-next-line no-undef,func-call-spacing
 const emits = defineEmits<{
-  (e: 'finish', res: boolean): void
+  (e: 'finish', refresh: boolean): void
 }>()
 
 // 更新课程表单数据
@@ -130,16 +132,16 @@ const rules = reactive<Record<string, RuleObject[]>>({
 })
 
 // 初始化上传数据用的
-const fileList = ref<IFileItem[]>([])
+const fileList = ref<UploadFile[]>([])
 
-watchEffect(() => {
-  if (fileList.value.length === 0) {
-    updateCourseState.coverImg = ''
-  } else if (fileList.value[0].status === 'done') {
-    updateCourseState.coverImg =
-        fileList.value[0].response!.result!.fileSrc
-  }
-})
+// watchEffect(() => {
+//   if (fileList.value.length === 0) {
+//     updateCourseState.coverImg = ''
+//   } else if (fileList.value[0].status === 'done') {
+//     updateCourseState.coverImg =
+//         fileList.value[0].response!.result!.fileSrc
+//   }
+// })
 
 const loadingUpload = ref<Boolean>(false)
 
@@ -153,15 +155,12 @@ const handleUpdateCourse = async() => {
     message.error('输入数据不满足提交要求')
     return
   }
+
   await runUpdateCourse(updateCourseState)
   if (errUpdateCourse.value) {
     return
   }
   emits('finish', true)
-}
-
-const handleCancel = () => {
-  emits('finish', false)
 }
 
 const { run: runDeleteCourse, loading: loadingDeleteCourse, error: errDeleteCourse } = useRequest(apiDeleteCourse)
