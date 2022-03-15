@@ -179,7 +179,7 @@ const {
   data: dataOpenIDE,
   error: errorOpenIDE
 } = useRequest(OpenIDE, {
-  formatResult: (res) => {
+  formatResult: (res :any) => {
     return res.data.result
   }
 })

@@ -61,10 +61,10 @@ export const routes: Array<RouteRecordRaw> = [
       requiresAuth: false
     }
   },
-  // {
-  //   path: '/',
-  //   redirect: '/login'
-  // },
+  {
+    path: '/',
+    redirect: '/login'
+  },
   {
     path: '/error-404',
     name: ROUTER_NAME.ERROR_404,

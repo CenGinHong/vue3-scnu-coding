@@ -18,10 +18,9 @@
       <a-form-item label="上传附件">
         <div>
           <a-upload
-              v-model:file-list="fileList"
-              :action="uploadApi"
+              :file-list="fileList"
+              @remove="handleRemove"
               :before-upload="beforeUpload"
-              @change="handleUpdateUploadChange"
           >
             <a-button :disabled="fileList.length !== 0">
               <upload-outlined/>
@@ -56,8 +55,7 @@
 
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
-import { FileInfo, IFileItem } from '../../../api/common'
-import { message } from 'ant-design-vue'
+import { message, UploadProps } from 'ant-design-vue'
 import { useRequest } from 'vue-request'
 import { uploadApi } from '../../../api/web/file'
 import {
@@ -65,12 +63,14 @@ import {
   apiGetCourseAnnouncementDetail,
   apiUpdateCourseAnnouncement
 } from '../../../api/web/courseAnnouncement'
-import { ExclamationCircleOutlined, UploadOutlined, FormOutlined,DeleteOutlined } from '@ant-design/icons-vue'
+import { ExclamationCircleOutlined, UploadOutlined, FormOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import {
   updateCourseAnnouncementReq
 } from '../../../api/web/model/courseAnnouncement'
 import { RuleObject } from 'ant-design-vue/lib/form'
 import { fileSrc2File } from '../../../util/utils'
+import { UploadFile } from 'ant-design-vue/es/upload/interface'
+import { useForm } from 'ant-design-vue/es/form'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -84,12 +84,13 @@ const emits = defineEmits<{
 
 const updateCourseAnnouncementState = reactive<updateCourseAnnouncementReq>({
   courseAnnouncementId: 0,
+  isRemoveFile: false,
   title: '',
   content: ''
 })
 
 // 更新文件列表
-const fileList = ref<IFileItem[]>([])
+const fileList = ref<UploadFile[]>([])
 
 const { loading: loadingCourseAnnouncementDetail } = useRequest(apiGetCourseAnnouncementDetail, {
   manual: false,
@@ -119,37 +120,19 @@ const rules = reactive<Record<string, RuleObject[]>>({
 
 const loadingUpload = ref<boolean>(false)
 
-// 上传文件更新逻辑
-const handleUpdateUploadChange = (info: FileInfo) => {
-  const status = info.file.status
-  // 上传成功
-  switch (status) {
-    case 'done': {
-      loadingUpload.value = false
-      message.success(`${info.file.name}上传成功`)
-      // 将文件url置入
-      if (info.file.response!.code === 0) {
-        updateCourseAnnouncementState.attachmentSrc =
-            info.file.response!.result!.fileSrc
-      }
-      break
-    }
-    case 'error': {
-      loadingUpload.value = false
-      message.error(`${info.file.name}上传失败`)
-      break
-    }
-    case 'removed': {
-      loadingUpload.value = false
-      updateCourseAnnouncementState.attachmentSrc = ''
-      break
-    }
-    case 'uploading ': {
-      loadingUpload.value = true
-      break
-    }
+const prepareInsertData = (): FormData => {
+  const formData = new FormData()
+  formData.set('title', updateCourseAnnouncementState.title)
+  formData.set('content', updateCourseAnnouncementState.content)
+  formData.set('courseAnnouncementId', String(props.courseAnnouncementId))
+  formData.set('isRemoveFile', String(updateCourseAnnouncementState.isRemoveFile))
+  if (fileList.value.length > 0) {
+    formData.set('file', fileList.value[0] as any)
   }
+  return formData
 }
+
+const { validate: validateInsertAnnouncement } = useForm(updateCourseAnnouncementState, rules)
 
 // 更新公告
 const {
@@ -160,7 +143,14 @@ const {
 
 // 更新公告
 const handleUpdateCourseAnnouncement = async() => {
-  await runUpdateCourseAnnouncement(updateCourseAnnouncementState)
+  try {
+    await validateInsertAnnouncement()
+  } catch (err) {
+    message.error('输入数据不满足提交要求')
+    return
+  }
+  const formData = prepareInsertData()
+  await runUpdateCourseAnnouncement(formData)
   if (errorUpdateCourseAnnouncement.value) {
     return
   }
@@ -183,7 +173,15 @@ const handleDeleteCourseAnnouncement = async() => {
   emits('finish')
 }
 
-const beforeUpload = (file: IFileItem) => {
+const beforeUpload: UploadProps['beforeUpload'] = file => {
+  fileList.value = [file]
+  return false
+}
+const handleRemove: UploadProps['onRemove'] = file => {
+  const index = fileList.value.indexOf(file)
+  const newFileList = fileList.value.slice()
+  newFileList.splice(index, 1)
+  fileList.value = newFileList
 }
 </script>
 

@@ -17,7 +17,8 @@ export function apiListUser(params: listUserReq) {
 }
 
 export function apiGetImportDemo() {
-  return instance.get(Api.getImportDemo)
+  return instance.get(Api.getImportDemo, { responseType: 'blob' }
+  )
 }
 
 export function apiImportStudent(data: FormData) {
@@ -41,5 +42,5 @@ export function apiResetPassword(userId: number) {
 }
 
 export function apiDeleteUser(userId: number) {
-  return instance.delete(Api.getUser+ '/' + userId)
+  return instance.delete(Api.getUser + '/' + userId)
 }

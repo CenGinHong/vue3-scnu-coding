@@ -21,7 +21,7 @@
       <a-form-item label="课程密钥" name="secretKey">
         <a-input v-model:value="updateCourseState.secretKey"/>
       </a-form-item>
-      <a-form-item label="是否结课">
+      <a-form-item label="是否进行中">
         <a-switch v-model:checked="updateCourseState.isClose"/>
       </a-form-item>
       <a-form-item label="课程封面">
@@ -76,7 +76,7 @@ const props = defineProps<{
 
 // eslint-disable-next-line no-undef,func-call-spacing
 const emits = defineEmits<{
-  (e: 'finish', refresh: boolean): void
+  (e: 'finish', refresh: boolean,deleted: boolean): void
 }>()
 
 // 更新课程表单数据
@@ -143,7 +143,7 @@ const fileList = ref<UploadFile[]>([])
 //   }
 // })
 
-const loadingUpload = ref<Boolean>(false)
+const loadingUpload = ref<boolean>(false)
 
 const { validate } = useForm(updateCourseState, rules)
 
@@ -160,7 +160,7 @@ const handleUpdateCourse = async() => {
   if (errUpdateCourse.value) {
     return
   }
-  emits('finish', true)
+  emits('finish', true,false)
 }
 
 const { run: runDeleteCourse, loading: loadingDeleteCourse, error: errDeleteCourse } = useRequest(apiDeleteCourse)
@@ -173,9 +173,7 @@ const handleDeleteCourse = async() => {
     return
   }
   // 跳回主页
-  await router.replace({
-    name: ROUTER_NAME.TEACHER_HOME_PAGE
-  })
+  emits('finish',true,false)
 }
 </script>
 

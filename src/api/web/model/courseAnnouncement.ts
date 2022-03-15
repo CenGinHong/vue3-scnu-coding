@@ -14,12 +14,12 @@ export interface insertCourseAnnouncementReq {
   title: string
   content: string
   attachmentSrc: string
-  courseId: number
 }
 
 export interface updateCourseAnnouncementReq {
   courseAnnouncementId: number
   title: string
+  isRemoveFile: boolean,
   content: string
   attachmentSrc?: string
 }

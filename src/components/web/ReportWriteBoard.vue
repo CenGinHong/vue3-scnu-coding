@@ -54,8 +54,9 @@ const {
   data: dataUploadImage,
   error: errUploadImage
 } = useRequest(apiUploadFile, {
-  formatResult: (res) => {
+  formatResult: (res: any) => {
     return res.data.result
+    // return res.result
   }
 })
 const handleUploadImage = async(

@@ -113,7 +113,7 @@ export default defineComponent({
     })
     const sendMailBtuText = ref<string>('获取验证码')
     const disabledSendMail = ref<boolean>(false)
-    let timer
+    let timer: any
     const handleSendMail = () => {
       const TIME_COUNT = 60
       if (!timer) {
@@ -176,14 +176,14 @@ export default defineComponent({
       ],
       repeatPassword: [
         {
-          validator: (rule: RuleObject, value: string, cb: (Error) => any) => {
-            if (value === '') {
-              cb(Error('请确认密码'))
-            }
-            if (value !== resetPasswordState.newPassword) {
-              cb(Error('两次输入的密码不一致'))
-            }
-          }
+          // validator: (rule: RuleObject, value: string, cb: () => any) => {
+          //   if (value === '') {
+          //     cb(Error('请确认密码'))
+          //   }
+          //   if (value !== resetPasswordState.newPassword) {
+          //     cb(Error('两次输入的密码不一致'))
+          //   }
+          // }
         }
       ]
     })

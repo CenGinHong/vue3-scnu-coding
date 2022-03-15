@@ -66,6 +66,7 @@ export function apiCorrect(data: correctLabReq) {
 
 export function apiExportScore(params: exportScoreReq) {
   return instance.get(Api.exportScore, {
-    params
+    params,
+    responseType: 'blob'
   })
 }

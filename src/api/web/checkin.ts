@@ -84,6 +84,7 @@ export function apiDeleteCheckinRecords(id: number) {
 
 export function apiExportCsv(params: exportCsvReq) {
   return instance.get(Api.export, {
-    params
+    params,
+    responseType: 'blob'
   })
 }

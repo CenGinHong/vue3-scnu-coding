@@ -32,8 +32,7 @@
     <a-form-item label="课程封面">
       <upload-image-modal
           v-model:image-list="fileList"
-          v-model:loading="loadingUpload"
-          :size-limits="2"
+          :image-length="1"
       />
     </a-form-item>
     <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
@@ -44,11 +43,14 @@
       </a-space>
     </a-form-item>
   </a-form>
+  <a-button @click="handlei">
+    123
+  </a-button>
 </template>
 
 <script lang="ts" setup>
 import { createCourseReq } from '../../../api/web/model/courseModel'
-import { reactive, ref } from 'vue'
+import { reactive, ref, watchEffect } from 'vue'
 import { radioOption } from '../../../api/common'
 import { useRequest } from 'vue-request'
 import { apiCreateCourse } from '../../../api/web/course'
@@ -64,6 +66,10 @@ const emits = defineEmits<{
   (e: 'finish'): void
 }>()
 
+const handlei = () => {
+  console.log(fileList.value)
+}
+
 const insertCourseState = reactive<createCourseReq>({
   courseName: '',
   courseDes: '',
@@ -72,17 +78,11 @@ const insertCourseState = reactive<createCourseReq>({
   coverImg: ''
 })
 
-const loadingUpload = ref<boolean>(false)
 const fileList = ref<UploadFile[]>([])
 
-// watchEffect(() => {
-//   if (fileList.value.length === 0) {
-//     fileList.coverImg = ''
-//   } else if (fileList.value[0].status === 'done') {
-//     fileList.coverImg =
-//         fileList.value[0].response.result.fileSrc
-//   }
-// })
+watchEffect(() => {
+  console.log(fileList)
+})
 
 // 可选的语言
 const languageRadioOption = reactive<radioOption[]>([

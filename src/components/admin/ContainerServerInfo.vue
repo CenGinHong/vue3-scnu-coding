@@ -24,10 +24,14 @@
 import { useRequest } from 'vue-request'
 import { apiListServerInfo } from '../../api/admin/ide'
 
-const numFilter = (value: number) => {
-  // 截取当前数据到小数点后两位
-  const realVal = value / 1024 / 1024 / 1024
-  return realVal.toFixed(2)
+const numFilter = (value: number| undefined) => {
+  if (value) {
+    // 截取当前数据到小数点后两位
+    const realVal = value / 1024 / 1024 / 1024
+    return realVal.toFixed(2)
+  } else {
+    return 0
+  }
 }
 
 const { data: dataListServerInfo, loading: loadingListServerInfo } = useRequest(apiListServerInfo, {

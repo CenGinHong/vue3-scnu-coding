@@ -3,7 +3,6 @@
       :data-source="dataSource"
       :loading="loading"
       :pagination="pag"
-      :row-key="(record) => record.labId"
       item-layout="vertical"
       size="large"
       class="list"

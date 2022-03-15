@@ -78,5 +78,5 @@ export interface correctLabReq {
 
 export interface exportScoreReq {
   courseId: number
-  labIds: number[]
+  labIds: string[]
 }

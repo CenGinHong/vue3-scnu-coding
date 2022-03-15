@@ -1,48 +1,62 @@
 <template>
-  <a-popover title="Title" trigger="click" placement="left">
-    <a-button type="primary">
+  <!--  <a-popover title="Title" trigger="click" placement="left">-->
+
+  <!--    <template #content>-->
+  <!--      <a-space direction="vertical">-->
+  <!--        <a-textarea-->
+  <!--            v-model:value="importStudentNum"-->
+  <!--            placeholder="添加学生：请输入学号，一行一个"-->
+  <!--            :auto-size="{ minRows: 3, maxRows: 5 }"-->
+  <!--        />-->
+  <!--        <a-button type="primary" @click="handleImportStudent" :loading="loadingImportStudent">-->
+  <!--          确定-->
+  <!--        </a-button>-->
+  <!--      </a-space>-->
+  <!--    </template>-->
+  <!--  </a-popover>-->
+  <a-space class="btnSpace">
+    <a-button type="primary" @click="handleShowVisibleModalAddStudent">
       导入
     </a-button>
-    <template #content>
-      <a-space direction="vertical">
-        <a-textarea
-            v-model:value="importStudentNum"
-            placeholder="添加学生：请输入学号，一行一个"
-            :auto-size="{ minRows: 3, maxRows: 5 }"
-        />
-        <a-button type="primary" @click="handleImportStudent" :loading="loadingImportStudent">
-          确定
-        </a-button>
-      </a-space>
-    </template>
-  </a-popover>
+    <a-popconfirm
+        title="确定移除出课程?"
+        ok-text="确定"
+        cancel-text="取消"
+        @confirm="handleRemoveCourseEnroll"
+    >
+      <a-button danger :disabled="selectedRowKeys.length === 0">
+        移除
+      </a-button>
+    </a-popconfirm>
+  </a-space>
+
+  <a-modal
+      v-model:visible="visibleModalAddStudent"
+      :ok-button-props="{ loading: loadingImportStudent }"
+      cancel-text="取消"
+      ok-text="导入"
+      title="导入学生"
+      @ok="handleImportStudent"
+  >
+    <a-textarea
+        v-model:value="importStudentNum"
+        placeholder="请输入学生学号，每一行为一位学生"
+        rows="4"
+    />
+  </a-modal>
   <a-table
       :columns="columns"
       :data-source="dataCourseEnroll?.records"
       :loading="loadingCourseEnroll"
       :pagination="pag"
-      :row-key="record => record.userId"
       @change="handleTableChange"
+      :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'gender'">
         <a-tag v-if="record.gender === 0" color="default">未知</a-tag>
         <a-tag v-else-if="record.gender === 1" color="blue">男</a-tag>
         <a-tag v-else color="pink">女</a-tag>
-      </template>
-      <template v-if="column.key === 'operation'">
-        <a-popconfirm
-            title='确定移除该学生？'
-            ok-text="确定"
-            cancel-text="取消"
-            @confirm="handleRemoveCourseEnroll(record.userId)"
-        >
-          <a-tooltip title="移出课程">
-            <a class="delBtn">
-              <delete-outlined/>
-            </a>
-          </a-tooltip>
-        </a-popconfirm>
       </template>
     </template>
   </a-table>
@@ -51,9 +65,9 @@
 <script lang="ts" setup>
 import { usePagination, useRequest } from 'vue-request'
 import { apiImportStudent, apiListCourseEnroll, apiRemoveCourseEnroll } from '../../api/admin/course'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { ColumnType, TablePaginationConfig, TableProps } from 'ant-design-vue/es/table'
-import { FilterValue } from 'ant-design-vue/es/table/interface'
+import { FilterValue, Key } from 'ant-design-vue/es/table/interface'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 // eslint-disable-next-line no-undef
@@ -65,30 +79,33 @@ const columns = computed<ColumnType[]>(() => [
   {
     title: '姓名',
     dataIndex: 'username',
-    width: '5%'
+    width: '200px'
   },
   {
     title: '学号',
     dataIndex: 'userNum',
-    width: '8%',
+    width: '200px',
     sorter: true
   },
   {
     title: '班级',
     dataIndex: 'organization',
-    width: '10%'
+    width: '200px'
   },
   {
     title: '专业',
     dataIndex: 'major',
-    width: '10%'
-  },
-  {
-    title: '操作',
-    key: 'operation',
-    width: '5%'
+    width: '200px'
   }
 ])
+
+const selectedRowKeys = ref<Key[]>([])
+
+const hasSelected = computed(() => selectedRowKeys.value.length > 0)
+
+const onSelectChange = (Keys: Key[]) => {
+  selectedRowKeys.value = Keys
+}
 
 const {
   data: dataCourseEnroll,
@@ -143,9 +160,9 @@ const {
   error: errRemoveCourseEnroll
 } = useRequest(apiRemoveCourseEnroll)
 
-const handleRemoveCourseEnroll = async(userId: number) => {
+const handleRemoveCourseEnroll = async() => {
   await runRemoveCourseEnroll({
-    userId: userId,
+    userIds: selectedRowKeys.value,
     courseId: props.courseId
   })
   if (errRemoveCourseEnroll.value) {
@@ -173,14 +190,32 @@ const {
   }
 })
 
+const visibleModalAddStudent = ref<boolean>(false)
+
+const handleShowVisibleModalAddStudent = () => {
+  visibleModalAddStudent.value = true
+}
+
 const handleImportStudent = async() => {
+  if (importStudentNum.value === '') {
+    message.error('不能为空')
+  }
+  const studentNums = importStudentNum.value.split('\n')
+  // 必须要每个都满足是数字
+  if (!studentNums.every(e => {
+    return /^\d+$/.test(e)
+  })) {
+    message.error('学号需为数字')
+    return
+  }
   await runImportStudent({
     courseId: props.courseId,
-    studentNum: importStudentNum.value.split('\n')
+    studentNums
   })
   if (errorImportStudent.value) {
     return
   }
+  visibleModalAddStudent.value = false
   await refreshCourseEnroll()
 }
 
@@ -192,7 +227,4 @@ const handleImportStudent = async() => {
   display: flex;
 }
 
-.delBtn {
-  color: #ff7875
-}
 </style>

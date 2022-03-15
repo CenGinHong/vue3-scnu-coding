@@ -31,6 +31,7 @@
       v-model:visible="visibleInsertModal"
       :footer="null"
       width="800px"
+      :destroy-on-close="true"
   >
     <insert-course-announcement-form
         :course-id="courseId"
@@ -60,12 +61,13 @@ import {
 import {
   EditOutlined,
   FormOutlined
+  , ReloadOutlined
 } from '@ant-design/icons-vue'
 import {
   courseAnnouncementDetailResp
 } from '../../../api/web/model/courseAnnouncement'
-import { TablePaginationConfig } from 'ant-design-vue'
-import {ReloadOutlined} from "@ant-design/icons-vue";
+import { message, TablePaginationConfig } from 'ant-design-vue'
+
 import { fileSrc2File } from '../../../util/utils'
 import InsertCourseAnnouncementForm from './InsertCourseAnnouncementForm.vue'
 import UpdateCourseAnnouncementModal from './UpdateCourseAnnouncementForm.vue'
@@ -106,16 +108,14 @@ const handleRefresh = () => {
 }
 
 // 分页数据
-const pag = computed<TablePaginationConfig|null>(() => {
-  return total.value > 0
-    ? {
-        onChange: (page: number) => {
-          current.value = page
-        },
-        total: total.value,
-        pageSize: pageSize.value
-      }
-    : null
+const pag = computed<TablePaginationConfig>(() => {
+  return {
+    onChange: (page: number) => {
+      current.value = page
+    },
+    total: total.value,
+    pageSize: pageSize.value
+  }
 })
 
 // 插入框可见

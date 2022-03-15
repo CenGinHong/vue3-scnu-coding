@@ -4,7 +4,6 @@
       :data-source="dataListLabSubmitByLabId?.records"
       :loading="loadingLabSubmitByLabId"
       :pagination="pag"
-      :row-key="record => record.labId"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'gender'">
@@ -58,7 +57,7 @@
       :width="920"
       :footer="null"
       v-model:visible="visibleReport">
-    <report-read-board />
+<!--    <report-read-board />-->
   </a-modal>
 </template>
 

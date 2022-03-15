@@ -59,10 +59,6 @@ export interface IFileItem extends Partial<File> {
   // file?: string | Blob;
 }
 
-export interface FileInfo {
-  file: IFileItem
-  fileList: IFileItem[]
-}
 
 export interface IPagination {
   current: number

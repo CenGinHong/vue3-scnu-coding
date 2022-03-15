@@ -12,19 +12,17 @@
       <a-textarea v-model:value="insertAnnouncementState.content" rows="5"/>
     </a-form-item>
     <a-form-item label="上传附件">
-      <div>
         <a-upload
-            v-model:file-list="insertFileList"
-            :action="uploadApi"
+            :file-list="fileList"
             :before-upload="beforeUpload"
-            @change="handleInsertUploadChange"
+            @remove="handleRemove"
+            :max-count="1"
         >
           <a-button>
             <upload-outlined/>
             点击上传
           </a-button>
         </a-upload>
-      </div>
     </a-form-item>
     <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
       <a-space>
@@ -43,14 +41,13 @@
 // 新建公告api
 import { useRequest } from 'vue-request'
 import { apiInsertCourseAnnouncement } from '../../../api/web/courseAnnouncement'
-import { FileInfo, IFileItem } from '../../../api/common'
-import { message } from 'ant-design-vue'
+import { message, UploadProps } from 'ant-design-vue'
 import { reactive, ref } from 'vue'
 import { insertCourseAnnouncementReq } from '../../../api/web/model/courseAnnouncement'
-import { uploadApi } from '../../../api/web/file'
-import { UploadOutlined,FormOutlined } from '@ant-design/icons-vue'
+import { UploadOutlined, FormOutlined } from '@ant-design/icons-vue'
 import { RuleObject } from 'ant-design-vue/lib/form'
 import { useForm } from 'ant-design-vue/es/form'
+import { UploadFile } from 'ant-design-vue/es/upload/interface'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -63,12 +60,11 @@ const emits = defineEmits<{
 }>()
 
 // 新建公告文件列表
-const insertFileList = ref<IFileItem[]>([])
+const fileList = ref<UploadFile[]>([])
 // 新建公告数据
 const insertAnnouncementState = reactive<insertCourseAnnouncementReq>({
   title: '',
   content: '',
-  courseId: props.courseId,
   attachmentSrc: ''
 })
 
@@ -88,38 +84,19 @@ const {
 
 const loadingUpload = ref<boolean>(false)
 
-// 上传文件更新逻辑
-const handleInsertUploadChange = (info: FileInfo) => {
-  const status = info.file.status
-  // 上传成功
-  switch (status) {
-    case 'done': {
-      message.success(`${info.file.name}上传成功`)
-      loadingUpload.value = false
-      // 将文件url置入
-      if (info.file.response!.code === 0) {
-        insertAnnouncementState.attachmentSrc =
-            info.file.response!.result!.fileSrc
-      }
-      break
-    }
-    case 'error': {
-      loadingUpload.value = false
-      message.error(`${info.file.name}上传失败`)
-      break
-    }
-    case 'removed': {
-      insertAnnouncementState.attachmentSrc = ''
-      break
-    }
-    case 'uploading ': {
-      loadingUpload.value = true
-      break
-    }
-  }
-}
-
 const { validate: validateInsertAnnouncement } = useForm(insertAnnouncementState, rules)
+
+const prepareInsertData = (): FormData => {
+  const formData = new FormData()
+  formData.set('title', insertAnnouncementState.title)
+  formData.set('content', insertAnnouncementState.content)
+  formData.set('courseId', String(props.courseId))
+  if (fileList.value.length > 0) {
+    console.log(fileList.value[0])
+    formData.set('file', fileList.value[0] as any)
+  }
+  return formData
+}
 
 // 新建公告
 const handleInsertCourseAnnouncement = async() => {
@@ -129,14 +106,23 @@ const handleInsertCourseAnnouncement = async() => {
     message.error('输入数据不满足提交要求')
     return
   }
-  await runInsertCourseAnnouncement(insertAnnouncementState)
+  const formData = prepareInsertData()
+  await runInsertCourseAnnouncement(formData)
   if (errorInsertCourseAnnouncement.value) {
     return
   }
   emits('finish', true)
 }
 
-const beforeUpload = (file: IFileItem) => {
+const beforeUpload: UploadProps['beforeUpload'] = file => {
+  fileList.value = [file]
+  return false
+}
+const handleRemove: UploadProps['onRemove'] = file => {
+  const index = fileList.value.indexOf(file)
+  const newFileList = fileList.value.slice()
+  newFileList.splice(index, 1)
+  fileList.value = newFileList
 }
 
 </script>

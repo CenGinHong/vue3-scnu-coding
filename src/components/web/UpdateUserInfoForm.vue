@@ -18,14 +18,14 @@
       <template v-if="dataGetUserInfo?.email!==updateUserInfoState.email">
         <a-form-item label="验证码" name="verCode">
           <a-input-search
-              v-model:value="updateUserInfoState.verCode"
-              @search="handleSendMail"
-          >
-            <template #enterButton>
-              <a-button :disabled="disabledSendMail" type="primary">
-                {{ sendMailBtuText }}
-              </a-button>
-            </template>
+              v-model:value="updateUserInfoState.verCode">
+<!--              @search="handleSendMail"-->
+<!--          >-->
+<!--            <template #enterButton>-->
+<!--              <a-button :disabled="disabledSendMail" type="primary">-->
+<!--                {{ sendMailBtuText }}-->
+<!--              </a-button>-->
+<!--            </template>-->
           </a-input-search>
         </a-form-item>
       </template>

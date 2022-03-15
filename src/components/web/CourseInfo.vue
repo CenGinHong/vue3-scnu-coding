@@ -17,7 +17,7 @@
           </h1>
         </div>
         <p>
-          授课教师： <a>{{ dataCourseDetail?.teacherDetail.username }}</a>
+          授课教师： <a>{{ dataCourseDetail?.teacherDetail?.username }}</a>
         </p>
         <p>
           {{ dataCourseDetail?.courseDes }}

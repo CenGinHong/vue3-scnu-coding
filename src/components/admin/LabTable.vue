@@ -4,7 +4,6 @@
       :data-source="dataAllLab?.records"
       :loading="loadingAllLab"
       :pagination="pag"
-      :row-key="record => record.labId"
       @change="handleTableChange"
   >
     <template #bodyCell="{ column, record }">
@@ -20,7 +19,7 @@
       <template
           v-if="column.dataIndex === 'attachmentSrc'"
       >
-        <a v-if="record.attachmentSrc!==''">
+        <a v-if="record.attachmentSrc!==''" @click="handleOpenFile(record.attachmentSrc)">
           <file-outlined/>
         </a>
         <template v-else>
@@ -192,7 +191,7 @@ const showModalSubmitTable = (labId: number) => {
 const visibleModalLabComment = ref<boolean>(false)
 
 const showModalLabComment = (labId: number) => {
-  selectedLabId.value = labId;
+  selectedLabId.value = labId
   visibleModalLabComment.value = true
 }
 
@@ -205,6 +204,10 @@ const handleRouteToSubmitDetail = (labId: number) => {
       labId: labId
     }
   })
+}
+
+const handleOpenFile = (path: string) => {
+  window.open(path)
 }
 
 </script>

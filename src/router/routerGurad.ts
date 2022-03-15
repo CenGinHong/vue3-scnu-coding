@@ -1,6 +1,6 @@
 import { RouteLocationRaw, Router } from 'vue-router'
 import { ACCESS_TOKEN } from '../store/mutation-types'
-import NProgress from 'nprogress' // progress bar
+// import NProgress from 'nprogress' // progress bar
 import { ROUTER_NAME } from './index'
 import store from '../store'
 import { RoleEnum } from '../enums/roleEnum'
@@ -22,10 +22,10 @@ export function redirectToHomePage(): RouteLocationRaw {
   return to
 }
 
-NProgress.configure({ showSpinner: false }) // NProgress Configuration
+// NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
 export function createRouteGuards(router: Router) {
-  NProgress.start() // start progress bar
+  // NProgress.start() // start progress bar
   // router.beforeEach((to, from, next) => {
   //   // 若未定义该路由,跳转到错误页
   //   const isExist = router.getRoutes().some(route => route.path === to.path)
@@ -59,5 +59,5 @@ export function createRouteGuards(router: Router) {
   //     next()
   //   }
   // })
-  NProgress.done()
+  // NProgress.done()
 }

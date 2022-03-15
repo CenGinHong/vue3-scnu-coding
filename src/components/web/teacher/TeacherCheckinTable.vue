@@ -11,6 +11,9 @@
         <reload-outlined/>
         刷新
       </a-button>
+      <a-button :loading="loadingExportToExcel" @click="handleExportCheckinToExcel">
+        导出签到表
+      </a-button>
     </a-space>
   <a-table
       :columns="columnCheckinRecord"
@@ -19,7 +22,6 @@
       :loading="loadingListCheckinRecord"
       :pag="pagListCheckinRecord"
       :pagination="pagListCheckinRecord"
-      :row-key="(record) => record.checkinRecordId"
 
       @expandedRowsChange="expandedRowKeysChange"
   >
@@ -51,7 +53,6 @@
           :expanded-row-keys="expendedRowKeys"
           :loading="loadingListCheckinDetail"
           :pagination="pagListCheckinDetail"
-          :row-key="(record) => record.checkinDetailId"
           size="small"
       >
         <template #bodyCell="{ column, record }">
@@ -109,6 +110,7 @@ import {
 import { Modal } from 'ant-design-vue'
 import InsertCheckinForm from './InsertCheckinForm.vue'
 import { ColumnType } from 'ant-design-vue/es/table'
+import {dataToFile} from "../../../util/utils";
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -238,27 +240,16 @@ const pagListCheckinDetail = computed(() => ({
 }))
 
 const {
-  run: runExportCsv,
-  data: dataExportCsv,
-  loading: loadingExportCsv,
-  error: errExportCsv
-} = useRequest(apiExportCsv)
-
-const handleExportCheckinCsv = async() => {
-  await runExportCsv({ courseId: props.courseId })
-  if (errExportCsv.value) {
-    return
+  run: runExportToExcel,
+  loading: loadingExportToExcel,
+} = useRequest(apiExportCsv, {
+  onSuccess: res => {
+    dataToFile(res)
   }
-  // 构建dom来下载
-  const filename = '签到表.csv'
-  const url = window.URL.createObjectURL(new Blob([dataExportCsv.value!.data]))
-  const link = document.createElement('a')
-  link.style.display = 'none'
-  link.href = url
-  link.setAttribute('download', filename)
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+})
+
+const handleExportCheckinToExcel = () => {
+  runExportToExcel({ courseId: props.courseId })
 }
 
 // 修改签到记录

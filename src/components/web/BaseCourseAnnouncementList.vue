@@ -4,7 +4,6 @@
       :data-source="dataCourse"
       :loading="loading"
       :pagination="pag"
-      :row-key="(record) => record.courseAnnouncementId"
       item-layout="vertical"
       size="large"
     >
@@ -36,13 +35,14 @@ import { courseAnnouncementDetailResp } from '../../api/web/model/courseAnnounce
 import { LinkedinOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
+import { TablePaginationConfig } from 'ant-design-vue/es/table/Table'
 
 // eslint-disable-next-line no-undef
 const props = withDefaults(
   // eslint-disable-next-line no-undef
   defineProps<{
     dataCourse?: courseAnnouncementDetailResp[]
-    pag: IPagination
+    pag: TablePaginationConfig
     loading: boolean
   }>(),
   {

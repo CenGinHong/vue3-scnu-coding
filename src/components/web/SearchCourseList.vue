@@ -93,12 +93,12 @@ const joinCourse = async(courseId: number) => {
   await refreshSearchCourse()
 }
 
-const handleRouterToCourse = (courseId: number) => {
-  router.push({
-    name: ROUTER_NAME.STUDENT_COURSE_DETAIL,
-    params: courseId
-  })
-}
+// const handleRouterToCourse = (courseId: number) => {
+//   router.push({
+//     name: ROUTER_NAME.STUDENT_COURSE_DETAIL,
+//     params: courseId
+//   })
+// }
 </script>
 
 <style lang="scss" scoped>

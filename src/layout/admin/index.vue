@@ -12,7 +12,7 @@
       <h1>Scnu Coding</h1>
     </template>
     <template #rightContentRender>
-      <div style="margin-right: 12px">
+      <div style="margin-right: 12px;height: 100%">
         <a-dropdown>
           <template #overlay>
             <a-menu>
@@ -40,13 +40,9 @@
     </template>
     <router-view/>
     <template #footerRender>
-      <GlobalFooter
-          :links="[
-          { title: 'Github', href: 'https://github.com/sendya/preview-pro' },
-          { title: 'Ant Design Vue', href: 'https://2x.antdv.com' },
-        ]"
-          copyright="2021 &copy; Sendya"
-      />
+        <GlobalFooter
+            copyright="2021 &copy; Sendya"
+        />
     </template>
   </pro-layout>
 </template>
@@ -91,3 +87,9 @@ watchEffect(() => {
   }
 })
 </script>
+
+<style lang="scss" scoped>
+.footer {
+  background-color: white;
+}
+</style>

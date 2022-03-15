@@ -70,16 +70,16 @@ const {
   }
 })
 // 打开ide
-const handleOpenIDE = async() => {
-  // 向后台申请打开ide容器
-  await apiOpenIde({ languageEnum: selectLanguageValue.value })
-  if (errorOpenIde.value) {
-    message.error(errorOpenIde.value)
-    return
-  }
-  // 新打开页面
-  window.open(dataIdeUrl.value)
-}
+// const handleOpenIDE = async() => {
+//   // 向后台申请打开ide容器
+//   await apiOpenIde({ languageEnum: selectLanguageValue.value })
+//   if (errorOpenIde.value) {
+//     message.error(errorOpenIde.value)
+//     return
+//   }
+//   // 新打开页面
+//   window.open(dataIdeUrl.value)
+// }
 
 // 语言多选框
 const languageRadioOption: radioOption[] = [

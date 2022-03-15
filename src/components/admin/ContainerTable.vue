@@ -4,7 +4,6 @@
       :data-source="dataIDE?.records"
       :loading="loadingIDE"
       :pagination="pag"
-      :row-key="record => record.containerId"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'state'">

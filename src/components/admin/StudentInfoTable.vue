@@ -1,26 +1,57 @@
 <template>
   <a-space class="btnSpace">
-    <a-dropdown-button>
-      <a-upload
-          :showUploadList="false"
-          :custom-request="handleImportStudent">
+    <a-button @click="handleGetImportDemo">
+      <download-outlined/>
+      下载导入模板
+    </a-button>
+    <a-dropdown>
+      <a-button>
         <user-add-outlined/>
-        通过Excel导入学生
-      </a-upload>
+        通过Excel导入用户
+        <down-outlined/>
+      </a-button>
       <template #overlay>
         <a-menu>
-          <a-menu-item key="1" @click="handleGetImportDemo">
-            <download-outlined/>
-            下载导入模板
+          <a-menu-item key="1">
+            <a-upload
+                :showUploadList="false"
+                accept=".xlsx"
+                :custom-request="handleImportStudent">
+              导入学生
+            </a-upload>
+          </a-menu-item>
+          <a-menu-item key="2">
+            <a-upload
+                :showUploadList="false"
+                accept=".xlsx"
+                :custom-request="handleImportTeacher">
+              导入教师
+            </a-upload>
+          </a-menu-item>
+          <a-menu-item key="3">
+            <a-upload
+                :showUploadList="false"
+                accept=".xlsx"
+                :custom-request="handleImportAdmin">
+              导入管理员
+            </a-upload>
           </a-menu-item>
         </a-menu>
       </template>
-    </a-dropdown-button>
+    </a-dropdown>
+    <a-button @click="handleRefresh">
+      <reload-outlined/>
+      刷新
+    </a-button>
+    <!--    <a-button danger>-->
+    <!--      <user-delete-outlined/>-->
+    <!--      删除用户-->
+    <!--    </a-button>-->
   </a-space>
   <a-table
       :columns="columns"
-      :data-source="dataAllStudent?.records"
-      :loading="loadingAllStudent"
+      :data-source="dataAllUser?.records"
+      :loading="loadingAllUser"
       :pagination="pag"
       @change="handleTableChange"
   >
@@ -52,6 +83,11 @@
               <edit-outlined/>
             </a>
           </a-tooltip>
+          <!--          <a-tooltip title="删除" @click="handleShowUserForm(record.userId)">-->
+          <!--            <a class="delBtn">-->
+          <!--              <delete-outlined/>-->
+          <!--            </a>-->
+          <!--          </a-tooltip>-->
         </a-space>
       </template>
     </template>
@@ -70,9 +106,20 @@ import dayjs from 'dayjs'
 import { usePagination, useRequest } from 'vue-request'
 import { apiGetImportDemo, apiImportStudent, apiListUser } from '../../api/admin/user'
 import { RoleEnum } from '../../enums/roleEnum'
-import { DownloadOutlined, UserAddOutlined, DeleteOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons-vue'
-import { FilterValue } from 'ant-design-vue/es/table/interface'
+import {
+  DownloadOutlined,
+  UserAddOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  UserDeleteOutlined,
+  ReloadOutlined,
+  EditOutlined,
+  DownOutlined
+} from '@ant-design/icons-vue'
+import { FilterValue, Key } from 'ant-design-vue/es/table/interface'
 import UserInfoForm from './UserInfoForm.vue'
+import { dataToFile } from '../../util/utils'
+import { message } from 'ant-design-vue'
 
 const columns = computed<ColumnType[]>(() => [
   {
@@ -116,13 +163,13 @@ const columns = computed<ColumnType[]>(() => [
     title: '专业',
     dataIndex: 'major',
     width: '10%',
-    filters: dataAllStudent.value?.filter.major
+    filters: dataAllUser.value?.filter.major
   },
   {
     title: '单位',
     dataIndex: 'organization',
     width: '10%',
-    filters: dataAllStudent.value?.filter.organization
+    filters: dataAllUser.value?.filter.organization
   },
   {
     title: '注册时间',
@@ -136,11 +183,18 @@ const columns = computed<ColumnType[]>(() => [
   }
 ])
 
+const selectedRowKeys = ref<Key[]>([])
+
+const onSelectChange = (keys: Key[]) => {
+  selectedRowKeys.value = keys
+}
+
 const {
-  data: dataAllStudent,
-  loading: loadingAllStudent,
-  refresh: refreshListAllStudent,
-  run: runListAllStudent,
+  data: dataAllUser,
+  loading: loadingAllUser,
+  refresh: refreshListAllUser,
+  run: runListAllUser,
+  error: errListAllUser,
   pageSize,
   current,
   total
@@ -161,59 +215,10 @@ const pag = computed<TablePaginationConfig>(() => ({
 }))
 
 const { run: runGetImportDemo } = useRequest(apiGetImportDemo, {
-  formatResult: res => {
-    return res.data
-  },
   onSuccess: res => {
-    // const blob = new Blob([res], { type: 'application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }) // type这里表示xlsx类型
-    // const downloadElement = document.createElement('a')
-    // // 创建下载的链接
-    // downloadElement.href = window.URL.createObjectURL(blob)
-    // downloadElement.download = 'demo.xlsx' // 下载后文件名
-    // document.body.appendChild(downloadElement)
-    // downloadElement.click() // 点击下载
-    // document.body.removeChild(downloadElement) // 下载完成移除元素
-    // const fileName = 'demo.xlsx' // 导出文件名
-    // if ('download' in document.createElement('a')) {
-    //   // 支持a标签download的浏览器
-    //   const link = document.createElement('a') // 创建a标签
-    //   link.download = fileName // a标签添加属性
-    //   link.style.display = 'none'
-    //   link.href = URL.createObjectURL(blob)
-    //   document.body.appendChild(link)
-    //   link.click() // 执行下载
-    //   URL.revokeObjectURL(link.href) // 释放url
-    //   document.body.removeChild(link) // 释放标签
-    // } else {
-    //   // 其他浏览器
-    //   navigator.msSaveBlob(blob, fileName)
-    // }
-    console.log(res)
-    const blob = new Blob([res])// new Blob([res])中不加data就会返回下图中[objece objece]内容（少取一层）
-    const fileName = '模板.xlsx'// 下载文件名称
-    const elink = document.createElement('a')
-    elink.download = fileName
-    elink.style.display = 'none'
-    elink.href = URL.createObjectURL(blob)
-    document.body.appendChild(elink)
-    elink.click()
-    URL.revokeObjectURL(elink.href) // 释放URL 对象
+    dataToFile(res)
   }
 })
-
-const saveFile = (data:any, name:string) => {
-  try {
-    const blobUrl = window.URL.createObjectURL(data)
-    const a = document.createElement('a')
-    a.style.display = 'none'
-    a.download = name
-    a.href = blobUrl
-    a.click()
-  } catch (e) {
-    console.log(e)
-    alert('保存文件出错')
-  }
-}
 
 const handleGetImportDemo = () => {
   runGetImportDemo()
@@ -228,6 +233,20 @@ const handleImportStudent = (data: any) => {
   runImportStudent(form)
 }
 
+const handleImportTeacher = (data: any) => {
+  const form = new FormData()
+  form.set('file', data.file)
+  form.set('roleId', String(RoleEnum.TEACHER))
+  runImportStudent(form)
+}
+
+const handleImportAdmin = (data: any) => {
+  const form = new FormData()
+  form.set('file', data.file)
+  form.set('roleId', String(RoleEnum.ADMIN))
+  runImportStudent(form)
+}
+
 const handleTableChange: TableProps['onChange'] = (
   pag: TablePaginationConfig,
   filters: Record<string, FilterValue | null>,
@@ -238,7 +257,7 @@ const handleTableChange: TableProps['onChange'] = (
       delete filters[key]
     }
   }
-  runListAllStudent({
+  runListAllUser({
     role: RoleEnum.STUDENT,
     current: pag.current,
     sortField: sorter.field,
@@ -257,8 +276,16 @@ const handleShowUserForm = (userId: number) => {
 const handleFinishUserForm = (refresh: boolean) => {
   visibleModalUserInfo.value = false
   if (refresh) {
-    refreshListAllStudent()
+    refreshListAllUser()
   }
+}
+
+const handleRefresh = async() => {
+  await refreshListAllUser()
+  if (errListAllUser.value) {
+    return
+  }
+  message.success('刷新成功')
 }
 
 </script>
@@ -268,5 +295,9 @@ const handleFinishUserForm = (refresh: boolean) => {
 .btnSpace {
   margin-bottom: 16px;
   display: flex;
+}
+
+.delBtn {
+  color: #ff4d4f;
 }
 </style>

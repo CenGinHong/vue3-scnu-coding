@@ -20,7 +20,6 @@
       :data-source="dataListCourseOverview?.records"
       :loading="loadingListCourseOverview"
       :pagination="pag"
-      :row-key="(record) => record.userId"
       :row-selection="{
       selectedRowKeys: selectedRowKeys,
       onChange: onSelectChange,
@@ -42,7 +41,6 @@
                 :data-source="dataListOneStudentScore?.records"
                 :loading="loadingListOneStudentScore"
                 :pagination="pagListOneStudentScore"
-                :row-key="(record) => record.labSubmitDetail.labSubmitId"
                 size="small"
             >
               <template #bodyCell="{ column,record }">
@@ -104,7 +102,6 @@
     <a-table
         :columns="confirmStudentColumns"
         :data-source="dataInsertStudent2Class?.successRecords"
-        :row-key="(record) => record.userId"
     >
       <template v-if="dataInsertStudent2Class?.errorStudentNums.length !== 0">
         另外此次导入共{{
@@ -126,7 +123,6 @@
   >
     <a-transfer
         :data-source="transferData"
-        :render="(item) => item.title"
         :selected-keys="transferSelectedKeys"
         :target-keys="transferTargetKeys"
         :titles="['全部实验', '导出成绩']"
@@ -153,13 +149,13 @@ import {
 } from '@ant-design/icons-vue'
 import { message, Modal, TablePaginationConfig } from 'ant-design-vue'
 
-import { scoreTagColor } from '../../../util/utils'
+import {dataToFile, scoreTagColor} from '../../../util/utils'
 import {
   apiListLabByCourseId
 } from '../../../api/web/lab'
 import { apiExportScore } from '../../../api/web/labSubmit'
 import { ColumnType } from 'ant-design-vue/es/table'
-import CodingTimeDiv from '../codingTimeDiv.vue'
+import CodingTimeDiv from '../CodingTimeDiv.vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -479,32 +475,19 @@ const handleTransferSelectChange = (
 // 导出成绩api
 const {
   run: runExportScore,
-  data: dataExportScore,
   loading: loadingExportScore,
   error: errExportScore
-} = useRequest(apiExportScore)
+} = useRequest(apiExportScore, {
+  onSuccess: res => {
+    dataToFile(res)
+  }
+})
 // 导出api
-const handleExportScore = async() => {
-  await runExportScore({
+const handleExportScore = () => {
+  runExportScore({
     courseId: props.courseId,
     labIds: transferTargetKeys.value
   })
-  if (errExportScore.value) {
-    return
-  }
-  // 构建dom来下载
-  const filename = '成绩表.csv'
-  const url = window.URL.createObjectURL(
-    new Blob([dataExportScore.value!.data])
-  )
-  const link = document.createElement('a')
-  link.style.display = 'none'
-  link.href = url
-  link.setAttribute('download', filename)
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  visibleModalExportScore.value = false
 }
 
 const style = useCssModule()

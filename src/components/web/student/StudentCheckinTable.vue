@@ -13,7 +13,6 @@
       :data-source="dataCheckInList?.records"
       :loading="loadingCheckInList"
       :pagination="pag"
-      :row-key="(record) => record.checkinRecordId"
     >
       <template #bodyCell="{ column, record }">
         <template
@@ -42,6 +41,7 @@ import {
 import { useRoute } from 'vue-router'
 import { ColumnType, TablePaginationConfig } from 'ant-design-vue/es/table'
 import StudentCheckinForm from './StudentCheckinForm.vue'
+import {message} from "ant-design-vue";
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -71,6 +71,7 @@ const route = useRoute()
 const {
   data: dataCheckInList,
   loading: loadingCheckInList,
+  error:errGetCheckingByCourseId,
   current,
   pageSize,
   total,
@@ -82,8 +83,12 @@ const {
   }
 })
 
-const handleRefreshStuGetCheckinByCourseId = () => {
-  refreshStuGetCheckinByCourseId()
+const handleRefreshStuGetCheckinByCourseId = async () => {
+  await refreshStuGetCheckinByCourseId()
+  if (errGetCheckingByCourseId.value) {
+    return
+  }
+  message.success('刷新成功')
 }
 
 // 分页数据
@@ -102,7 +107,7 @@ const handleVisibleModal = () => {
   visibleModal.value = true
 }
 
-const handleFinishCheckin = (res) => {
+const handleFinishCheckin = (res:boolean) => {
   visibleModal.value = false
   if (res) {
     refreshStuGetCheckinByCourseId()

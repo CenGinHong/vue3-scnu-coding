@@ -7,7 +7,7 @@
       >
         <a-tab-pane key="1" tab="课程信息">
           <div class="courseInfo">
-            <course-info :course-id="props.courseId" />
+            <course-info :course-id="Number(props.courseId)" />
           </div>
         </a-tab-pane>
         <a-tab-pane key="2" tab="课程实验">

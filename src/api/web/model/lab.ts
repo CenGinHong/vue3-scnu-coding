@@ -13,7 +13,6 @@ export interface updateLabReq {
 export interface insertLabReq {
   title: string
   content: string
-  courseId: number
   deadline: Dayjs | null
 }
 

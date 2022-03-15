@@ -1,7 +1,7 @@
 <template>
   <div :class="style.outer">
     <div :class="style.loginLogo">
-      <img alt src="/src/assets/logo.gif"/>
+      <img src="/src/assets/logo.gif"/>
       <h1>SCNU-CODING</h1>
     </div>
     <a-form
@@ -23,6 +23,7 @@
       </a-form-item>
       <a-form-item name="password">
         <a-input-password
+            autocomplete="on"
             v-model:value="loginState.password"
             placeholder="请输入密码"
             size="large"
@@ -90,7 +91,7 @@ const {
   error: errLogin,
   loading: loadingLogin
 } = useRequest(apiLogin, {
-  formatResult: (res) => {
+  formatResult: (res: any) => {
     return res.data.result
   }
 })

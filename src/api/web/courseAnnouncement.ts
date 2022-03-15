@@ -24,14 +24,14 @@ export function apiDeleteCourseAnnouncement(id: number) {
   return instance.delete<Result>(Api.CourseAnnouncement + '/' + id)
 }
 
-export function apiInsertCourseAnnouncement(data: insertCourseAnnouncementReq) {
+export function apiInsertCourseAnnouncement(data: FormData) {
   return instance.post<insertCourseAnnouncementReq, Result>(
     Api.CourseAnnouncement,
     data
   )
 }
 
-export function apiUpdateCourseAnnouncement(data: updateCourseAnnouncementReq) {
+export function apiUpdateCourseAnnouncement(data: FormData) {
   return instance.put<updateCourseAnnouncementReq, Result>(
     Api.CourseAnnouncement,
     data

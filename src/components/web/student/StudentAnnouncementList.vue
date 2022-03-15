@@ -31,7 +31,7 @@ const {
 } = usePagination(apiListCourseAnnouncement, {
   manual: false,
   formatResult: (res) => {
-    res.data.result.records.forEach((item: courseAnnouncementDetailResp) => {
+    res.data.result?.records.forEach((item: courseAnnouncementDetailResp) => {
       item.fileList = []
       if (item.attachmentSrc !== '') {
         item.fileList.push(fileSrc2File(item.attachmentSrc))

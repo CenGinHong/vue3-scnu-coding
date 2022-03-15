@@ -2,53 +2,53 @@ import { Dayjs } from 'dayjs'
 import { pageParams } from '../../common'
 
 export interface listCourseResp {
-  courseId: number
-  userId: number
-  teacherDetail?: {
-    username: string
-  }
-  courseName: string
-  courseDes: string
-  coverImg: string
-  secretKey: string
-  isClose: boolean
-  languageType: number
-  updatedAt: Dayjs
+    courseId: number
+    userId: number
+    teacherDetail?: {
+        username: string
+    }
+    courseName: string
+    courseDes: string
+    coverImg: string
+    secretKey: string
+    isClose: boolean
+    languageType: number
+    updatedAt: Dayjs
 }
 
 export interface updateCourseReq {
-  courseId: number
-  courseName: string
-  courseDes: string
-  coverImg?: string
-  secretKey: string
-  isClose: boolean
-  languageType: number
+    courseId: number
+    courseName: string
+    courseDes: string
+    coverImg?: string
+    secretKey: string
+    isClose: boolean
+    languageType: number
 }
 
 export interface listCourseEnrollResp {
-  userId: number
-  userDetail : {
-    email: string
-    userNum: string
-    username: string
-    major: string
-    organization: string
-  }
+    userId: number
+    userDetail: {
+        email: string
+        userNum: string
+        username: string
+        major: string
+        organization: string
+    }
 }
 
-export interface listCourseEnrollReq extends pageParams{
-  courseId: number
+export interface listCourseEnrollReq extends pageParams {
+    courseId: number
 }
 
 export interface removeCourseEnroll {
-  courseId: number
-  userId: number
+    courseId: number
+    userIds: (number | string) []
 }
 
 export interface addStudent2Class {
-  courseId: number
-  studentNum: string[]
+    courseId: number
+    studentNums: string[]
 }
 
 //

@@ -16,6 +16,7 @@ import { Result } from '../common'
 
 enum Api {
   login = '/login',
+  logout = '/logout',
   getCodingTime = '/web/user/coding-time',
   userInfo = '/web/user/myself',
   isEmailUsed = '/web/user/is-used/email',
@@ -55,6 +56,10 @@ export function apiTest(data: testData) {
 
 export function apiLogin(data: loginReq) {
   return instance.post<loginReq, Result<loginResp>>(Api.login, data)
+}
+
+export function apiLogout() {
+  return instance.post(Api.logout)
 }
 
 export function apiResetPassword(data: resetPasswordReq) {

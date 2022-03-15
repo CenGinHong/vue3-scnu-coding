@@ -20,10 +20,9 @@
       </a-card>
     </a-col>
     <a-col :span="13" :offset="1">
-      <div class="codingTimeDiv">
-        我的累计编码时间
-        <coding-time-div/>
-      </div>
+        <div class="codingTimeDiv">
+          <coding-time-div/>
+        </div>
       <div class="courseList" >
         <a-tabs v-model:activeKey="tabsActiveKey" size="large">
           <a-tab-pane key="1" tab="我的课程">
@@ -39,7 +38,7 @@
   <a-modal
       :footer="null"
       title="个人信息"
-      width="420px"
+      width="640px"
       v-model:visible="visibleDrawer">
     <update-user-info-form/>
   </a-modal>
@@ -67,21 +66,12 @@ import {
   EditOutlined,
   CodeSandboxOutlined
 } from '@ant-design/icons-vue'
-import ECharts from 'vue-echarts'
-import {
-  apiGetCodingTime,
-  apiGetUserInfo,
-  apiUpdateUserInfo
-} from '../../api/web/user'
 import SearchCourseList from '../../components/web/SearchCourseList.vue'
 import StudentCourseList from '../../components/web/student/StudentCourseList.vue'
 import { useStore } from '../../store'
 import { radioOption } from '../../api/common'
-import { message } from 'ant-design-vue'
-import { RuleObject } from 'ant-design-vue/es/form/interface'
 import { IUserInfo } from '../../store/modules/user/state'
-import { updateUserInfoReq } from '../../api/web/model/userModel'
-import CodingTimeDiv from '../../components/web/codingTimeDiv.vue'
+import CodingTimeDiv from '../../components/web/CodingTimeDiv.vue'
 import UpdateUserInfoForm from '../../components/web/UpdateUserInfoForm.vue'
 
 const store = useStore()
@@ -100,20 +90,10 @@ const {
   error: errorOpenIde,
   data: ideUrl
 } = useRequest(OpenIDE, {
-  formatResult: (res) => {
+  formatResult: (res:any) => {
     return res.data.result!.url
   }
 })
-const openIDE = async() => {
-  // 向后台申请打开ide容器
-  await apiOpenIde({ languageEnum: selectLanguageValue.value })
-  if (errorOpenIde.value) {
-    message.error(errorOpenIde.value)
-    return
-  }
-  // 新打开页面
-  window.open(ideUrl.value)
-}
 
 // 语言多选框
 const languageRadioOption: radioOption[] = [
@@ -137,7 +117,6 @@ const handleShowDrawer = () => {
   visibleDrawer.value = true
 }
 
-const style = useCssModule()
 </script>
 
 <style lang="scss" scoped>
@@ -150,6 +129,9 @@ const style = useCssModule()
     border-radius: 8px;
     padding-bottom: 20px;
     transition: box-shadow 0.3s;
+    display: flex;
+    justify-content: center;
+    align-content: center;
   }
 
   .courseList {

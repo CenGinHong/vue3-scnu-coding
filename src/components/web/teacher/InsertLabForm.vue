@@ -27,9 +27,10 @@
       <a-upload
           :file-list="fileList"
           :before-upload="beforeUpload"
-          :remove="handleRemove"
+          @remove="handleRemove"
+          :max-count="1"
       >
-        <a-button :disabled="fileList.length !== 0 || loadingInsertLab">
+        <a-button>
           <upload-outlined/>
           点击上传
         </a-button>
@@ -47,16 +48,16 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref} from 'vue'
-import {insertLabReq} from '../../../api/web/model/lab'
-import {useRequest} from 'vue-request'
-import {apiInsertLab} from '../../../api/web/lab'
-import {message} from 'ant-design-vue'
-import {UploadOutlined, FormOutlined} from '@ant-design/icons-vue'
-import {useForm} from 'ant-design-vue/es/form'
-import {RuleObject} from 'ant-design-vue/es/form/interface'
-import type {UploadProps} from 'ant-design-vue'
-import {UploadFile} from 'ant-design-vue/es/upload/interface'
+import { reactive, ref } from 'vue'
+import { insertLabReq } from '../../../api/web/model/lab'
+import { useRequest } from 'vue-request'
+import { apiInsertLab } from '../../../api/web/lab'
+import { message } from 'ant-design-vue'
+import { UploadOutlined, FormOutlined } from '@ant-design/icons-vue'
+import { useForm } from 'ant-design-vue/es/form'
+import { RuleObject } from 'ant-design-vue/es/form/interface'
+import type { UploadProps } from 'ant-design-vue'
+import { UploadFile } from 'ant-design-vue/es/upload/interface'
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   courseId: number
@@ -70,19 +71,18 @@ const emits = defineEmits<{
 const insertLabState = reactive<insertLabReq>({
   title: '',
   content: '',
-  deadline: null,
-  courseId: props.courseId
+  deadline: null
 })
 
 const rules = reactive<Record<string, RuleObject[]>>({
   title: [
-    {required: true, message: '请输入标题'},
-    {max: 16, message: '标题最长16字'}
+    { required: true, message: '请输入标题' },
+    { max: 16, message: '标题最长16字' }
   ],
-  content: [{required: true, message: '请输入内容'}]
+  content: [{ required: true, message: '请输入内容' }]
 })
 
-const {validate: validateInsertLab} = useForm(insertLabState, rules)
+const { validate: validateInsertLab } = useForm(insertLabState, rules)
 
 const {
   run: runInsertLab,
@@ -94,34 +94,35 @@ const {
 // 文件上传部分
 const fileList = ref<UploadFile[]>([])
 
-const handleRemove: UploadProps['onRemove'] = file => {
-  const index = fileList.value!.indexOf(file)
-  const newFileList = fileList.value!.slice()
-  newFileList.splice(index, 1)
-  fileList.value = newFileList
-}
-
 const beforeUpload: UploadProps['beforeUpload'] = file => {
   fileList.value = [file]
   return false
 }
 
+const handleRemove: UploadProps['onRemove'] = file => {
+  const index = fileList.value.indexOf(file)
+  const newFileList = fileList.value.slice()
+  newFileList.splice(index, 1)
+  fileList.value = newFileList
+}
+
+
 const prepareUpdateData = (): FormData => {
   const formData = new FormData()
   formData.set('title', insertLabState.title)
-  formData.set('content', insertLabState.title)
-  formData.set('courseId', String(insertLabState.courseId))
+  formData.set('content', insertLabState.content)
+  formData.set('courseId', String(props.courseId))
   if (insertLabState.deadline !== null) {
     formData.set('deadline', insertLabState.deadline.toJSON())
   }
-  if (fileList.value!.length > 0) {
-    formData.set('file', fileList.value![0] as any)
+  if (fileList.value.length > 0) {
+    formData.set('file', fileList.value[0] as any)
   }
   return formData
 }
 
 // 插入
-const handleInsertLab = async () => {
+const handleInsertLab = async() => {
   try {
     await validateInsertLab()
   } catch (err) {

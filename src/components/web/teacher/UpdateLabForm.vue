@@ -22,11 +22,11 @@
       </a-form-item>
       <a-form-item label="上传附件">
         <a-upload
-            :file-list="fileList"
+            v-model:file-list="fileList"
             :before-upload="beforeUpload"
-            :remove="handleRemove"
+            :max-count="1"
         >
-          <a-button :disabled="fileList.length !== 0">
+          <a-button>
             <upload-outlined/>
             点击上传
           </a-button>
@@ -110,13 +110,6 @@ const { run: runGetLabDetail, loading: loadingLabDetail } = useRequest(apiGetLab
 
 const fileList = ref<UploadFile[]>([])
 
-const handleRemove: UploadProps['onRemove'] = file => {
-  const index = fileList.value!.indexOf(file)
-  const newFileList = fileList.value!.slice()
-  newFileList.splice(index, 1)
-  fileList.value = newFileList
-}
-
 watch(() => fileList.value.length, (oldV, newV) => {
   if (oldV > 0 && newV === 0) {
     updateLabState.isRemoveFile = true
@@ -124,8 +117,6 @@ watch(() => fileList.value.length, (oldV, newV) => {
 })
 
 const beforeUpload: UploadProps['beforeUpload'] = file => {
-  fileList.value = [file]
-  console.log(fileList.value[0])
   return false
 }
 

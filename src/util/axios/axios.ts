@@ -1,9 +1,10 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 import { message as Message } from 'ant-design-vue/lib/components'
 import qs from 'qs'
 import { ResultEnum } from '../../enums/httpEnum'
 import store from '../../store'
 
+// export const baseURL = 'http://10.50.3.213:8199'
 export const baseURL = 'http://localhost:8199'
 
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -18,7 +19,7 @@ const instance = axios.create({
 })
 
 instance.interceptors.request.use(
-  (config) => {
+  (config:any) => {
     const token: string = store.getters['user/token']
     if (token && token !== '') {
       config.headers.Authorization = 'Bearer ' + token
@@ -31,7 +32,7 @@ instance.interceptors.request.use(
 )
 
 instance.interceptors.response.use(
-  (response) => {
+  (response:any) => {
     const method = response.config.method
     const { data } = response
     if (response.headers['content-type'] === 'application/json') {

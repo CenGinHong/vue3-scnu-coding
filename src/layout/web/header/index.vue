@@ -1,8 +1,8 @@
 <template>
-  <a-layout-header :class="style.layoutHeader">
-    <a-row :class="style.row1">
+  <a-layout-header class="layoutHeader">
+    <a-row class="row1">
       <a-col span="1" :offset="1">
-        <img alt src="/src/assets/scnu.jpg" style="height: 36px" />
+        <img src="/src/assets/scnu.jpg" style="height: 36px" />
       </a-col>
       <a-col span="1" :offset="20">
         <github-outlined @click="handleOpenGithub" />
@@ -15,7 +15,7 @@
               <a-menu-item>
                 <a @click="handleRouterToHomePage">
                   <user-outlined />
-                  个人中心
+                  个人主页
                 </a>
               </a-menu-item>
               <a-menu-divider />
@@ -33,8 +33,8 @@
   </a-layout-header>
 </template>
 
-<script lang="ts">
-import { computed, createVNode, defineComponent, useCssModule } from 'vue'
+<script lang="ts" setup>
+import { computed, createVNode } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   GithubOutlined,
@@ -50,106 +50,71 @@ import { RoleEnum } from '../../../enums/roleEnum'
 import { ROUTER_NAME } from '../../../router'
 import { IUserInfo } from '../../../store/modules/user/state'
 import { apiUpdateLab } from '../../../api/web/lab'
+import { apiLogout } from '../../../api/web/user'
 
 interface IState {
   username: string
 }
 
-export default defineComponent({
-  name: 'PageHeader',
-  components: {
-    PoweroffOutlined,
-    UserOutlined,
-    GithubOutlined
-  },
-  props: {
-    collapsed: {
-      type: Boolean
-    }
-  },
-  setup() {
-    const router = useRouter()
-    const route = useRoute()
-    const store = useStore()
-    const userInfo = computed<IUserInfo>(() => store.getters['user/userInfo'])
+const router = useRouter()
+const route = useRoute()
+const store = useStore()
+const userInfo = computed<IUserInfo>(() => store.getters['user/userInfo'])
 
-    const handleRouterToHomePage = () => {
-      const role = store.getters['user/role']
-      if (role === RoleEnum.TEACHER) {
-        router.push({
-          name: ROUTER_NAME.TEACHER_HOME_PAGE
-        })
-      } else if (role === RoleEnum.STUDENT) {
-        router.push({
-          name: ROUTER_NAME.STUDENT_HOME_PAGE
+const handleRouterToHomePage = () => {
+  const role = store.getters['user/role']
+  if (role === RoleEnum.TEACHER) {
+    router.push({
+      name: ROUTER_NAME.TEACHER_HOME_PAGE
+    })
+  } else if (role === RoleEnum.STUDENT) {
+    router.push({
+      name: ROUTER_NAME.STUDENT_HOME_PAGE
+    })
+  }
+}
+
+const { run: runLogout, error: errLogout } = useRequest(apiLogout)
+// 退出登录
+const doLogout = () => {
+  Modal.confirm({
+    title: '您确定要退出登录吗？',
+    icon: createVNode(QuestionCircleOutlined),
+    onOk: async() => {
+      await runLogout()
+      if (!errLogout.value) {
+        message.success('成功退出登录')
+        localStorage.removeItem(TOKEN_KEY)
+        // 重定向
+        await router.replace({
+          name: 'login',
+          query: {
+            redirect: route.fullPath
+          }
         })
       }
     }
+  })
+}
 
-    const { run: runLogout, error: errLogout } = useRequest(apiUpdateLab)
-    // 退出登录
-    const doLogout = () => {
-      Modal.confirm({
-        title: '您确定要退出登录吗？',
-        icon: createVNode(QuestionCircleOutlined),
-        onOk: async() => {
-          console.log(router, '退出登录')
-          await runLogout()
-          if (!errLogout.value) {
-            message.success('成功退出登录')
-            localStorage.removeItem(TOKEN_KEY)
-            // 重定向
-            await router.replace({
-              name: 'login',
-              query: {
-                redirect: route.fullPath
-              }
-            })
-          }
-        }
-      })
-    }
-
-    const handleOpenGithub = () => {
-      window.open('https://github.com')
-    }
-
-    const style = useCssModule()
-    return {
-      style,
-      handleOpenGithub,
-      userInfo,
-      handleRouterToHomePage,
-      doLogout
-    }
-  }
-})
+const handleOpenGithub = () => {
+  window.open('https://github.com')
+}
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .layoutHeader {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  z-index: 19;
   display: flex;
   height: 48px;
+  line-height: 48px;
   padding: 0;
   background-color: #fff;
-  justify-content: flex-end;
-  align-items: center;
+  box-shadow: 0 1px 4px #00152914;
 
   .row1 {
     width: 100%;
   }
 }
 
-//.rightOptions {
-//  display: flex;
-//  align-items: center;
-//
-//  > * {
-//    margin-right: 20px;
-//    cursor: pointer;
-//  }
-//}
 </style>

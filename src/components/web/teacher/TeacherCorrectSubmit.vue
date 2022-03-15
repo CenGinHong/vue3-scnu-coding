@@ -52,9 +52,14 @@
               />
             </a-form-item>
             <a-form-item :wrapper-col="{ offset: 4 }">
-              <a-button type="primary" @click="handleUpdateCommentAndScore" :loading="loadingCorrect">
-                确定
-              </a-button>
+              <a-space>
+                <a-button type="primary" @click="handleUpdateCommentAndScore" :loading="loadingCorrect">
+                  确定
+                </a-button>
+                <a-button @click="handleCloseModalCorrect">
+                  取消
+                </a-button>
+              </a-space>
             </a-form-item>
           </a-form>
         </template>
@@ -66,16 +71,8 @@
     </a-radio-group>
     <a-tabs v-model:activeKey="markContentActiveKey" type="card">
       <a-tab-pane key="0" tab="实验源码">
-        <a-skeleton active :loading="loadingGetLabCode">
-          <a-empty v-if="labCode?.length === 0" :image="Empty.PRESENTED_IMAGE_SIMPLE"/>
-          <template v-else>
-            <a-button class="actionButton" type="primary"
-            >IDE打开
-            </a-button
-            >
-            <program-read-board :code="labCode"/>
-          </template>
-        </a-skeleton>
+        <program-read-board :user-id="selectedStudent === '' ? 0 : options[Number(selectedStudent)].userId"
+                            :lab-id="props.labId"/>
       </a-tab-pane>
       <a-tab-pane key="1" tab="实验报告">
         <a-skeleton active :loading="loadingGetReportContent">
@@ -266,31 +263,13 @@ const { run: runGetReportContent, loading: loadingGetReportContent } =
 // 报告内容
 const reportContent = ref<string>('')
 
-const { run: runGetLabCode, loading: loadingGetLabCode } = useRequest(
-  apiGetLabCode,
-  {
-    formatResult: (res) => {
-      return res.data.result
-    },
-    onSuccess: (res) => {
-      labCode.value = res!.code
-    }
-  }
-)
-// 实验代码
-const labCode = ref<code[]>([])
-// 选择的学生改变时，更新实验报告
 watch(
   () => selectedStudent.value,
   (newValue) => {
+    console.log(selectedStudent.value)
     if (newValue === '') {
       reportContent.value = ''
-      labCode.value = []
     } else {
-      runGetLabCode({
-        labId: props.labId,
-        userId: options.value[Number(selectedStudent.value)].userId
-      })
       runGetReportContent({
         labId: props.labId,
         userId: options.value[Number(selectedStudent.value)].userId
@@ -318,6 +297,10 @@ const handleShowModalCorrect = () => {
     correctState.score = options.value[Number(selectedStudent.value)].score ?? 0
     visibleCorrect.value = true
   }
+}
+
+const handleCloseModalCorrect = () => {
+  visibleCorrect.value = false
 }
 
 const {

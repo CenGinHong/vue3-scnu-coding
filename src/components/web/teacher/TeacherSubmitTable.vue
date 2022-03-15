@@ -10,7 +10,6 @@
       :data-source="dataListLabSubmit?.records"
       :loading="loadingListLabSubmit"
       :pagination="pag"
-      :row-key="(record) => record.userId"
       @change="handleTableChange"
   >
     <template #bodyCell="{ column, record }">
@@ -59,7 +58,7 @@ import dayjs from 'dayjs'
 import { apiListLabSubmit } from '../../../api/web/labSubmit'
 import { scoreTagColor } from '../../../util/utils'
 import { ColumnType } from 'ant-design-vue/es/table'
-import { TablePaginationConfig } from 'ant-design-vue'
+import {message, TablePaginationConfig} from 'ant-design-vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 
 // eslint-disable-next-line no-undef
@@ -102,6 +101,7 @@ const {
   data: dataListLabSubmit,
   loading: loadingListLabSubmit,
   refresh: refreshListLabSubmit,
+    error: errListLabSubmit,
   pageSize,
   current,
   total
@@ -117,8 +117,12 @@ const {
   ]
 })
 
-const handleRefreshListLabSubmit = () => {
-  refreshListLabSubmit()
+const handleRefreshListLabSubmit = async() => {
+  await refreshListLabSubmit()
+  if (errListLabSubmit.value) {
+    return
+  }
+  message.success('刷新成功')
 }
 
 // 分页数据

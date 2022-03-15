@@ -35,7 +35,7 @@
   </base-lab-list>
   <a-modal
       v-model:visible="visibleModalUpdate"
-      title="新建修改"
+      title="修改实验"
       width="800px"
       :footer="null"
       :destroy-on-close="true"
@@ -50,6 +50,7 @@
       title="新建实验"
       width="800px"
       :footer="null"
+      :destroy-on-close="true"
   >
     <insert-lab-modal
         :course-id="courseId"
@@ -110,6 +111,7 @@ const {
   },
   defaultParams: [
     {
+      pageSize: 3 ,
       courseId: props.courseId
     }
   ]

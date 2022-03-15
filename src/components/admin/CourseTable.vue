@@ -45,7 +45,7 @@
       :footer="null"
       v-model:visible="visibleModalUpdateCourse"
   >
-    <update-course-form :course-id="selectedCourseId"/>
+    <update-course-form :course-id="selectedCourseId" @finish="handleRefreshList" />
   </a-modal>
   <!--  <a-modal-->
   <!--    v-model:visible="visibleEnrollTable"-->
@@ -205,10 +205,6 @@ const handleShowUpdateCourseModal = (courseId: number) => {
 
 const visibleModalUpdateCourse = ref<boolean>(false)
 
-const handleVisibleDrawer = (courseId: number) => {
-  selectedCourseId.value = courseId
-  visibleModalUpdateCourse.value = true
-}
 
 const visibleModalCourseEnroll = ref<boolean>(false)
 const selectedCourseId = ref<number>(0)
@@ -223,6 +219,13 @@ const visibleDrawerComment = ref<boolean>(false)
 const handleShowDrawerComment = (courseId: number) => {
   selectedCourseId.value = courseId
   visibleDrawerComment.value = true
+}
+
+const handleRefreshList = (refresh:boolean, deleted:boolean) => {
+  if (refresh || deleted) {
+    visibleModalUpdateCourse.value = false
+    refreshAllCourse()
+  }
 }
 
 </script>

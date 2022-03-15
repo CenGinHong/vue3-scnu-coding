@@ -1,5 +1,6 @@
 import { UploadFile } from 'ant-design-vue/lib/upload/interface'
 import { getUUID } from 'ant-design-vue/es/vc-dialog/util'
+import { AxiosResponse } from 'axios'
 
 export function scoreTagColor(score: number): string {
   if (score >= 90) {
@@ -60,5 +61,26 @@ export function fileSrc2File(src: string): UploadFile {
     name,
     status: 'done',
     url: src
+  }
+}
+
+export function dataToFile(res: AxiosResponse) {
+  let fileName = decodeURI(res.headers['content-disposition'])
+  fileName = fileName.substring(fileName.indexOf('=') + 1, fileName.length)
+  const type = decodeURI(res.headers['content-type'])
+  const blob = new Blob([res.data], { type: type })
+  if ('download' in document.createElement('a')) {
+    // 非IE下载
+    const elink = document.createElement('a')
+    elink.download = fileName
+    elink.style.display = 'none'
+    elink.href = URL.createObjectURL(blob)
+    document.body.appendChild(elink)
+    elink.click()
+    URL.revokeObjectURL(elink.href) // 释放URL 对象
+    document.body.removeChild(elink)
+  } else {
+    // IE10+下载
+    // window.navigator.msSaveBlob(blob, fileName)
   }
 }

@@ -59,7 +59,6 @@
           </template>
           <template #replyArea="{ record }">
             <template v-if="openCommentArea[record.commentId]">
-              <!--<div  style="text-align: left">-->
               <a-comment>
                 <template #content>
                   <a-form-item>
@@ -68,25 +67,22 @@
                         :rows="4"
                     />
                   </a-form-item>
-                  <a-form-item class="replyButton">
-                    <a-button
-                        :loading="
+                  <a-form-item>
+                    <div class="replyButton">
+                      <a-button
+                          :loading="
                         queriesInsertCourseComment[record.commentId]?.loading
                       "
-                        type="primary"
-                        @click="handleReplyComment(record.commentId)"
-                        :disabled="
-                        replyCommentRecord[record.commentId] === undefined ||
-                        replyCommentRecord[record.commentId] === ''
-                      "
-                    >
-                      <form-outlined/>
-                      回复
-                    </a-button>
+                          type="primary"
+                          @click="handleReplyComment(record.commentId)"
+                      >
+                        <form-outlined/>
+                        回复
+                      </a-button>
+                    </div>
                   </a-form-item>
                 </template>
               </a-comment>
-              <!--</div>-->
             </template>
           </template>
         </comment-item>
@@ -105,7 +101,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import CommentItem from './CommentItem.vue'
 import { usePagination, useRequest } from 'vue-request'
 import {
@@ -119,7 +115,7 @@ import {
   apiListCourseComment,
   apiInsertCourseComment
 } from '../../api/web/comment'
-import { Empty, message, Modal } from 'ant-design-vue'
+import { Empty, message } from 'ant-design-vue'
 
 import { useStore } from '../../store'
 import { IUserInfo } from '../../store/modules/user/state'
@@ -135,7 +131,6 @@ const store = useStore()
 const userInfo = computed<IUserInfo>(() => store.getters['user/userInfo'])
 // 讨论相关
 const {
-  run: runListCourseComment,
   data: dataComment,
   loading: loadingComment,
   refresh: refreshCourseComment,
@@ -162,15 +157,14 @@ const handleChangeOpenCommentArea = (id: number) => {
 const {
   run: runInsertCourseComment,
   queries: queriesInsertCourseComment
-} =
-    useRequest(apiInsertCourseComment, {
-      queryKey: (insertCourseCommentReq) => String(insertCourseCommentReq.pid)
-    })
+} = useRequest(apiInsertCourseComment, {
+  queryKey: (insertCourseCommentReq) => String(insertCourseCommentReq.pid)
+})
 
 const replyCommentRecord = ref<Record<number, string>>({})
 const handleReplyComment = async(pid: number) => {
   const content = replyCommentRecord.value[pid]
-  if (replyCommentRecord.value[pid] === undefined || replyCommentRecord.value[pid] === '') {
+  if (content === undefined || content === '') {
     message.error('讨论内容不能为空')
     return
   }
@@ -196,37 +190,15 @@ const isAbleDelete = (userId: number) => {
 
 const {
   run: runDeleteCourseComment,
-  loading: loadingDeleteCourseComment,
   error: errorDeleteCourseComment
 } = useRequest(apiDeleteCourseComment)
 const handleDeleteComment = async(courseCommentId: number) => {
-  // Modal.confirm({
-  //   title: '确认删除讨论？',
-  //   icon: createVNode(ExclamationCircleOutlined),
-  //   content: '删除讨论将会删除在该讨论下的所有子讨论且不可恢复，请谨慎操作！',
-  //   okText: '确认',
-  //   okButtonProps: { loading: loadingDeleteCourseComment.value, danger: true },
-  //   onOk: async() => {
-  //     await runDeleteCourseComment({ courseCommentId })
-  //     if (errorDeleteCourseComment.value) {
-  //       return
-  //     }
-  //     await refreshCourseComment()
-  //   },
-  //   cancelText: '取消'
-  // })
   await runDeleteCourseComment({ courseCommentId })
   if (errorDeleteCourseComment.value) {
     return
   }
   await refreshCourseComment()
 }
-
-watch(props, () => {
-  runListCourseComment({
-    courseId: props.courseId
-  })
-})
 
 </script>
 
