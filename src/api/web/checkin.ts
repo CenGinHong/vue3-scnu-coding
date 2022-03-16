@@ -2,7 +2,7 @@ import {
   checkinReq,
   checkinStatusResp,
   exportCsvReq,
-  getCheckinDetailResp,
+  listCheckinDetailResp,
   getCheckinRecordReq,
   getCheckinStatusReq,
   insertCheckinRecordReq,
@@ -52,7 +52,7 @@ export function apiUpdateCheckinDetailByCheckinDetailId(
 export function apiListCheckinDetailByCheckinRecordId(
   params: listCheckinDetailByCheckinRecordIdReq
 ) {
-  return instance.get<Result<pageResp<getCheckinDetailResp>>>(
+  return instance.get<Result<pageResp<listCheckinDetailResp>>>(
     Api.checkinDetail,
     {
       params

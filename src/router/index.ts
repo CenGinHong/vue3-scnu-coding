@@ -5,10 +5,7 @@ import { IStore } from '../store/types'
 import Demo from '../components/web/Demo.vue'
 import { RoleEnum } from '../enums/roleEnum'
 import { useRequest } from 'vue-request'
-import {
-  apiGetIsCourseEnroll,
-  apiGetIsCourseOpenByTeacher
-} from '../api/web/course'
+import { apiGetIsCourseEnroll, apiGetIsCourseOpenByTeacher } from '../api/web/course'
 import { message } from 'ant-design-vue'
 import { createRouteGuards } from './routerGurad'
 import RouterTransition from '../components/web/RouterTransition.vue'
@@ -47,8 +44,31 @@ declare module 'vue-router' {
     interface RouteMeta {
         title: string
         // 每个路由都必须声明
-        requiresAuth: boolean
+        accessRole: RoleEnum[]
     }
+}
+
+const beforeEnterClass = async(to:any) => {
+  const courseId = Number(to.params.courseId)
+  const { data, run, error } = useRequest(
+    apiGetIsCourseOpenByTeacher,
+    {
+      formatResult: (res) => {
+        return res.data.result
+      }
+    }
+  )
+  await run({
+    courseId
+  })
+  if (error.value) {
+    return
+  }
+  // 不是这个老师开课阻止跳转
+  if (!data.value!.isOpen) {
+    message.error('该课程并非您所创建')
+    return false
+  }
 }
 
 export const routes: Array<RouteRecordRaw> = [
@@ -58,7 +78,7 @@ export const routes: Array<RouteRecordRaw> = [
     component: Demo,
     meta: {
       title: '测试',
-      requiresAuth: false
+      accessRole: [RoleEnum.TEACHER, RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.NORMAL]
     }
   },
   {
@@ -70,8 +90,8 @@ export const routes: Array<RouteRecordRaw> = [
     name: ROUTER_NAME.ERROR_404,
     component: () => import('../views/common/Error404.vue'),
     meta: {
-      requiresAuth: false,
-      title: '404错误'
+      title: '404错误',
+      accessRole: []
     }
   },
   {
@@ -80,7 +100,8 @@ export const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/common/Login.vue'),
     meta: {
       requiresAuth: false,
-      title: '登录'
+      title: '登录',
+      accessRole: []
     }
   },
   {
@@ -89,7 +110,8 @@ export const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/common/ForgetPassword.vue'),
     meta: {
       requiresAuth: false,
-      title: '找回密码'
+      title: '找回密码',
+      accessRole: []
     }
   },
   {
@@ -99,45 +121,33 @@ export const routes: Array<RouteRecordRaw> = [
     redirect: '/admin/user',
     meta: {
       title: '管理员',
-      requiresAuth: false
+      accessRole: [RoleEnum.ADMIN]
     },
     children: [
       {
         path: 'user',
         name: ROUTER_NAME.USER_MANAGEMENT,
         meta: {
-          requiresAuth: false,
-          title: '用户管理'
+          title: '用户管理',
+          accessRole: [RoleEnum.ADMIN]
         },
-        component: RouterTransition,
-        children: [
-          {
-            path: 'student',
-            name: ROUTER_NAME.STUDENT_MANAGEMENT,
-            meta: {
-              requiresAuth: false,
-              title: '学生管理',
-              isMenuItem: true
-            },
-            component: () => import('../components/admin/StudentInfoTable.vue')
-          }
-        ]
+        component: () => import('../components/admin/StudentInfoTable.vue'),
       },
       {
         path: 'course',
         name: ROUTER_NAME.COURSE_MANAGEMENT,
         component: () => import('../components/admin/CourseTable.vue'),
         meta: {
-          requiresAuth: false,
-          title: '课程管理'
+          title: '课程管理',
+          accessRole: [RoleEnum.ADMIN]
         }
       },
       {
         path: 'lab',
         name: ROUTER_NAME.LAB_MANAGEMENT,
         meta: {
-          requiresAuth: false,
-          title: '实验管理'
+          title: '实验管理',
+          accessRole: [RoleEnum.ADMIN]
         },
         component: () => import('../components/admin/LabTable.vue')
       },
@@ -145,8 +155,8 @@ export const routes: Array<RouteRecordRaw> = [
         path: 'container',
         name: ROUTER_NAME.CONTAINER_MANAGEMENT,
         meta: {
-          requiresAuth: false,
-          title: '容器管理'
+          title: '容器管理',
+          accessRole: [RoleEnum.ADMIN]
         },
         component: RouterTransition,
         children: [
@@ -154,7 +164,7 @@ export const routes: Array<RouteRecordRaw> = [
             path: 'info',
             name: ROUTER_NAME.CONTAINER_SERVER_INFO,
             meta: {
-              requiresAuth: false,
+              accessRole: [RoleEnum.ADMIN],
               title: '容器主机'
             },
             component: () => import('../components/admin/ContainerServerInfo.vue')
@@ -162,7 +172,7 @@ export const routes: Array<RouteRecordRaw> = [
             path: 'list',
             name: ROUTER_NAME.CONTAINER_LIST,
             meta: {
-              requiresAuth: false,
+              accessRole: [RoleEnum.ADMIN],
               title: '容器管理'
             },
             component: () => import('../components/admin/ContainerTable.vue')
@@ -185,7 +195,8 @@ export const routes: Array<RouteRecordRaw> = [
             component: () => import('../views/student/StudentHomePage.vue'),
             meta: {
               title: '学生主页',
-              requiresAuth: true
+              requiresAuth: true,
+              accessRole: [RoleEnum.STUDENT]
             }
           },
           {
@@ -195,7 +206,7 @@ export const routes: Array<RouteRecordRaw> = [
             props: true,
             meta: {
               title: '课程详情',
-              requiresAuth: true
+              accessRole: [RoleEnum.STUDENT]
             },
             beforeEnter: async(to) => {
               const courseId = Number(to.params.courseId)
@@ -222,7 +233,7 @@ export const routes: Array<RouteRecordRaw> = [
         component: () => import('../components/web/ReportWriteBoard.vue'),
         meta: {
           title: '实验报告',
-          requiresAuth: true
+          accessRole: [RoleEnum.TEACHER, RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.NORMAL]
         },
         props: route => ({
           labId: Number(route.query.labId)
@@ -234,7 +245,7 @@ export const routes: Array<RouteRecordRaw> = [
         component: () => import('../components/web/ReportReadBoard.vue'),
         meta: {
           title: '实验报告',
-          requiresAuth: true
+          accessRole: [RoleEnum.TEACHER, RoleEnum.ADMIN, RoleEnum.STUDENT, RoleEnum.NORMAL]
         },
         props: route => ({
           labId: Number(route.query.labId)
@@ -249,7 +260,7 @@ export const routes: Array<RouteRecordRaw> = [
             name: ROUTER_NAME.TEACHER_HOME_PAGE,
             meta: {
               title: '教师主页',
-              requiresAuth: true
+              accessRole: [RoleEnum.TEACHER]
             },
             component: () => import('../views/teacher/TeacherHomepage.vue')
           },
@@ -260,29 +271,7 @@ export const routes: Array<RouteRecordRaw> = [
             props: true,
             meta: {
               title: '课程详情',
-              requiresAuth: true
-            },
-            beforeEnter: async(to) => {
-              const courseId = Number(to.params.courseId)
-              const { data, run, error } = useRequest(
-                apiGetIsCourseOpenByTeacher,
-                {
-                  formatResult: (res) => {
-                    return res.data.result
-                  }
-                }
-              )
-              await run({
-                courseId
-              })
-              if (error.value) {
-                return
-              }
-              // 不是这个老师开课阻止跳转
-              if (!data.value!.isOpen) {
-                message.error('该课程并非您所创建')
-                return false
-              }
+              accessRole: [RoleEnum.TEACHER]
             }
           },
           {
@@ -292,7 +281,7 @@ export const routes: Array<RouteRecordRaw> = [
             props: true,
             meta: {
               title: '实验详情',
-              requiresAuth: true
+              accessRole: [RoleEnum.TEACHER]
             }
           }
         ]

@@ -1,19 +1,15 @@
 <template>
-<!--  <a-config-provider :locale="locale">-->
+  <a-config-provider :locale="locale">
     <router-view v-slot="{ Component }">
       <component :is="Component"/>
     </router-view>
-<!--  </a-config-provider>-->
-  <!--<router-view/>-->
-  <!--<img alt="Vue logo" src="./assets/logo.png" />-->
-  <!--<HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />-->
+  </a-config-provider>
 </template>
 
 <script lang="ts" setup>
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
-import HelloWorld from './components/HelloWorld.vue'
 
 dayjs.locale('zh-cn')
 

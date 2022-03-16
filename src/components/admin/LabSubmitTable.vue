@@ -133,7 +133,6 @@ const {
 } = usePagination(apiListLabSubmitByLabId, {
   manual: false,
   formatResult: res => {
-    console.log(res)
     return res.data.result
   },
   defaultParams: [

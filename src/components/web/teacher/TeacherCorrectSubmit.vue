@@ -266,7 +266,6 @@ const reportContent = ref<string>('')
 watch(
   () => selectedStudent.value,
   (newValue) => {
-    console.log(selectedStudent.value)
     if (newValue === '') {
       reportContent.value = ''
     } else {

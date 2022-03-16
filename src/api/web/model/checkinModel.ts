@@ -36,7 +36,7 @@ export interface listCheckinDetailByCheckinRecordIdReq extends pageParams {
   checkinRecordId: number
 }
 
-export interface getCheckinDetailResp {
+export interface listCheckinDetailResp {
   userId: number
   userDetail?: {
     userNum: string

@@ -156,7 +156,6 @@ const handleTableChange: TableProps['onChange'] = (
   filters: any,
   sorter: any
 ) => {
-  console.log(filters)
   for (const key in filters) {
     if (filters[key] === null) {
       delete filters[key]

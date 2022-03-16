@@ -1,2 +1,2 @@
-export { setupAntd } from './antd'
+export { setupAntdV } from './antd'
 export { setupVmd } from './v-md'

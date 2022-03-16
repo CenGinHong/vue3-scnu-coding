@@ -8,24 +8,15 @@
   </a-result>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+
+<script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { redirectToHomePage } from '../../router/routerGurad'
-import { RoleEnum } from '../../enums/roleEnum'
-import { ROUTER_NAME } from '../../router'
-export default defineComponent({
-  name: 'Error404',
-  setup() {
-    const router = useRouter()
-    const handleRouterToHomepage = () => {
-      router.push(redirectToHomePage())
-    }
-    return {
-      handleRouterToHomepage
-    }
-  }
-})
+
+const router = useRouter()
+const handleRouterToHomepage = () => {
+  router.push(redirectToHomePage())
+}
 </script>
 
 <style lang="scss" scoped>

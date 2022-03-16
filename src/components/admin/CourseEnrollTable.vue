@@ -37,6 +37,7 @@
       ok-text="导入"
       title="导入学生"
       @ok="handleImportStudent"
+      :row-key="rowKey"
   >
     <a-textarea
         v-model:value="importStudentNum"
@@ -70,10 +71,15 @@ import { ColumnType, TablePaginationConfig, TableProps } from 'ant-design-vue/es
 import { FilterValue, Key } from 'ant-design-vue/es/table/interface'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
+import {listCourseEnrollResp} from "../../api/admin/model/courseModel";
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   courseId: number
 }>()
+
+const rowKey = (record: listCourseEnrollResp) => {
+  return record.userId
+}
 
 const columns = computed<ColumnType[]>(() => [
   {

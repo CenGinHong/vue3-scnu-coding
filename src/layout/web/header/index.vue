@@ -44,17 +44,12 @@ import {
 } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 import { useRequest } from 'vue-request'
-import { TOKEN_KEY } from '../../../enums/cacheEnum'
 import { useStore } from '../../../store'
 import { RoleEnum } from '../../../enums/roleEnum'
 import { ROUTER_NAME } from '../../../router'
 import { IUserInfo } from '../../../store/modules/user/state'
-import { apiUpdateLab } from '../../../api/web/lab'
 import { apiLogout } from '../../../api/web/user'
-
-interface IState {
-  username: string
-}
+import {redirectToHomePage} from "../../../router/routerGurad";
 
 const router = useRouter()
 const route = useRoute()
@@ -62,16 +57,9 @@ const store = useStore()
 const userInfo = computed<IUserInfo>(() => store.getters['user/userInfo'])
 
 const handleRouterToHomePage = () => {
-  const role = store.getters['user/role']
-  if (role === RoleEnum.TEACHER) {
-    router.push({
-      name: ROUTER_NAME.TEACHER_HOME_PAGE
-    })
-  } else if (role === RoleEnum.STUDENT) {
-    router.push({
-      name: ROUTER_NAME.STUDENT_HOME_PAGE
-    })
-  }
+  router.push({
+    name: redirectToHomePage()
+  })
 }
 
 const { run: runLogout, error: errLogout } = useRequest(apiLogout)
@@ -83,14 +71,10 @@ const doLogout = () => {
     onOk: async() => {
       await runLogout()
       if (!errLogout.value) {
-        message.success('成功退出登录')
-        localStorage.removeItem(TOKEN_KEY)
+        store.commit('user/setToken', '')
         // 重定向
         await router.replace({
-          name: 'login',
-          query: {
-            redirect: route.fullPath
-          }
+          name: ROUTER_NAME.LOGIN
         })
       }
     }

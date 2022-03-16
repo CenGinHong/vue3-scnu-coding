@@ -42,13 +42,14 @@
   </a-list>
 </template>
 <script lang="ts" setup>
-import { ComputedRef, UnwrapRef } from 'vue'
+import {computed, ComputedRef, UnwrapRef} from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from '../../store'
 import { RoleEnum } from '../../enums/roleEnum'
 import { ROUTER_NAME } from '../../router'
 import { listCourseResp } from '../../api/web/model/courseModel'
 import { TablePaginationConfig } from 'ant-design-vue/es/table/Table'
+import {IUserInfo} from "../../store/modules/user/state";
 
 // eslint-disable-next-line no-undef
 const props = withDefaults(
@@ -64,9 +65,9 @@ const props = withDefaults(
 )
 const store = useStore()
 const router = useRouter()
-const userInfo = store.getters['user/userInfo']
+const userInfo = computed<IUserInfo>(() => store.getters['user/userInfo'])
 const routerToDetail = (courseId: number) => {
-  switch (userInfo.roleId) {
+  switch (userInfo.value.roleId) {
     case RoleEnum.TEACHER: {
       router.push({
         name: ROUTER_NAME.TEACHER_COURSE_DETAIL,

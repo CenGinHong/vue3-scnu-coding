@@ -82,6 +82,7 @@ const {
   data: dataCourseAnnouncement,
   loading: loadingCourseAnnouncement,
   refresh: refreshCourseAnnouncement,
+    error:errRefreshList,
   pageSize,
   current,
   total
@@ -103,8 +104,12 @@ const {
   ]
 })
 
-const handleRefresh = () => {
-  refreshCourseAnnouncement()
+const handleRefresh = async () => {
+  await refreshCourseAnnouncement()
+  if (errRefreshList.value) {
+    return
+  }
+  message.success('刷新成功')
 }
 
 // 分页数据

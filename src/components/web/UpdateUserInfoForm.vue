@@ -100,8 +100,6 @@ const genderRadioOption: radioOption[] = [
   }
 ]
 
-const store = useStore()
-
 // 更新用户数据
 const updateUserInfoState = reactive<updateUserInfoReq>({
   username: '',

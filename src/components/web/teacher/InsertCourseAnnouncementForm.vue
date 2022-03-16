@@ -92,7 +92,6 @@ const prepareInsertData = (): FormData => {
   formData.set('content', insertAnnouncementState.content)
   formData.set('courseId', String(props.courseId))
   if (fileList.value.length > 0) {
-    console.log(fileList.value[0])
     formData.set('file', fileList.value[0] as any)
   }
   return formData

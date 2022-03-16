@@ -15,7 +15,7 @@
     </template>
     <!--内容-->
     <template #content>
-      <div :class="style.content">
+      <div class="content">
         <p>{{ commentInfo.commentText }}</p>
       </div>
     </template>
@@ -31,10 +31,10 @@
       >
         <comment-item :commentInfo="item">
           <template #actions="{ record }">
-<!--            <slot name="actions" :record="record"></slot>-->
+            <slot name="actions" :record="record"></slot>
           </template>
           <template #replyArea="{ record }">
-<!--            <slot name="replyArea" :record="record"></slot>-->
+            <slot name="replyArea" :record="record"></slot>
           </template>
         </comment-item>
       </template>
@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useCssModule } from 'vue'
+import {computed, useCssModule} from 'vue'
 import {
   CommentOutlined,
   DeleteOutlined,
@@ -51,6 +51,7 @@ import {
 } from '@ant-design/icons-vue'
 import { commentResp } from '../../api/web/model/commentModel'
 import { useStore } from '../../store'
+import {IUserInfo} from "../../store/modules/user/state";
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -58,11 +59,10 @@ const props = defineProps<{
 }>()
 
 const store = useStore()
-const userInfo = store.getters['user/userInfo']
-const style = useCssModule()
+const userInfo = computed<IUserInfo>(() => store.getters['user/userInfo'])
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .content {
   color: black;
   text-align: left;

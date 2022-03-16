@@ -83,6 +83,7 @@ import { ROUTER_NAME } from '../../../router'
 import { fileSrc2File } from '../../../util/utils'
 import InsertLabModal from './InsertLabForm.vue'
 import UpdateLabModal from './UpdateLabForm.vue'
+import { message } from 'ant-design-vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -95,6 +96,7 @@ const {
   data: dataListLab,
   loading: loadingListLab,
   refresh: refreshListLab,
+  error: errRefreshListLab,
   total,
   current,
   pageSize
@@ -111,14 +113,18 @@ const {
   },
   defaultParams: [
     {
-      pageSize: 3 ,
+      pageSize: 3,
       courseId: props.courseId
     }
   ]
 })
 
-const handleRefresh = () => {
-  refreshListLab()
+const handleRefresh = async() => {
+  await refreshListLab()
+  if (errRefreshListLab.value) {
+    return
+  }
+  message.success('刷新成功')
 }
 
 // 分页数据
@@ -149,7 +155,7 @@ const visibleModalInsertLab = ref<boolean>(false)
 const updateLabId = ref<number>(0)
 
 // 弹出修改框
-const handleShowUpdateLab = (labId:number) => {
+const handleShowUpdateLab = (labId: number) => {
   updateLabId.value = labId
   visibleModalUpdate.value = true
 }

@@ -103,19 +103,9 @@ const handleLogin = async() => {
   // 存起来token
   store.commit('user/setToken', dataLogin.value!.token)
   store.dispatch('user/getUserInfo').then(() => {
-    const to = redirectToHomePage()
-    router.push(to)
-    // console.log(123)
-    // // 跳转到登陆前想要访问的页面
-    // if (route.query?.redirect) {
-    //   console.log(789)
-    //   const toPath = decodeURIComponent(route.query!.redirect as string)
-    //   router.replace(toPath)
-    // } else {
-    //   console.log(456)
-    //   // 跳转到该身份首页
-    //
-    // }
+    router.push({
+      name: redirectToHomePage()
+    })
   })
 }
 

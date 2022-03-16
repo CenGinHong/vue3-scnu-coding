@@ -1,5 +1,5 @@
 <template>
-  <div :class="style.btnArea">
+  <div class="btnArea">
     <a-space>
       <a-button type="primary" @click="visibleModalAddStudent = true">
         <user-add-outlined/>
@@ -16,14 +16,12 @@
     </a-space>
   </div>
   <a-table
+      :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
       :columns="columns"
       :data-source="dataListCourseOverview?.records"
       :loading="loadingListCourseOverview"
       :pagination="pag"
-      :row-selection="{
-      selectedRowKeys: selectedRowKeys,
-      onChange: onSelectChange,
-    }"
+      :row-key="rowKey"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'checkinDetail'">
@@ -133,7 +131,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, createVNode, ref, useCssModule } from 'vue'
+import { computed, createVNode, ref } from 'vue'
 import { ITransfer } from '../../../api/common'
 import { usePagination, useRequest } from 'vue-request'
 import {
@@ -149,13 +147,19 @@ import {
 } from '@ant-design/icons-vue'
 import { message, Modal, TablePaginationConfig } from 'ant-design-vue'
 
-import {dataToFile, scoreTagColor} from '../../../util/utils'
+import { dataToFile, scoreTagColor } from '../../../util/utils'
 import {
   apiListLabByCourseId
 } from '../../../api/web/lab'
 import { apiExportScore } from '../../../api/web/labSubmit'
 import { ColumnType } from 'ant-design-vue/es/table'
 import CodingTimeDiv from '../CodingTimeDiv.vue'
+import { Key } from 'ant-design-vue/es/table/interface'
+import { listCourseStudentOverviewResp } from '../../../api/web/model/courseModel'
+
+const rowKey = (record: listCourseStudentOverviewResp) => {
+  return record.userId
+}
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -242,9 +246,11 @@ const pag = computed<TablePaginationConfig>(() => ({
 }))
 
 // 选中要删除的学生
-const selectedRowKeys = ref<number[]>([])
+const selectedRowKeys = ref<Key[]>([])
+
 const hasSelected = computed<boolean>(() => selectedRowKeys.value.length === 0)
-const onSelectChange = (keys: number[]) => {
+
+const onSelectChange = (keys: Key[]) => {
   selectedRowKeys.value = keys
 }
 
@@ -326,7 +332,6 @@ const handleShowCodingTime = (userId: number) => {
 }
 
 const handleClickChange = (studentId: number) => {
-  console.log(studentId)
   runListOneStudentScore({
     userId: studentId,
     courseId: props.courseId
@@ -490,10 +495,9 @@ const handleExportScore = () => {
   })
 }
 
-const style = useCssModule()
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .btnArea {
   display: flex;
   margin-bottom: 20px;

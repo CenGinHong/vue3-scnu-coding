@@ -22,7 +22,7 @@
       :loading="loadingListCheckinRecord"
       :pag="pagListCheckinRecord"
       :pagination="pagListCheckinRecord"
-
+      :row-key="TableRowKey"
       @expandedRowsChange="expandedRowKeysChange"
   >
     <template #bodyCell="{ column, record }">
@@ -53,6 +53,7 @@
           :expanded-row-keys="expendedRowKeys"
           :loading="loadingListCheckinDetail"
           :pagination="pagListCheckinDetail"
+          :row-key="subTableRowKey"
           size="small"
       >
         <template #bodyCell="{ column, record }">
@@ -87,7 +88,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, createVNode, ref, useCssModule } from 'vue'
+import { computed, ref } from 'vue'
 import { usePagination, useRequest } from 'vue-request'
 import {
   apiDeleteCheckinRecords,
@@ -97,6 +98,7 @@ import {
   apiExportCsv
 } from '../../../api/web/checkin'
 import {
+  listCheckinDetailResp,
   listCheckinRecordResp
 } from '../../../api/web/model/checkinModel'
 import dayjs from 'dayjs'
@@ -107,10 +109,10 @@ import {
   ReloadOutlined,
   ExportOutlined
 } from '@ant-design/icons-vue'
-import { Modal } from 'ant-design-vue'
 import InsertCheckinForm from './InsertCheckinForm.vue'
 import { ColumnType } from 'ant-design-vue/es/table'
-import {dataToFile} from "../../../util/utils";
+import { dataToFile } from '../../../util/utils'
+import { message } from 'ant-design-vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -176,8 +178,12 @@ const pagListCheckinRecord = computed(() => ({
 }))
 
 // 刷新签到记录
-const handleRefreshListCheckinRecord = () => {
-  refreshListCheckinRecord()
+const handleRefreshListCheckinRecord = async() => {
+  await refreshListCheckinRecord()
+  if (errDeleteCheckinRecords.value) {
+    return
+  }
+  message.success('刷新成功')
 }
 
 // 签到详情
@@ -241,7 +247,7 @@ const pagListCheckinDetail = computed(() => ({
 
 const {
   run: runExportToExcel,
-  loading: loadingExportToExcel,
+  loading: loadingExportToExcel
 } = useRequest(apiExportCsv, {
   onSuccess: res => {
     dataToFile(res)
@@ -311,6 +317,13 @@ const handleDeleteCheckinRecords = async(id: number) => {
 const handleFinishInsert = () => {
   visibleModal.value = false
   refreshListCheckinRecord()
+}
+
+const TableRowKey = (record :listCheckinRecordResp) => {
+  return record.checkinRecordId
+}
+const subTableRowKey = (record :listCheckinDetailResp) => {
+  return record.checkinDetail?.checkinDetailId
 }
 
 </script>

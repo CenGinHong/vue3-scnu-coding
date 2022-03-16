@@ -110,7 +110,6 @@ const { data: dataIDE, refresh: refreshListIDE, loading: loadingIDE, pageSize, c
     usePagination(apiListAllIDE, {
       manual: false,
       formatResult: (res) => {
-        console.log(res)
         return res.data.result
       }
     })

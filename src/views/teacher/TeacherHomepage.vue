@@ -9,7 +9,7 @@
           <edit-outlined @click="handleShowDrawer"/>
           <code-sandbox-outlined @click="visibleModalOpenIDE = true"/>
         </template>
-        <a-card-meta description="This is the description" title="陈健航">
+        <a-card-meta :title="userInfo.username">
           <template #avatar>
             <a-avatar
                 src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
@@ -18,8 +18,7 @@
         </a-card-meta>
       </a-card>
     </a-col>
-    <a-col :span="1"></a-col>
-    <a-col :span="14" class="col1">
+    <a-col :span="14" :offset="1" class="col1">
       <teacher-course-list/>
 <!--      <a-tabs v-model:activeKey="tabsActiveKey" size="large">-->
 <!--        <a-tab-pane key="1" tab="我的课程">-->
@@ -31,28 +30,28 @@
   </a-row>
   <a-modal
       title="个人信息"
-      width="420px"
+      width="520px"
       :footer="null"
-      v-model:visible="visibleDrawer">
+      v-model:visible="visibleModal">
     <update-user-info-form/>
   </a-modal>
 </template>
 
 <script lang="ts" setup>
 import { EditOutlined, CodeSandboxOutlined } from '@ant-design/icons-vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRequest } from 'vue-request'
 import { OpenIDE } from '../../api/web/ide'
 import { radioOption } from '../../api/common'
-import { message } from 'ant-design-vue'
 import TeacherCourseList from '../../components/web/teacher/TeacherCourseList.vue'
 import UpdateUserInfoForm from '../../components/web/UpdateUserInfoForm.vue'
 import { useStore } from '../../store'
+import {IUserInfo} from '../../store/modules/user/state'
 
 const tabsActiveKey = ref<string>('1')
 
 const store = useStore()
-const userInfo = store.getters['user/userInfo']
+const userInfo = computed<IUserInfo>(() => store.getters['user/userInfo'])
 
 // 语言框可见
 const visibleModalOpenIDE = ref<boolean>(false)
@@ -99,10 +98,11 @@ const languageRadioOption: radioOption[] = [
 
 const visibleUpdateUserInfo = ref<boolean>(false)
 
-const visibleDrawer = ref<boolean>(false)
+const visibleModal = ref<boolean>(false)
 
 const handleShowDrawer = () => {
-  visibleDrawer.value = true
+  // visibleModal.value = true
+  console.log(userInfo)
 }
 
 </script>

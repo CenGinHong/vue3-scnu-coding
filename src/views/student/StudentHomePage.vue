@@ -58,7 +58,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, useCssModule } from 'vue'
+import { computed, ref } from 'vue'
 import { useRequest } from 'vue-request'
 import { OpenIDE } from '../../api/web/ide'
 import {

@@ -1,5 +1,6 @@
 import { pageParams } from '../../common'
 import { Dayjs } from 'dayjs'
+import {Key} from "ant-design-vue/es/table/interface";
 
 export interface listCourseResp {
   courseId: number
@@ -124,7 +125,7 @@ export interface insertStudent2ClassResp {
 }
 
 export interface removeFromClassReq {
-  userIds: number[]
+  userIds: Key[]
   courseId: number
 }
 

@@ -15,13 +15,13 @@
           <teacher-announcement-list :course-id="Number(courseId)"/>
         </a-tab-pane>
         <a-tab-pane key="4" tab="课程讨论">
-            <course-comment :course-id="Number(courseId)"/>
+          <course-comment :course-id="Number(courseId)"/>
         </a-tab-pane>
         <a-tab-pane key="5" tab="课程签到">
-            <teacher-checkin-table :course-id="Number(courseId)"/>
+          <teacher-checkin-table :course-id="Number(courseId)"/>
         </a-tab-pane>
         <a-tab-pane key="6" tab="学生管理">
-            <teacher-course-overview-table :course-id="Number(courseId)"/>
+          <teacher-course-overview-table :course-id="Number(courseId)"/>
         </a-tab-pane>
       </a-tabs>
     </a-col>
@@ -30,7 +30,6 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
 import TeacherLabList from '../../components/web/teacher/TeacherLabList.vue'
 import TeacherCheckinTable from '../../components/web/teacher/TeacherCheckinTable.vue'
 import CourseComment from '../../components/web/CourseComment.vue'
@@ -48,7 +47,6 @@ const props = defineProps<{
 const visibleModalUpdateCourse = ref<boolean>(false)
 
 const tabsActiveKey = ref<string>('2')
-const route = useRoute()
 </script>
 
 <style lang="scss" scoped>
@@ -72,5 +70,3 @@ const route = useRoute()
   }
 }
 </style>
-
-

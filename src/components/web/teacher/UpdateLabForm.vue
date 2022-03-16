@@ -10,7 +10,7 @@
         <a-input v-model:value="updateLabState.title"/>
       </a-form-item>
       <a-form-item label="实验内容" name="content">
-        <a-textarea v-model:value="updateLabState.content" rows="4"/>
+        <a-textarea v-model:value="updateLabState.content" :rows="4"/>
       </a-form-item>
       <a-form-item label="截止日期">
         <a-date-picker
