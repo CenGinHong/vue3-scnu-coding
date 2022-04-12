@@ -31,10 +31,10 @@
       >
         <comment-item :commentInfo="item">
           <template #actions="{ record }">
-            <slot name="actions" :record="record"></slot>
+<!--            <slot name="actions" :record="record"></slot>-->
           </template>
           <template #replyArea="{ record }">
-            <slot name="replyArea" :record="record"></slot>
+<!--            <slot name="replyArea" :record="record"></slot>-->
           </template>
         </comment-item>
       </template>

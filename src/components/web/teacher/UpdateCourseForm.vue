@@ -14,7 +14,7 @@
             v-model:value="updateCourseState.courseDes"
             :maxlength="250"
             allow-clear
-            rows="8"
+            :rows="8"
             showCount
         />
       </a-form-item>
@@ -64,7 +64,6 @@ import { fileSrc2File } from '../../../util/utils'
 import { useForm } from 'ant-design-vue/es/form'
 import UploadImageModal from '../../common/UploadImageModal.vue'
 import { useRouter } from 'vue-router'
-import { ROUTER_NAME } from '../../../router'
 import { RuleObject } from 'ant-design-vue/es/form/interface'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { UploadFile } from 'ant-design-vue/es/upload/interface'

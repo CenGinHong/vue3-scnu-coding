@@ -807,10 +807,10 @@ ant-design-vue@^2.2.8:
     vue-types "^3.0.0"
     warning "^4.0.0"
 
-ant-design-vue@^3.1.0-rc.0:
-  version "3.1.0-rc.0"
-  resolved "https://registry.npmmirror.com/ant-design-vue/-/ant-design-vue-3.1.0-rc.0.tgz#8759bde685c747859160c474d67f8a51dacc3a6b"
-  integrity sha512-HbMMSEBBS5g8yNm/Ol4Kop48zNFEzTY0w/nZRq776NLX+Rg0Kko9ie93NZr6hKuS/d0bJNKll6I/WC5krIWsBg==
+ant-design-vue@^3.1.0-rc.2:
+  version "3.1.0-rc.2"
+  resolved "https://registry.npmmirror.com/ant-design-vue/-/ant-design-vue-3.1.0-rc.2.tgz#3b133622fab3bf3c053e417f47484d03585ec452"
+  integrity sha512-WZIvhgWsKyQnUQ+UTxDxsZZxN+DJCgGGOtfjO3sui6xroOM1YTaJzWXDSm9nvcJ7bWsrfjpZOGVBKG6JseFnGw==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons-vue" "^6.1.0"

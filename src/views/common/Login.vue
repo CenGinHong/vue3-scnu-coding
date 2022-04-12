@@ -1,11 +1,11 @@
 <template>
-  <div :class="style.outer">
-    <div :class="style.loginLogo">
+  <div class="outer">
+    <div class="loginLogo">
       <img src="/src/assets/logo.gif"/>
       <h1>SCNU-CODING</h1>
     </div>
     <a-form
-        :class="style.form"
+        class="form"
         :model="loginState"
         :rules="rules"
         layout="horizontal"
@@ -44,7 +44,7 @@
         >登录
         </a-button>
       </a-form-item>
-      <a :class="style.forgetPassword" @click="handleRouterToForgetPassword"
+      <a class="forgetPassword" @click="handleRouterToForgetPassword"
       >忘记密码？</a
       >
     </a-form>
@@ -52,10 +52,10 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, useCssModule } from 'vue'
+import { reactive } from 'vue'
 import { LockOutlined, UserOutlined } from '@ant-design/icons-vue'
 import { useRequest } from 'vue-request'
-import { apiLogin } from '../../api/web/user'
+import { apiGetUserInfo, apiLogin } from '../../api/web/user'
 import { loginReq } from '../../api/web/model/userModel'
 import { useStore } from '../../store'
 import { useRoute, useRouter } from 'vue-router'
@@ -63,7 +63,6 @@ import { redirectToHomePage } from '../../router/routerGurad'
 import { ROUTER_NAME } from '../../router'
 import { RuleObject } from 'ant-design-vue/es/form/interface'
 
-const style = useCssModule()
 const store = useStore()
 const router = useRouter()
 const route = useRoute()
@@ -95,6 +94,13 @@ const {
     return res.data.result
   }
 })
+
+const { data: dataUserInfo, run: runGetUserInfo } = useRequest(apiGetUserInfo, {
+  formatResult: (res) => {
+    return res.data.result
+  }
+})
+
 const handleLogin = async() => {
   await runLogin(loginState)
   if (errLogin.value) {
@@ -102,10 +108,10 @@ const handleLogin = async() => {
   }
   // 存起来token
   store.commit('user/setToken', dataLogin.value!.token)
-  store.dispatch('user/getUserInfo').then(() => {
-    router.push({
-      name: redirectToHomePage()
-    })
+  await runGetUserInfo()
+  store.commit('user/setUserInfo', dataUserInfo.value)
+  await router.push({
+    name: redirectToHomePage()
   })
 }
 
@@ -116,7 +122,7 @@ const handleRouterToForgetPassword = () => {
 }
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .outer {
   width: 100vw;
   height: 100vh;

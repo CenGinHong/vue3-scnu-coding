@@ -6,7 +6,7 @@
           <img alt="example" src="/src/assets/gate.jpg"/>
         </template>
         <template #actions>
-          <edit-outlined @click="handleShowDrawer"/>
+          <edit-outlined @click="handleShowModal"/>
           <code-sandbox-outlined @click="visibleModalOpenIDE = true"/>
         </template>
         <a-card-meta :title="userInfo.username">
@@ -100,9 +100,8 @@ const visibleUpdateUserInfo = ref<boolean>(false)
 
 const visibleModal = ref<boolean>(false)
 
-const handleShowDrawer = () => {
-  // visibleModal.value = true
-  console.log(userInfo)
+const handleShowModal = () => {
+  visibleModal.value = true
 }
 
 </script>

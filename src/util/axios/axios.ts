@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 import { ResultEnum } from '../../enums/httpEnum'
 import store from '../../store'
 import { message } from 'ant-design-vue'
@@ -6,22 +6,21 @@ import { message } from 'ant-design-vue'
 // export const baseURL = 'http://10.50.3.213:8199'
 export const baseURL = 'http://localhost:8199'
 
-axios.defaults.headers.post['Content-Type'] = 'application/json'
-axios.defaults.headers.patch['Content-Type'] = 'application/json'
-axios.defaults.headers.put['Content-Type'] = 'application/json'
-
 const instance = axios.create({
   baseURL: baseURL,
   // baseURL: 'http://127.0.0.1:4523/mock/386173',
   timeout: 30000,
-  responseType: 'json'
+  responseType: 'json',
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 instance.interceptors.request.use(
-  (config: any) => {
+  (config: AxiosRequestConfig) => {
     const token: string = store.getters['user/token']
     if (token && token !== '') {
-      config.headers.Authorization = 'Bearer ' + token
+      config.headers!.Authorization = 'Bearer ' + token
     }
     return config
   },

@@ -12,7 +12,7 @@
       <a-form-item label="公告内容" name="content">
         <a-textarea
             v-model:value="updateCourseAnnouncementState.content"
-            rows="5"
+            :rows="5"
         />
       </a-form-item>
       <a-form-item label="上传附件">
@@ -31,7 +31,6 @@
       </a-form-item>
       <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
         <a-space>
-
           <a-button type="primary" @click="handleUpdateCourseAnnouncement"
                     :loading="loadingUpdateCourseAnnouncement || loadingUpload">
             <form-outlined/>

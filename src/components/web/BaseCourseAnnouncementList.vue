@@ -1,5 +1,5 @@
 <template>
-  <div :class="style.outer">
+  <div class="outer">
     <a-list
       :data-source="dataCourse"
       :loading="loading"
@@ -14,12 +14,12 @@
           </template>
           <a-list-item-meta :title="item.title">
             <template #title>
-              <div :class="style.announcementTitle">
+              <div class="announcementTitle">
                 <p>{{ item.title }}</p>
               </div>
             </template>
           </a-list-item-meta>
-          <p :class="style.announcementContent">{{ item.content }}</p>
+          <p class="announcementContent">{{ item.content }}</p>
           <p>更新日期：{{ dayjs(item.updatedAt).format('YYYY-MM-DD') }}</p>
           <a-upload :file-list="item.fileList" :showUploadList = "{ showRemoveIcon: false }" />
         </a-list-item>
@@ -50,10 +50,9 @@ const props = withDefaults(
   }
 )
 
-const style = useCssModule()
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .outer {
   text-align: left;
 

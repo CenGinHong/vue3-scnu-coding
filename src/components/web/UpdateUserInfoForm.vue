@@ -48,6 +48,7 @@
         <a-input-password
             v-model:value="updateUserInfoState.oldPassword"
             placeholder="当需要修改密码时需要验证新密码"
+            autocomplete="off"
         />
       </a-form-item>
       <a-form-item label="新密码" name="newPassword">
@@ -55,6 +56,7 @@
             v-model:value="updateUserInfoState.password"
             :disabled="updateUserInfoState.oldPassword === ''"
             placeholder="输入新密码"
+            autocomplete="off"
         />
       </a-form-item>
       <a-form-item label="重复新密码" name="repeatPassword">
@@ -62,6 +64,7 @@
             v-model:value="repeatPassword"
             :disabled="updateUserInfoState.oldPassword === ''"
             placeholder="确认新密码"
+            autocomplete="off"
         />
       </a-form-item>
       <a-form-item :wrapper-col="{ span: 14, offset: 4 }">
@@ -82,6 +85,8 @@ import { RuleObject, StoreValue } from 'ant-design-vue/es/form/interface'
 import { reactive, ref } from 'vue'
 import { updateUserInfoReq } from '../../api/web/model/userModel'
 import { radioOption } from '../../api/common'
+import {useForm} from "ant-design-vue/es/form";
+import {message} from "ant-design-vue";
 
 // eslint-disable-next-line no-undef
 const emits = defineEmits<{
@@ -163,7 +168,7 @@ const rules = reactive<Record<string, RuleObject[]>>({
   verCode: [
     { pattern: /^\d{6}$/, message: '验证码为6为纯数字' },
     {
-      validator: (rule: RuleObject, value: StoreValue) => {
+      validator: (rule: RuleObject, value: string) => {
         if (
           updateUserInfoState.email !== dataGetUserInfo.value?.email &&
             value === ''
@@ -182,8 +187,8 @@ const rules = reactive<Record<string, RuleObject[]>>({
   ],
   repeatPassword: [
     {
-      validator: (rule: RuleObject, value: StoreValue) => {
-        if (value !== updateUserInfoState.password) {
+      validator: (_rule: RuleObject, _value: string) => {
+        if (repeatPassword.value !== updateUserInfoState.password) {
           return Promise.reject(new Error('两次输入的密码不一致'))
         }
         return Promise.resolve()
@@ -195,8 +200,17 @@ const rules = reactive<Record<string, RuleObject[]>>({
 const { run: runUpdateUserInfo, loading: loadingUpdateUserInfo, error: errUpdateUserInfo } =
     useRequest(apiUpdateUserInfo)
 
+// 校验规则
+const { validate } = useForm(updateUserInfoState, rules)
+
 // 更新数据
 const handleUpdateUserInfo = async() => {
+  try {
+    validate()
+  } catch (err) {
+    message.error('输入数据不满足提交要求')
+    return
+  }
   await runUpdateUserInfo(updateUserInfoState)
   if (errUpdateUserInfo.value) {
     return

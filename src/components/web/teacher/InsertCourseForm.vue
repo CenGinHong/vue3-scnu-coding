@@ -13,7 +13,7 @@
           v-model:value="insertCourseState.courseDes"
           :maxlength="250"
           allow-clear
-          rows="5"
+          :rows="5"
           showCount
       />
     </a-form-item>
@@ -43,9 +43,6 @@
       </a-space>
     </a-form-item>
   </a-form>
-  <a-button @click="handlei">
-    123
-  </a-button>
 </template>
 
 <script lang="ts" setup>
@@ -65,10 +62,6 @@ import { UploadFile } from 'ant-design-vue/es/upload/interface'
 const emits = defineEmits<{
   (e: 'finish'): void
 }>()
-
-const handlei = () => {
-  console.log(fileList.value)
-}
 
 const insertCourseState = reactive<createCourseReq>({
   courseName: '',

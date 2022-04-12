@@ -7,7 +7,7 @@
     <template #actions="{ item, index }">
       <!--ide编写按钮-->
       <a-button
-          :class="style.ideBtu"
+          class="ideBtu"
           type="link"
           @click="handleOpenIDE(item.labId)"
       >
@@ -16,7 +16,7 @@
       </a-button>
       <!--点击按钮-->
       <a-button
-          :class="style.editBtu"
+          class="editBtu"
           type="link"
           @click="handleRouteToReportWriteBoard(item.labId, item.deadline)"
       >
@@ -25,7 +25,7 @@
         {{ isDeadLineAfter(item.deadline) ? '查看实验报告' : '编写实验报告' }}
       </a-button>
       <a-button
-          :class="style.commentBtu"
+          class="commentBtu"
           type="link"
           @click="handleShowComment(item.labId)"
       >
@@ -212,10 +212,9 @@ const visibleCommentModal = ref<boolean>(false)
 const commentLabId = ref<number>(0)
 
 const fileList: any[] = []
-const style = useCssModule()
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
 .ideBtu {
   margin-left: -15px;
 }
